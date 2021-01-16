@@ -20,6 +20,7 @@ colorer
   FLOAT : green
   STRING : blue
   _.Vec : orange
+  _.Selector : orange
 
 menus
   
