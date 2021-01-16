@@ -81,6 +81,8 @@ context-free syntax
     Expr.And = <<Expr-I> and <Expr-I>>
     Expr.Or = <<Expr-I> or <Expr-I>>
 
+    Expr.Not = <not <Expr-I>>
+
     Expr.Cmp = <<Expr-I> <Compare> <Expr-I>>
     Compare.CmpGt = [>]
     Compare.CmpGte = [>=]
@@ -89,6 +91,7 @@ context-free syntax
     Compare.CmpEqual = [==]
     Compare.CmpEquiv = [eq] 
     Compare.CmpIs = [is]
+    Compare.CmpMatches = [matches]
 
 lexical syntax
 
