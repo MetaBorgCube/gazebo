@@ -1,0 +1,8 @@
+Start(
+  []
+, [DeclVar(
+     []
+   , "a"
+   , ResourceBare(TRIdentAonymous(NSIDRel(NSIDName(["a"]))))
+   )]
+)

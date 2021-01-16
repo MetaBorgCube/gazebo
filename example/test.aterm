@@ -1,0 +1,222 @@
+Start(
+  [ Use(NSIDRel(NSIDName(["entity", "kill"])))
+  , Use(NSIDRel(NSIDName(["entity", "summon"])))
+  , Use(NSID("util", NSIDName(["geometry", "rect"])))
+  , Use(NSIDRel(NSIDName(["world", "setblock"])))
+  ]
+, [ amb(
+      [ [ amb(
+            [ [ DeclVar(
+                  [ModConst()]
+                , "origin_1"
+                , Vec(
+                    VecElemAbs(NumI("-8"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("-8"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "origin_2"
+                , Vec(
+                    VecElemAbs(NumI("24"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("24"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_alive"
+                , ResourceConfigured(TRIdentAonymous(NSIDRel(NSIDName(["black_wool"]))), None(), None())
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_dead"
+                , ResourceConfigured(TRIdentAonymous(NSIDRel(NSIDName(["white_wool"]))), None(), None())
+                )
+              ]
+            , [ DeclVar(
+                  [ModConst()]
+                , "origin_1"
+                , Vec(
+                    VecElemAbs(NumI("-8"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("-8"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "origin_2"
+                , Vec(
+                    VecElemAbs(NumI("24"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("24"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_alive"
+                , ResourceBare(TRIdentAonymous(NSIDRel(NSIDName(["black_wool"]))))
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_dead"
+                , ResourceConfigured(TRIdentAonymous(NSIDRel(NSIDName(["white_wool"]))), None(), None())
+                )
+              ]
+            ]
+          )
+        , DeclVar([ModConst()], "tag_transition_birth", String("\"transition_birth\""))
+        ]
+      , [ amb(
+            [ [ DeclVar(
+                  [ModConst()]
+                , "origin_1"
+                , Vec(
+                    VecElemAbs(NumI("-8"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("-8"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "origin_2"
+                , Vec(
+                    VecElemAbs(NumI("24"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("24"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_alive"
+                , ResourceConfigured(TRIdentAonymous(NSIDRel(NSIDName(["black_wool"]))), None(), None())
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_dead"
+                , ResourceBare(TRIdentAonymous(NSIDRel(NSIDName(["white_wool"]))))
+                )
+              ]
+            , [ DeclVar(
+                  [ModConst()]
+                , "origin_1"
+                , Vec(
+                    VecElemAbs(NumI("-8"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("-8"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "origin_2"
+                , Vec(
+                    VecElemAbs(NumI("24"))
+                  , VecElemAbs(NumI("3"))
+                  , VecElemAbs(NumI("24"))
+                  )
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_alive"
+                , ResourceBare(TRIdentAonymous(NSIDRel(NSIDName(["black_wool"]))))
+                )
+              , DeclVar(
+                  [ModConst()]
+                , "block_dead"
+                , ResourceBare(TRIdentAonymous(NSIDRel(NSIDName(["white_wool"]))))
+                )
+              ]
+            ]
+          )
+        , DeclVar([ModConst()], "tag_transition_birth", String("\"transition_birth\""))
+        ]
+      ]
+    )
+  , DeclVar([ModConst()], "tag_transition_death", String("\"transition_death\""))
+  , Fn(
+      [ModUser()]
+    , "reset"
+    , Sign(None(), None())
+    , Block(
+        [ ExprStmt(
+            Invoke(Ref("kill"), Args([Selector("CellHolder", None())]))
+          )
+        , ExprStmt(
+            Invoke(
+              Ref("fill")
+            , Args([Ref("origin_1"), Ref("origin_2"), Ref("block_dead")])
+            )
+          )
+        ]
+      )
+    )
+  , Fn(
+      []
+    , "init"
+    , Sign(None(), None())
+    , Block(
+        [ ExprStmt(
+            Invoke(Ref("kill"), Args([Selector("CellHolder", None())]))
+          )
+        , ForIn(
+            ["x", "y", "z"]
+          , Invoke(
+              Ref("rect")
+            , Args([Ref("origin_1"), Ref("origin_2")])
+            )
+          , ExecPositionedPos(
+              Vec(
+                VecElemAbs(Ref("x"))
+              , VecElemAbs(Ref("y"))
+              , VecElemAbs(Ref("z"))
+              )
+            , Block(
+                [ ExprStmt(
+                    Invoke(
+                      Ref("summon")
+                    , Args(
+                        [ ResourceBare(TRIdentAonymous(NSIDRel(NSIDName(["armor_stand"]))))
+                        , Vec(VecElemRel(None()), VecElemRel(None()), VecElemRel(None()))
+                        , NBTCompound(
+                            [KeyValueID("Marker", BoolT()), KeyValueID("Tags", NBTList([String("\"cell_holder\"")]))]
+                          )
+                        ]
+                      )
+                    )
+                  )
+                , ExecAs(
+                    Selector(
+                      "CellHolder"
+                    , Some(Props([ExprProp("distance", RangeLower(NumF("0.1")))]))
+                    )
+                  , Block(
+                      [ If(
+                          Cmp(
+                            Vec(VecElemRel(None()), VecElemRel(None()), VecElemRel(None()))
+                          , CmpIs()
+                          , Ref("block_alive")
+                          )
+                        , Block(
+                            [ ExprStmt(
+                                Invoke(
+                                  FindPathID(FindPathID(Selector("s", None()), "tags"), "add")
+                                , Args([String("\"alive\"")])
+                                )
+                              )
+                            ]
+                          )
+                        , NoElse()
+                        )
+                      ]
+                    )
+                  )
+                ]
+              )
+            )
+          )
+        ]
+      )
+    )
+  ]
+)

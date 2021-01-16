@@ -1,0 +1,58 @@
+module Common
+
+lexical sorts
+  ID INT FLOAT STRING
+  STRING_CHAR BACKSLASH_CHAR
+  COMMENT_CHAR INSIDE_COMMENT
+  NEWLINE_EOF EOF
+
+lexical syntax
+
+  ID               = [a-zA-Z] [a-zA-Z0-9\_]*
+  // TODO: allow underscores in integers
+  INT-I            = "-"? [0-9]+
+  INT              = INT-I
+  FLOAT            = INT-I FLOAT_SUFFIX
+  FLOAT            = INT-I? "." INT-I FLOAT_SUFFIX?
+  FLOAT_SUFFIX     = [dfDF]
+  STRING           = "\"" STRING_CHAR* "\""
+  STRING_CHAR      = ~[\\\"\n]
+  STRING_CHAR      = "\\\""
+  STRING_CHAR      = BACKSLASH_CHAR
+  BACKSLASH_CHAR   = "\\"
+  LAYOUT           = [\ \t\n\r]
+  COMMENT_CHAR     = [\*]
+  LAYOUT           = "/*" INSIDE_COMMENT* "*/"
+  INSIDE_COMMENT   = ~[\*]
+  INSIDE_COMMENT   = COMMENT_CHAR
+  LAYOUT           = "//" ~[\n\r]* NEWLINE_EOF
+  NEWLINE_EOF      = [\n\r]
+  NEWLINE_EOF      = EOF
+  EOF              =
+
+lexical restrictions
+
+  // Ensure greedy matching for lexicals
+  
+  COMMENT_CHAR    -/- [\/]
+  INT             -/- [dfDF0-9] // not followed by any float suffix, must be FLOAT then
+  ID              -/- [a-zA-Z0-9\_]
+  
+  // Floats may not be followed by another suffix
+  FLOAT           -/- [dfDF]
+  
+  // EOF may not be followed by any char
+  
+  EOF             -/- ~[]
+  
+  // Backslash chars in strings may not be followed by " 
+  
+  BACKSLASH_CHAR  -/- [\"]
+
+context-free restrictions
+
+  // Ensure greedy matching for comments
+  
+  LAYOUT? -/- [\ \t\n\r]
+  LAYOUT? -/- [\/].[\/]
+  LAYOUT? -/- [\/].[\*]

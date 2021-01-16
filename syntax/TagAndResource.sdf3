@@ -1,0 +1,24 @@
+module TagAndResource
+
+imports
+
+    Common
+    NSID
+    Props
+    NBT
+
+context-free sorts
+
+    TRIdent
+    Resource
+    Tag
+
+context-free syntax
+
+    TRIdent.TRIdentAonymous =         [[NSID]]
+    TRIdent.TRIdentExplicit = [<[NSID]>[NSID]]
+
+    Resource.ResourceBare = <$<TRIdent>> {prefer}
+    Resource.ResourceConfigured = <$<TRIdent><Props?><NBT?>>
+
+    Tag.Tag = <#<TRIdent>>

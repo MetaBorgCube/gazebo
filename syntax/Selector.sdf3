@@ -1,0 +1,14 @@
+module Selector
+
+imports
+
+    Common
+    Props
+
+context-free sorts
+
+    Selector
+
+context-free syntax
+
+    Selector.Selector = <@<ID><Props?>>

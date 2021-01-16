@@ -1,0 +1,36 @@
+module gazebo
+
+imports
+  
+    Common
+    NSID
+    Function
+    Statement
+
+context-free start-symbols
+  
+    Start
+
+context-free sorts
+
+    Start
+    Use
+    Tli
+
+context-free syntax
+
+    Start.Start = <
+        <Use*>
+
+        <Tli*>
+
+    >
+    // ^ end with blank line to end file with newline
+
+context-free syntax
+
+    // TODO: line breaks in PP
+    Use.Use = <use <NSID>>
+
+    Tli = Fn
+    Tli = Decl

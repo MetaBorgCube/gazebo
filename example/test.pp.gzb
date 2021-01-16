@@ -1,0 +1,12 @@
+use :ok~te
+
+func fn
+{
+    if true
+    {
+        "yes"
+    }
+    else if a > 100f
+         {
+         }
+}

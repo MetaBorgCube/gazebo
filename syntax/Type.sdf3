@@ -1,0 +1,13 @@
+module Type
+
+imports
+
+    Common
+
+context-free sorts
+
+    Type
+
+context-free syntax
+
+    Type.Type = <<ID>>

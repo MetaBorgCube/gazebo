@@ -1,0 +1,18 @@
+module NSID
+
+imports
+
+    Common
+
+context-free sorts
+
+    NSID
+    NSIDName
+
+context-free syntax
+
+    NSID.NSID = <<ID>:<NSIDName>>
+    NSID.NSIDShort = <:<NSIDName>>
+    NSID.NSIDRel = <<NSIDName>>
+    // TODO: Change NSID name separator to slash or backslash
+    NSIDName.NSIDName = <<{ID "~"}+>>

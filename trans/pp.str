@@ -1,0 +1,49 @@
+module pp
+
+imports
+
+  libstratego-gpp
+  libspoofax/sdf/pp
+  libspoofax/editor/refactoring/-
+  pp/gazebo-parenthesize
+  pp/gazebo-pp
+
+rules
+
+  editor-format:
+    (node, _, ast, path, project-path) -> (filename, result)
+    with
+      ext      := <get-extension> path
+    ; filename := <guarantee-extension(|$[pp.[ext]])> path
+    ; result   := <pp-debug> node
+
+rules
+  
+  pp-gazebo-string =
+    parenthesize-gazebo
+    ; prettyprint-gazebo-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+      
+  pp-partial-gazebo-string =
+    parenthesize-gazebo
+    ; prettyprint-gazebo
+    ; !V([], <id>)
+    ; box2text-string(|120)
+    
+  pp-partial-gazebo-string(|sort) =
+    parenthesize-gazebo
+    ; prettyprint-gazebo(|sort)
+    ; !V([], <id>)
+    ; box2text-string(|120)  
+      
+  pp-debug :
+    ast -> result
+    with
+       result := <pp-gazebo-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-gazebo-string); debug(!"cannot pp ")))> ast
+    ;  result := ""
+
+rules
+  
+  construct-textual-change = construct-textual-change(pp-partial-gazebo-string, parenthesize, override-reconstruction, resugar)

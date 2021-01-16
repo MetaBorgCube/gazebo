@@ -1,0 +1,127 @@
+module Expr
+
+imports
+
+    Common
+    NBT
+    Selector
+    TagAndResource
+    Literals
+
+context-free sorts
+
+    Expr
+    Expr-I // internal (possibly bracketed) expression
+    // TODO: Avoid usage of this Expr-I, instead prefer Expr.Invoke over bracketing (question is how)
+
+/**
+ * Basic expressions
+ */
+context-free syntax
+
+    Expr-I = Expr
+    Expr-I = <(<Expr-I>)> {bracket}
+    
+    // from imports:
+    Expr = NBT
+    Expr = Selector
+    Expr = Tag
+    Expr = Resource
+    Expr = Literal
+
+/**
+ * Reference
+ */
+context-free sorts Ref
+context-free syntax
+
+    Expr = Ref
+    Ref.Ref = ID
+
+/**
+ * Find
+ */
+context-free sorts Find
+context-free syntax
+
+    Expr = Find
+    Find.FindIndex = <<Expr-I>[<Expr-I>]>
+    Find.FindPathID = <<Expr-I>.<ID>>
+    Find.FindPathString = <<Expr-I>.<STRING>>
+
+/**
+ * Invoke
+ */
+context-free sorts Args
+context-free syntax
+
+    Expr.Invoke = <<Expr-I>(<Args>)>
+    Args.Args = <<{Expr-I ", "}*>>
+
+/**
+ * Arithmetic
+ */
+context-free syntax
+
+    Expr.Mul = <<Expr-I> * <Expr-I>>
+    Expr.Div = <<Expr-I> / <Expr-I>>
+    Expr.Mod = <<Expr-I> % <Expr-I>>
+    
+    Expr.Add = <<Expr-I> + <Expr-I>>
+    Expr.Sub = <<Expr-I> - <Expr-I>>
+
+// TODO: context-free priorities
+
+/**
+ * Boolean operations
+ */
+context-free sorts Compare
+context-free syntax
+
+    Expr.And = <<Expr-I> and <Expr-I>>
+    Expr.Or = <<Expr-I> or <Expr-I>>
+
+    Expr.Cmp = <<Expr-I> <Compare> <Expr-I>>
+    Compare.CmpGt = [>]
+    Compare.CmpGte = [>=]
+    Compare.CmpLt = [<]
+    Compare.CmpLte = [<=]
+    Compare.CmpEqual = [==]
+    Compare.CmpEquiv = [eq] 
+    Compare.CmpIs = [is]
+
+lexical syntax
+
+    ID = "eq" {reject}
+    ID = "is" {reject}
+
+// TODO: context-free priorities
+
+/**
+ * Range
+ */
+context-free sorts Range
+context-free syntax
+
+    Expr = Range
+    Range.RangeFull = <<Expr-I>..<Expr-I>>
+    Range.RangeLower = <..<Expr-I>>
+    Range.RangeUpper = <<Expr-I>..>
+
+/**
+ * Position/vector
+ */
+context-free sorts Vec VecElem
+context-free syntax
+
+    Expr = Vec
+    Vec.Vec = <`(<VecElem> <VecElem> <VecElem>)>
+    VecElem.VecElemAbs = [ [Expr]]
+    VecElem.VecElemRel = [~[Expr?]]
+    VecElem.VecElemLoc = [^[Expr]]
+
+
+
+
+
+

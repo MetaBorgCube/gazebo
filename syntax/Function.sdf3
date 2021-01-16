@@ -1,0 +1,32 @@
+module Function
+
+imports
+
+    Common
+    Type
+    Statement
+
+context-free sorts
+
+    Fn
+    FnMod
+    Sign
+    Params
+    Param
+    RetSpec
+
+context-free syntax
+
+    FnMod.ModUser = <user>
+    FnMod.ModPublic = <public>
+
+    Sign.Sign = <<Params?> <RetSpec?>>
+    Params.Params = <(<{Param ", "}*>)>
+    Param.Param = <<{ID ", "}+> <Type>>
+    RetSpec.RetSpec = [-> [Type]]
+
+    // TODO: PP: blank lines between separate funcs
+    Fn.Fn = <
+        <FnMod*> func <ID><Sign>
+        <Block>
+    >

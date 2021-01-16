@@ -1,0 +1,141 @@
+module Statement
+
+imports
+
+    Common
+    Expr
+    Exec
+
+context-free sorts
+
+    Block
+    Statement
+
+/**
+ * General basis for statements
+ */
+context-free syntax
+
+    // Imported statements
+    Statement = Exec
+    
+    // Primitive statements
+    Statement.ExprStmt = <<Expr>>
+    Statement.Noop = <;>
+
+    // TODO: newline after Statement
+    Block.Block = <
+    {
+        <Statement*>
+    }
+    > {prefer} // prefer empty block over empty NBTCompound (see context-free priorities)
+    Block = Statement
+
+context-free priorities
+
+    // FIXME: Other situation where context-free priorities do not seem to have any effect, but {prefer} does
+    Block.Block > Statement.ExprStmt
+
+/**
+ * Declaration statement
+ */
+
+context-free sorts Decl DeclModifier
+context-free syntax
+
+    Statement = Decl
+    Decl.DeclVar = <<DeclModifier*> <ID> := <Expr>>
+    DeclModifier.ModMut = <mut>
+    DeclModifier.ModConst = <const>
+
+lexical syntax
+
+    ID = "mut" {reject}
+    ID = "const" {reject}
+
+/**
+ * For loop/statement
+ */
+context-free sorts For
+context-free syntax
+
+    Statement = For
+    For.ForInfinite = <
+        for
+        <Block>    
+    >
+    For.ForWhile = <
+        for <Expr>
+        <Block>
+    >
+    For.ForIn = [
+        for [{ID ", "}+] <- [Expr]
+        [Block]
+    ]
+
+/**
+ * If statement
+ */
+context-free sorts If Else
+context-free syntax
+
+    Statement = If
+    If.If = <
+        if <Expr>
+        <Block>
+        <Else>
+    >
+
+    // TODO: fix pp
+    Else.ElseIf = <else <If>> {prefer}
+    Else.ElseBlock = <
+        else
+        <Block>
+    >
+    Else.NoElse = <>
+
+context-free priorities
+
+    // FIXME: this does not appear to have any effect. using {prefer} currently, but that's not ideal
+    Else.ElseIf
+    > Else.ElseBlock
+    > Else.NoElse
+
+lexical syntax
+
+    // reject if and else as identifiers
+    ID = "if" {reject}
+    ID = "else" {reject}
+
+/**
+ * Switch/match statement
+ */
+// TODO
+
+/**
+ * Return statement
+ */
+context-free sorts Return
+context-free syntax
+
+    Statement = Return
+    Return.ReturnEmpty = <return>
+    Return.ReturnValue = <return <Expr>>
+
+lexical syntax
+
+    ID = "return" {reject}
+
+/**
+ * Assign statement
+ */
+context-free sorts Assign
+context-free syntax
+
+    Statement = Assign
+    Assign.AssignEq = <<Expr> = <Expr>>
+    Assign.AssignAdd = <<Expr> += <Expr>>
+    Assign.AssignSub = <<Expr> -= <Expr>>
+    Assign.AssignMul = <<Expr> *= <Expr>>
+    Assign.AssignDiv = <<Expr> /= <Expr>>
+    Assign.AssignMod = <<Expr> %= <Expr>>

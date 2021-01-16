@@ -1,0 +1,32 @@
+module NBT
+
+imports
+
+    Common
+    Expr
+    Type
+
+context-free sorts
+
+    NBT
+    NBTKeyValue
+
+context-free syntax
+
+    NBT.NBTCompound = <
+    {
+        <{NBTKeyValue ",\n"}*>
+    }
+    >
+
+    NBTKeyValue.KeyValueID = <<ID>: <Expr>>
+    NBTKeyValue.KeyValueString = <<STRING>: <Expr>>
+
+    NBT.NBTArrayAnonymous = <[; <{Expr ", "}*>]>
+    NBT.NBTArrayExplicit = <[<Type>; <{Expr ", "}*>]>
+
+    NBT.NBTList = <[<{Expr ", "}*>]>
+
+
+
+

@@ -1,0 +1,23 @@
+module Literals
+
+imports
+
+    Common
+
+context-free sorts
+
+    Literal
+
+context-free syntax
+
+    Literal.String = STRING
+    Literal.BoolT = <true>
+    Literal.BoolF = <false>
+    Literal.NumI = INT
+    Literal.NumF = FLOAT
+
+lexical syntax
+
+    // reject true and false as identifiers
+    ID = "true" {reject}
+    ID = "false" {reject}

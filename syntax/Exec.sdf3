@@ -1,0 +1,69 @@
+module Exec
+
+imports
+
+    Common
+    Expr
+    Statement
+
+// https://minecraft.gamepedia.com/Commands/execute
+
+context-free sorts
+
+    Exec
+    ExecChain
+
+lexical syntax
+
+    ID = "as" {reject}
+
+context-free syntax
+
+    ExecChain = Exec
+    ExecChain = Block
+
+    Exec.ExecAlign = <
+        align <Expr>
+        <ExecChain>
+    >
+    Exec.ExecAnchor = <
+        anchor <Expr>
+        <ExecChain>
+    >
+    Exec.ExecAs = <
+        as <Expr>
+        <ExecChain>
+    >
+    Exec.ExecAt = <
+        at <Expr>
+        <ExecChain>
+    >
+    Exec.ExecFacingPos = <
+        facing <Expr>
+        <ExecChain>
+    >
+    Exec.ExecFacingEntity = <
+        facing entity <Expr> <Expr>
+        <ExecChain>
+    >
+    Exec.ExecIn = <
+        in <Expr>
+        <ExecChain>
+    >
+    Exec.ExecPositionedPos = <
+        positioned <Expr>
+        <ExecChain>
+    >
+    Exec.ExecPositionedAs = <
+        positioned as <Expr>
+        <ExecChain>
+    >
+    Exec.ExecRotatedRot = <
+        rotated <Expr>
+        <ExecChain>
+    >
+    Exec.ExecRotatedRotAs = <
+        rotated as <Expr>
+        <ExecChain>
+    >
+    // execute <store|if|unless|run> are implicitly made available through other language constructs
