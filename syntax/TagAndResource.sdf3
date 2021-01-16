@@ -15,10 +15,9 @@ context-free sorts
 
 context-free syntax
 
-    TRIdent.TRIdentAonymous =         [[NSID]]
+    TRIdent.TRIdentAonymous = [        [NSID]]
     TRIdent.TRIdentExplicit = [<[NSID]>[NSID]]
 
-    Resource.ResourceBare = <$<TRIdent>> {prefer}
-    Resource.ResourceConfigured = <$<TRIdent><Props?><NBT?>>
+    Resource.Resource = <$<TRIdent><Props?><NBT?>>
 
     Tag.Tag = <#<TRIdent>>
