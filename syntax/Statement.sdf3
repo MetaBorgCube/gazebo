@@ -8,6 +8,7 @@ imports
 
 context-free sorts
 
+    Noop
     Block
     Statement
 
@@ -18,10 +19,11 @@ context-free syntax
 
     // Imported statements
     Statement = Exec
-    
+
     // Primitive statements
     Statement.ExprStmt = <<Expr>>
-    Statement.Noop = <;>
+    Noop.Noop = <;>
+    Statement = Noop
 
     // TODO: newline after Statement
     Block.Block = <
@@ -39,7 +41,6 @@ context-free priorities
 /**
  * Declaration statement
  */
-
 context-free sorts Decl DeclModifier
 context-free syntax
 
@@ -110,7 +111,20 @@ lexical syntax
 /**
  * Switch/match statement
  */
-// TODO
+context-free sorts Match Case
+context-free syntax
+
+    Statement = Match
+    Match.Match = <
+        match <Expr>
+        {
+            <Case+>
+        }
+    >
+    Case.Case = <
+        <Expr>
+        <Block>
+    >
 
 /**
  * Return statement
@@ -119,7 +133,7 @@ context-free sorts Return
 context-free syntax
 
     Statement = Return
-    Return.ReturnEmpty = <return>
+    //Return.ReturnEmpty = <return>
     Return.ReturnValue = <return <Expr>>
 
 lexical syntax
@@ -139,3 +153,6 @@ context-free syntax
     Assign.AssignMul = <<Expr> *= <Expr>>
     Assign.AssignDiv = <<Expr> /= <Expr>>
     Assign.AssignMod = <<Expr> %= <Expr>>
+
+
+

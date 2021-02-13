@@ -1,0 +1,14 @@
+module Alias
+
+imports
+
+    Common
+    Selector
+
+context-free sorts
+
+    Alias
+
+context-free syntax
+
+    Alias.Alias = <alias <Selector> = <Selector>>

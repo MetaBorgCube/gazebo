@@ -11,59 +11,32 @@ imports
 context-free sorts
 
     Exec
-    ExecChain
+    ExecFrag
 
 lexical syntax
 
     ID = "as" {reject}
+    ID = "at" {reject}
+    ID = "in" {reject}
 
 context-free syntax
 
-    ExecChain = Exec
-    ExecChain = Block
+    // TODO: (?) explicit execute chaining
+    Exec.Exec = <
+        <ExecFrag>
+        <Block>
+    >
 
-    Exec.ExecAlign = <
-        align <Expr>
-        <ExecChain>
-    >
-    Exec.ExecAnchor = <
-        anchor <Expr>
-        <ExecChain>
-    >
-    Exec.ExecAs = <
-        as <Expr>
-        <ExecChain>
-    >
-    Exec.ExecAt = <
-        at <Expr>
-        <ExecChain>
-    >
-    Exec.ExecFacingPos = <
-        facing <Expr>
-        <ExecChain>
-    >
-    Exec.ExecFacingEntity = <
-        facing entity <Expr> <Expr>
-        <ExecChain>
-    >
-    Exec.ExecIn = <
-        in <Expr>
-        <ExecChain>
-    >
-    Exec.ExecPositionedPos = <
-        positioned <Expr>
-        <ExecChain>
-    >
-    Exec.ExecPositionedAs = <
-        positioned as <Expr>
-        <ExecChain>
-    >
-    Exec.ExecRotatedRot = <
-        rotated <Expr>
-        <ExecChain>
-    >
-    Exec.ExecRotatedRotAs = <
-        rotated as <Expr>
-        <ExecChain>
-    >
+    ExecFrag.ExecAlign = <align <Expr>>
+    ExecFrag.ExecAnchor = <anchor <Expr>>
+    ExecFrag.ExecAs = <as <Expr>>
+    ExecFrag.ExecAt = <at <Expr>>
+    ExecFrag.ExecFacingPos = <facing <Expr>>
+    ExecFrag.ExecFacingEntity = <facing entity <Expr> <Expr>>
+    ExecFrag.ExecIn = <in <Expr>>
+    ExecFrag.ExecPositionedPos = <positioned <Expr>>
+    ExecFrag.ExecPositionedAs = <positioned as <Expr>>
+    ExecFrag.ExecRotatedRot = <rotated <Expr>>
+    ExecFrag.ExecRotatedRotAs = <rotated as <Expr>>
+    
     // execute <store|if|unless|run> are implicitly made available through other language constructs

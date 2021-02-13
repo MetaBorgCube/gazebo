@@ -5,6 +5,7 @@ imports
     Common
     Type
     Statement
+    TagAndResource
 
 context-free sorts
 
@@ -26,7 +27,11 @@ context-free syntax
     RetSpec.RetSpec = [-> [Type]]
 
     // TODO: PP: blank lines between separate funcs
-    Fn.Fn = <
+    Fn.FnDef = <
+        <Tag*>
         <FnMod*> func <ID><Sign>
         <Block>
+    >
+    Fn.FnExt = <
+        extern func <ID><Sign>
     >

@@ -10,13 +10,12 @@ lexical syntax
 
   ID               = [a-zA-Z] [a-zA-Z0-9\_]*
   // TODO: allow underscores in integers
-  INT-I            = "-"? [0-9]+
-  INT              = INT-I
-  FLOAT            = INT-I FLOAT_SUFFIX
-  FLOAT            = INT-I? "." INT-I FLOAT_SUFFIX?
+  INT              = "-"? [0-9]+
+  FLOAT            = INT FLOAT_SUFFIX
+  FLOAT            = INT? "." INT FLOAT_SUFFIX?
   FLOAT_SUFFIX     = [dfDF]
   STRING           = "\"" STRING_CHAR* "\""
-  STRING_CHAR      = ~[\\\"\n]
+  STRING_CHAR      = ~[\"\n]
   STRING_CHAR      = "\\\""
   STRING_CHAR      = BACKSLASH_CHAR
   BACKSLASH_CHAR   = "\\"

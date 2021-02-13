@@ -1,0 +1,23 @@
+module Enum
+
+imports
+
+    Common
+    Type
+
+context-free sorts
+
+    Enum
+
+context-free syntax
+
+    Enum.Enum = <
+        enum <Type>
+        {
+            <{ID ",\n"}+>
+        }
+    >
+
+lexical syntax
+
+    ID = "enum" {reject}

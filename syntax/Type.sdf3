@@ -3,6 +3,7 @@ module Type
 imports
 
     Common
+    NSID
 
 context-free sorts
 
@@ -10,4 +11,12 @@ context-free sorts
 
 context-free syntax
 
-    Type.Type = <<ID>>
+    Type.TypeRef = <<NSID>>
+    Type.TypeResourceRegistry = [$<[NSID]>]
+    Type.TypeTagRegistry = [#<[NSID]>]
+    
+    // TODO: think more about this notation
+    Type.TypeArrayDynamic = <[<Type>;]>
+    Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>
+    Type.TypeArrayFixedNamed = <[<Type>; <{ID ", "}+>]>
+    Type.TypeList = <[<Type>]>

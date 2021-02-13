@@ -7,6 +7,8 @@ imports
     Selector
     TagAndResource
     Literals
+    Type
+    NSID
 
 context-free sorts
 
@@ -36,7 +38,7 @@ context-free sorts Ref
 context-free syntax
 
     Expr = Ref
-    Ref.Ref = ID
+    Ref.Ref = NSID
 
 /**
  * Find
@@ -50,13 +52,28 @@ context-free syntax
     Find.FindPathString = <<Expr-I>.<STRING>>
 
 /**
- * Invoke
+ * Static find (meant for enum references)
  */
-context-free sorts Args
+context-free sorts FindStatic
 context-free syntax
 
-    Expr.Invoke = <<Expr-I>(<Args>)>
-    Args.Args = <<{Expr-I ", "}*>>
+    Expr = FindStatic
+    FindStatic.FindStaticID = <<Expr-I>::<ID>>
+
+/**
+ * Invoke
+ */
+context-free sorts Invoke Args Kwargs
+context-free syntax
+
+    Expr = Invoke
+    Invoke.InvokeNone = <<Expr-I>()>
+    Invoke.InvokeArgs = <<Expr-I>(<Args>)>
+    Invoke.InvokeArgsKwargs = <<Expr-I>(<Args>, <Kwargs>)>
+    Invoke.InvokeKwargs = <<Expr-I>(<Kwargs>)>
+    Args.Args = <<{Expr-I ", "}+>>
+    Kwargs.Kwargs = <<{Kwarg ", "}+>>
+    Kwarg.Kwarg = <<ID>=<Expr-I>>
 
 /**
  * Arithmetic
@@ -123,8 +140,11 @@ context-free syntax
     VecElem.VecElemRel = [~[Expr?]]
     VecElem.VecElemLoc = [^[Expr]]
 
+////////
 
+context-free priorities
 
+    {Expr.Cmp} > {Range.RangeFull Range.RangeLower Range.RangeUpper}
 
 
 
