@@ -1,0 +1,13 @@
+module statics/use
+
+imports
+
+    statics/common
+
+rules
+
+    usesOk maps useOk(*, list(*))
+    useOk : scope * Use
+    useOk(s, Use(nsid)) :-
+        try { false }
+        | note $[to be implemented].

@@ -2,23 +2,29 @@ module statics
 
 // see README.md for details on how to switch to multi-file analysis
 
+imports
+
+    statics/common
+    statics/use
+    statics/tli
+
 rules // single-file entry point
 
-  programOk : Start
+    programOk : Start
 
-  programOk(Empty()).
+    programOk(Start(u, t)) :- {s}
+        new s,
+        usesOk(s, u),
+        tlisOk(s, t).
 
 rules // multi-file entry point
 
-  projectOk : scope
+    projectOk : scope
 
-  projectOk(s).
+    projectOk(s).
 
-  fileOk : scope * Start
+    fileOk : scope * Start
 
-  fileOk(s, Empty()).
-
-signature
-
-  sorts Start constructors
-    Empty : Start
+    fileOk(s, start) :-
+        // TODO: link scope
+        programOk(start).

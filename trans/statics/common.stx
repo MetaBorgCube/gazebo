@@ -1,0 +1,5 @@
+module statics/common
+
+imports
+
+    signatures/gazebo-sig

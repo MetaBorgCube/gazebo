@@ -1,0 +1,9 @@
+module statics/alias
+
+imports
+
+    statics/common
+
+rules
+
+    

@@ -1,0 +1,31 @@
+module statics/tli
+
+imports
+
+    statics/common
+    statics/alias
+
+rules
+
+    tlisOk maps tliOk(*, list(*))
+    tliOk : scope * Tli
+
+    tliOk(s, Alias2Tli(a)) :-
+        try { false }
+        | note $[todo].
+
+    tliOk(s, Enum2Tli(e)) :-
+        try { false }
+        | note $[todo].
+
+    tliOk(s, Fn2Tli(fn)) :-
+        try { false }
+        | note $[todo].
+
+    tliOk(s, Decl2Tli(decl)) :-
+        try { false }
+        | note $[todo].
+
+    tliOk(_, tli) :-
+        false
+        | error $[support for [tli] not implemented]@tli.
