@@ -1,0 +1,66 @@
+module statics/statement
+
+imports
+
+    statics/common
+    statics/statement/exec
+    statics/expr
+    statics/statement/decl-assign
+    statics/statement/cf
+
+rules
+
+    statementOk : scope * Statement
+
+    statementsOk : scope * list(Statement)
+
+    statementsOk(s, [x|xs]) :- {s_next}
+        statementOk(s, x),
+        new s_next, s_next -P-> s,
+        statementsOk(s_next, xs).
+
+    statementsOk(s, []).
+
+rules // exec
+
+    statementOk(s, Exec2Statement(ex)) :-
+        execOk(s, ex).
+
+rules // expr
+
+    statementOk(s, ExprStmt(e)) :- {T}
+        typeOfExpr(s, e) == T.
+
+rules // noop
+
+    statementOk(s, Noop2Statement(_)).
+
+rules // decl
+
+    statementOk(s, Decl2Statement(decl)) :-
+        declOk(s, decl).
+
+rules // for
+
+    statementOk(s, For2Statement(for)) :-
+        forOk(s, for).
+
+rules // if
+
+    statementOk(s, If2Statement(if)) :-
+        ifOk(s, if).
+
+rules // match
+
+    statementOk(s, Match2Statement(match)) :-
+        matchOk(s, match).
+
+rules // return
+
+    statementOk(s, Return2Statement(ret)) :-
+        returnOk(s, ret).
+
+rules // assign
+
+    statementOk(s, Assign2Statement(assign)) :-
+        assignOk(s, assign).

@@ -1,0 +1,9 @@
+module statics/expr/nbt
+
+imports
+
+    statics/common
+
+rules
+
+    typeOfNBT : scope * NBT -> TYPE

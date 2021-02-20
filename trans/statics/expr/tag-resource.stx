@@ -1,0 +1,21 @@
+module statics/expr/tag-resource
+
+imports
+
+    statics/common
+
+rules // tag
+
+    typeOfTag : scope * Tag -> TYPE
+
+    typeOfTag(s, Tag(ident)) = T :-
+        try { false } | note $[todo: infer registry]@ident,
+        T == TAG(nsid("gzb", ["dummy_ref"])).
+
+rules // resource
+
+    typeOfResource : scope * Resource -> TYPE
+
+    typeOfResource(s, Resource(ident, props, payl)) = T :-
+        try { false } | note $[todo: infer registry, check props and payl]@ident,
+        T == RESOURCE(nsid("minecraft", ["block"])).

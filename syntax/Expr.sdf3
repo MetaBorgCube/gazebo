@@ -63,7 +63,7 @@ context-free syntax
 /**
  * Invoke
  */
-context-free sorts Invoke Args Kwargs
+context-free sorts Invoke Args Kwargs Kwarg
 context-free syntax
 
     Expr = Invoke
@@ -138,7 +138,7 @@ context-free syntax
     Vec.Vec = <`(<VecElem> <VecElem> <VecElem>)>
     VecElem.VecElemAbs = [ [Expr]]
     VecElem.VecElemRel = [~[Expr?]]
-    VecElem.VecElemLoc = [^[Expr]]
+    VecElem.VecElemLoc = [^[Expr?]]
 
 ////////
 

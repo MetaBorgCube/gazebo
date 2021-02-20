@@ -1,0 +1,49 @@
+module statics/statement/decl-assign
+
+imports
+
+    statics/common
+    statics/expr
+
+rules // decl
+
+    declOk : scope * Decl
+
+    declOk(s, Decl(modifiers, name, e)) :- {T}
+        try { false } | note $[todo: declare in scope, respecting modifiers]@name,
+        typeOfExpr(s, e) == T,
+        @name.type += T.
+
+rules // assign
+
+    assignOk : scope * Assign
+
+    assignOk(s, AssignEq(dst, src)) :- {Td Ts}
+        try { false } | note $[todo: check subtype, enum key scope injection],
+        typeOfExpr(s, dst) == Td,
+        typeOfExpr(s, src) == Ts.
+
+    assignOk(s, AssignAdd(dst, src)) :- {Td Ts}
+        try { false } | note $[todo: check + op],
+        typeOfExpr(s, dst) == Td,
+        typeOfExpr(s, src) == Ts.
+
+    assignOk(s, AssignSub(dst, src)) :- {Td Ts}
+        try { false } | note $[todo: check - op],
+        typeOfExpr(s, dst) == Td,
+        typeOfExpr(s, src) == Ts.
+
+    assignOk(s, AssignMul(dst, src)) :- {Td Ts}
+        try { false } | note $[todo: check * op],
+        typeOfExpr(s, dst) == Td,
+        typeOfExpr(s, src) == Ts.
+
+    assignOk(s, AssignDiv(dst, src)) :- {Td Ts}
+        try { false } | note $[todo: check / op],
+        typeOfExpr(s, dst) == Td,
+        typeOfExpr(s, src) == Ts.
+
+    assignOk(s, AssignMod(dst, src)) :- {Td Ts}
+        try { false } | note $[todo: check % op],
+        typeOfExpr(s, dst) == Td,
+        typeOfExpr(s, src) == Ts.

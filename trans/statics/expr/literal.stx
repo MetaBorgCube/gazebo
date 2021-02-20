@@ -1,0 +1,19 @@
+module statics/expr/literal
+
+imports
+
+    statics/common
+
+rules
+
+    typeOfLiteral : scope * Literal -> TYPE
+
+    typeOfLiteral(s, String(str)) = STRING().
+
+    typeOfLiteral(s, BoolT()) = BOOL().
+
+    typeOfLiteral(s, BoolF()) = BOOL().
+
+    typeOfLiteral(s, NumI(int)) = INT().
+
+    typeOfLiteral(s, NumF(float)) = FLOAT().

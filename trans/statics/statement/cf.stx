@@ -1,0 +1,78 @@
+module statics/statement/cf
+
+imports
+
+    statics/common
+    statics/expr
+    statics/statement/block
+
+rules // for
+
+    forOk : scope * For
+
+    forOk(s, ForInfinite(body)) :- {s_for_inf}
+        new s_for_inf, s_for_inf -P-> s,
+        blockOk(s_for_inf, body).
+
+    forOk(s, ForWhile(cond, body)) :- {Tc s_for_wh}
+        try { false } | note $[todo: assert bool type or check coercion]@cond,
+        typeOfExpr(s, cond) == Tc,
+        new s_for_wh, s_for_wh -P-> s,
+        blockOk(s_for_wh, body).
+
+    forOk(s, ForIn(names, iter, body)) :- {Ti s_for_in}
+        try { false } | note $[todo: assert iter type]@iter,
+        typeOfExpr(s, iter) == Ti,
+        new s_for_in, s_for_in -P-> s,
+        try { false } | note $[todo: declare names in scope, with ^ct dependig on cond]@names,
+        blockOk(s_for_in, body).
+
+rules // if
+
+    ifOk : scope * If
+
+    ifOk(s, If(cond, body, else)) :- {Tc s_if}
+        try { false } | note $[todo: assert bool type or check coercion]@cond,
+        typeOfExpr(s, cond) == Tc,
+        new s_if, s_if -P-> s,
+        blockOk(s_if, body),
+        elseOk(s, else).
+
+    elseOk : scope * Else
+
+    elseOk(s, ElseIf(if)) :-
+        ifOk(s, if).
+
+    elseOk(s, ElseBlock(body)) :- {s_else}
+        new s_else, s_else -P-> s,
+        blockOk(s_else, body).
+
+    elseOk(s, NoElse()).
+
+rules // match
+
+    matchOk : scope * Match
+
+    matchOk(s, m@Match(e, cases)) :- {T}
+        typeOfExpr(s, e) == T,
+        try { false } | note $[subtype check on case expr, enum key scope injection]@e,
+        cases != [] | error $[specify at least one case]@m,
+        matchCasesOk(s, cases).
+
+    matchCasesOk maps matchCaseOk(*, list(*))
+
+    matchCaseOk : scope * Case
+
+    matchCaseOk(s, Case(e, body)) :- {T s_case}
+        typeOfExpr(s, e) == T,
+        new s_case, s_case -P-> s,
+        try { false } | note $[shadow on ref match]@e,
+        blockOk(s_case, body).
+
+rules // return
+
+    returnOk : scope * Return
+
+    returnOk(s, ReturnValue(e)) :- {T}
+        try { false } | note $[todo: check type is supertype of expected return type]@e,
+        typeOfExpr(s, e) == T.

@@ -45,7 +45,7 @@ context-free sorts Decl DeclModifier
 context-free syntax
 
     Statement = Decl
-    Decl.DeclVar = <<DeclModifier*> <ID> := <Expr>>
+    Decl.Decl = <<DeclModifier*> <ID> := <Expr>>
     DeclModifier.ModMut = <mut>
     DeclModifier.ModConst = <const>
 
@@ -118,13 +118,17 @@ context-free syntax
     Match.Match = <
         match <Expr>
         {
-            <Case+>
+            <Case*>
         }
     >
     Case.Case = <
         <Expr>
         <Block>
     >
+
+lexical syntax
+
+    ID = "match" {reject}
 
 /**
  * Return statement

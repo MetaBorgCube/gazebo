@@ -1,0 +1,13 @@
+module statics/tli/enum
+
+imports
+
+    statics/common
+
+rules
+
+    enumOk : scope * Enum
+
+    enumOk(s, e@Enum(name, keys)) :-
+        keys != [] | error $[specify at least one key]@e,
+        try { false } | note $[todo: declare enum in scope].

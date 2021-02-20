@@ -1,0 +1,23 @@
+module statics/types
+
+imports
+
+    signatures/NSID-sig
+
+signature
+
+    sorts TYPE
+
+    constructors
+
+        STRING : TYPE
+        BOOL : TYPE
+        INT : TYPE
+        FLOAT : TYPE
+
+        VEC : int -> TYPE
+        RANGE : TYPE
+
+        SELECTOR : TYPE
+        TAG : NSID -> TYPE
+        RESOURCE : NSID -> TYPE

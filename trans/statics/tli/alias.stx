@@ -1,0 +1,17 @@
+module statics/tli/alias
+
+imports
+
+    statics/common
+    statics/expr/selector
+
+rules
+
+    aliasOk : scope * Alias
+
+    aliasOk(s, Alias(dst@Selector(name, dstProps), src)) :- {T}
+        dstProps == [] | error $[destination must not have any properties]@dstProps,
+        // TODO: declare alias name in current scope
+        // TODO: ensure compile-time computation computability of srcProps
+        typeOfSelector(s, src) == T,
+        T == SELECTOR().

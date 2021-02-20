@@ -1,0 +1,20 @@
+module statics/tli/fn
+
+imports
+
+    statics/common
+    statics/statement/block
+
+rules
+
+    fnOk : scope * Fn
+
+    fnOk(s, FnDef(tags, modifiers, name, signature, body)) :- {s_body}
+        new s_body, s_body -P-> s,
+        // TODO: signagure in scope as immutable variables with possible ^ct
+        blockOk(s_body, body),
+        true.
+
+    fnOk(s, FnExt(name, signature)) :-
+        // TODO: assume everything is valid, just declare the name with signature in scope
+        true.

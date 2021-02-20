@@ -1,0 +1,106 @@
+module statics/expr
+
+imports
+
+    statics/common
+    statics/expr/nbt
+    statics/expr/selector
+    statics/expr/tag-resource
+    statics/expr/literal
+
+rules
+
+    typeOfExpr : scope * Expr -> TYPE
+
+    typeOfExpr(s, e) = t@typeOfExprImpl(s, e) :- @e.type += t.
+
+    /** do not refer directly, use typeOfExpr */
+    typeOfExprImpl : scope * Expr -> TYPE
+
+    /** unwrap function to get Expr from Expr-I */
+    iu : Expr-I -> Expr
+    iu(Expr2Expr-I(e)) = e.
+
+rules // NBT
+
+    typeOfExprImpl(s, NBT2Expr(nbt)) = T :-
+        typeOfNBT(s, nbt) == T.
+
+rules // selector
+
+    typeOfExprImpl(s, Selector2Expr(sel)) = T :-
+        typeOfSelector(s, sel) == T.
+
+rules // tag & resource
+
+    typeOfExprImpl(s, Resource2Expr(res)) = T :-
+        typeOfResource(s, res) == T.
+
+    typeOfExprImpl(s, Tag2Expr(tag)) = T :-
+        typeOfTag(s, tag) == T.
+
+rules // literal
+
+    typeOfExprImpl(s, Literal2Expr(lit)) = T :-
+        typeOfLiteral(s, lit) == T.
+
+rules // ref
+
+    typeOfExprImpl(s, Ref2Expr(ref)) = T :-
+        try { false } | note $[todo].
+
+rules // find (+ static)
+
+    typeOfExprImpl(s, Find2Expr(find)) = T :-
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, FindStatic2Expr(find)) = T :-
+        try { false } | note $[todo].
+
+rules // invoke
+
+    typeOfExprImpl(s, Invoke2Expr(ivk)) = T :-
+        try { false } | note $[todo].
+
+rules // arithmetic
+
+    typeOfExprImpl(s, Mul(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Div(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Mod(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Add(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Sub(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+rules // compare (boolean logic)
+
+    typeOfExprImpl(s, And(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Or(l, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Not(e)) = T :- {Te}
+        try { false } | note $[todo].
+
+    typeOfExprImpl(s, Cmp(l, op, r)) = T :- {Tl Tr}
+        try { false } | note $[todo].
+
+rules // range
+
+    typeOfExprImpl(s, Range2Expr(range)) = T :-
+        T == RANGE(),
+        try { false } | note $[todo].
+
+rules // vector
+
+    typeOfExprImpl(s, Vec2Expr(vec)) = T :-
+        T == VEC(3).
+        //try { false } | note $[todo].

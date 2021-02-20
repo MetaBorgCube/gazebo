@@ -1,0 +1,19 @@
+module statics/statement/block
+
+imports
+
+    statics/common
+    statics/statement
+
+rules
+
+    blockOk : scope * Block
+
+    blockOk(s, Statement2Block(stmt)) :-
+        statementOk(s, stmt).
+
+    blockOk(s, Block(stmts)) :-
+        statementsOk(s, stmts).
+
+    blockOk(s, other) :-
+        try{false} | note $[huh [other]].

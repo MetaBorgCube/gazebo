@@ -3,7 +3,10 @@ module statics/tli
 imports
 
     statics/common
-    statics/alias
+    statics/tli/alias
+    statics/tli/enum
+    statics/tli/fn
+    statics/statement/decl-assign
 
 rules
 
@@ -11,20 +14,16 @@ rules
     tliOk : scope * Tli
 
     tliOk(s, Alias2Tli(a)) :-
-        try { false }
-        | note $[todo].
+        aliasOk(s, a).
 
     tliOk(s, Enum2Tli(e)) :-
-        try { false }
-        | note $[todo].
+        enumOk(s, e).
 
     tliOk(s, Fn2Tli(fn)) :-
-        try { false }
-        | note $[todo].
+        fnOk(s, fn).
 
     tliOk(s, Decl2Tli(decl)) :-
-        try { false }
-        | note $[todo].
+        declOk(s, decl).
 
     tliOk(_, tli) :-
         false

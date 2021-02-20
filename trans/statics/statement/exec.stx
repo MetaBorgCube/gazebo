@@ -1,0 +1,66 @@
+module statics/statement/exec
+
+imports
+
+    statics/common
+    statics/statement/block
+    statics/expr
+
+rules // entry point
+
+    execOk : scope * Exec
+
+    execOk(s, Exec(frag, body)) :- {s_exec_body}
+        execFragOk(s, frag),
+        new s_exec_body, s_exec_body -P-> s,
+        blockOk(s_exec_body, body).
+
+rules // fragments
+
+    execFragOk : scope * ExecFrag
+
+    execFragOk(s, ExecAlign(e)) :- {T}
+        typeOfExpr(s, e) == T,
+        try { false } | note $[todo: assert ^ct string]@e.
+
+    execFragOk(s, ExecAnchored(a)).
+
+    execFragOk(s, ExecAs(t)) :- {T}
+        typeOfExpr(s, t) == T,
+        try { false } | note $[todo: assert ^ct selector]@t.
+
+    execFragOk(s, ExecAt(t)) :- {T}
+        typeOfExpr(s, t) == T,
+        try { false } | note $[todo: assert ^ct selector]@t.
+
+    execFragOk(s, ExecFacingPos(p)) :- {T}
+        typeOfExpr(s, p) == T,
+        try { false } | note $[todo: assert ^ct pos]@p.
+
+    execFragOk(s, ExecFacingEntity(t, a)) :- {T}
+        typeOfExpr(s, t) == T,
+        try { false } | note $[todo: assert ^ct selector]@t.
+
+    execFragOk(s, ExecIn(dim)) :- {T}
+        typeOfExpr(s, dim) == T,
+        try { false } | note $[todo: assert ^ct and dim registry]@dim.
+
+    execFragOk(s, ExecPositionedPos(p)) :- {T}
+        typeOfExpr(s, p) == T,
+        try { false } | note $[todo: assert ^ct pos]@p.
+
+    execFragOk(s, ExecPositionedAs(t)) :- {T}
+        typeOfExpr(s, t) == T,
+        try { false } | note $[todo: assert ^ct selector]@t.
+
+    execFragOk(s, ExecRotatedAbs(r)) :- {T}
+        typeOfExpr(s, r) == T,
+        try { false } | note $[todo: assert ^ct double]@r.
+
+    execFragOk(s, ExecRotatedRel(r)) :- {T}
+        typeOfExpr(s, r) == T,
+        try { false } | note $[todo: assert ^ct double]@r.
+
+    execFragOk(s, ExecRotatedAs(t)) :- {T}
+        typeOfExpr(s, t) == T,
+        try { false } | note $[todo: assert ^ct selector]@t.

@@ -12,12 +12,17 @@ context-free sorts
 
     Exec
     ExecFrag
+    ExecAnchor
 
 lexical syntax
 
     ID = "as" {reject}
     ID = "at" {reject}
     ID = "in" {reject}
+    ID = "facing" {reject}
+    ID = "rotated" {reject}
+    ID = "eyes" {reject}
+    ID = "feet" {reject}
 
 context-free syntax
 
@@ -28,15 +33,23 @@ context-free syntax
     >
 
     ExecFrag.ExecAlign = <align <Expr>>
-    ExecFrag.ExecAnchor = <anchor <Expr>>
+    ExecFrag.ExecAnchored = <anchored <ExecAnchor>>
     ExecFrag.ExecAs = <as <Expr>>
     ExecFrag.ExecAt = <at <Expr>>
     ExecFrag.ExecFacingPos = <facing <Expr>>
-    ExecFrag.ExecFacingEntity = <facing entity <Expr> <Expr>>
+    ExecFrag.ExecFacingEntity = <facing entity <Expr> <ExecAnchor>>
     ExecFrag.ExecIn = <in <Expr>>
     ExecFrag.ExecPositionedPos = <positioned <Expr>>
     ExecFrag.ExecPositionedAs = <positioned as <Expr>>
-    ExecFrag.ExecRotatedRot = <rotated <Expr>>
-    ExecFrag.ExecRotatedRotAs = <rotated as <Expr>>
-    
+    ExecFrag.ExecRotatedAbs = <rotated <Expr>>
+    ExecFrag.ExecRotatedRel = <rotated ~<Expr>>
+    ExecFrag.ExecRotatedAs = <rotated as <Expr>>
+
     // execute <store|if|unless|run> are implicitly made available through other language constructs
+
+    ExecAnchor.AnchorEyes = <eyes>
+    ExecAnchor.AnchorFeet = <feet>
+
+context-free priorities
+
+    ExecFrag.ExecFacingEntity > ExecFrag.ExecFacingPos

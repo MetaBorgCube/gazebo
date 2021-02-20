@@ -1,0 +1,20 @@
+module statics/expr/props
+
+imports
+
+    statics/common
+
+rules
+
+    propsOk : scope * Props
+
+    propsOk(s, Props(propsInner)) :-
+        propsInnerOk(s, propsInner).
+
+    propsInnerOk maps propOk(*, list(*))
+
+    propOk : scope * Prop
+
+    propOk(s, ExprProp(k, v)).
+    propOk(s, IsProp(e)).
+    propOk(s, MapProp(k, kvs)).

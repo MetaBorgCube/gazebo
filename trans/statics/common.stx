@@ -3,3 +3,16 @@ module statics/common
 imports
 
     signatures/gazebo-sig
+    statics/types
+
+signature
+
+    name-resolution
+
+        labels P
+
+rules
+
+    nsid : string * list(string) -> NSID
+
+    nsid(namespace, names) = NSID(namespace, NSIDName(names)).

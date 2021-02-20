@@ -1,0 +1,19 @@
+module statics/expr/selector
+
+imports
+
+    statics/common
+    statics/expr/props
+
+rules
+
+    typeOfSelector : scope * Selector -> TYPE
+
+    // overload to account for optionality of a selector's props
+    typeOfSelector(s, Selector(name, [])) = typeOfSelector(s, Selector(name, [Props([])])).
+
+    typeOfSelector(s, Selector(name, [props])) = SELECTOR() :- {s_sel}
+        try { false } | note $[resolve to either default or alias]@name,
+        try { false } | note $[if default: add specs to scope. always add props to scope]@props,
+        new s_sel, s_sel -P-> s, // TODO: different kind of edge
+        propsOk(s_sel, props).

@@ -12,9 +12,9 @@ context-free sorts
 context-free syntax
 
     Enum.Enum = <
-        enum <Type>
+        enum <ID>
         {
-            <{ID ",\n"}+>
+            <{ID ",\n"}*>
         }
     >
 
