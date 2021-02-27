@@ -1,0 +1,44 @@
+module statics/bind/mod
+
+imports
+
+    statics/common
+
+rules
+
+    declareMod : scope * NSID * TYPE
+
+    declareMod(s, name, T) :-
+        !mod[name, T] in s.
+
+rules
+
+    queryMod : scope * NSID -> list((path * (NSID * TYPE)))
+
+    queryMod(s, name) = p :-
+        query mod
+            filter P* M and { x :- x == name }
+            min $ < P, $ < M and false
+            in s |-> p.
+
+rules
+
+    resolveMod : scope * NSID -> TYPE
+
+    resolveMod(s, name) = T :- {p p'}
+        queryMod(s, name) == p,
+        p == [(p', (_, T))] | error $[module [name] not resolved],
+        T == MOD(_).
+
+rules
+
+    currentMod : scope -> (NSID * scope)
+
+    // TODO: this could maybe also be implemented without the explicit presence of the currmod relation
+    currentMod(s) = (name, s_mod) :- {p p' T}
+        query currmod
+            filter P* and true
+            min $ < P and false
+            in s |-> p,
+        p == [(p', (name, T))] | error $[no single mod, instead: [p]],
+        T == MOD(s_mod).

@@ -10,6 +10,9 @@ signature
 
     constructors
 
+        // Modules
+        MOD : scope -> TYPE
+
         // Primitives
         STRING : TYPE
         BOOL : TYPE
@@ -28,3 +31,6 @@ signature
         // NBT-related exclusive types
         COMPOUND : TYPE
         LIST : TYPE
+
+        // Misc
+        UNK : TYPE

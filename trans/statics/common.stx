@@ -9,10 +9,66 @@ signature
 
     name-resolution
 
-        labels P
+        labels
+            P // parent
+            M // module
+            I // import (use)
+
+    relations
+
+        mod : NSID -> TYPE
+        currmod : -> (NSID * TYPE)
+        var : ID -> TYPE
+        const : ID -> TYPE
+
+rules
+
+    stringListConcat : list(string) * list(string) -> list(string)
+    stringListConcat([], r) = r.
+    stringListConcat([x|xs], r) = [x | stringListConcat(xs, r)].
+
+    stringListInit : list(string) -> list(string)
+    stringListInit([]) = [].
+    stringListInit([x]) = [].
+    stringListInit([x | xs@[y|ys]]) = [x | stringListInit(xs)].
+
+    stringListLast : list(string) -> string
+    stringListLast([]) = "?" :- false | error $[cannot get last element from empty list].
+    stringListLast([x]) = x.
+    stringListLast([x|xs]) = stringListLast(xs).
 
 rules
 
     nsid : string * list(string) -> NSID
 
     nsid(namespace, names) = NSID(namespace, NSIDName(names)).
+
+    nsidNameConcat : NSIDName * NSIDName -> NSIDName
+
+    nsidNameConcat(NSIDName(a), NSIDName(b)) = NSIDName(stringListConcat(a, b)).
+
+    nsidNameStripLast : NSIDName -> NSIDName
+
+    nsidNameStripLast(NSIDName(name)) = NSIDName(stringListInit(name)).
+
+rules
+
+    /** rel * base -> abs */
+    absolute : NSID * NSID -> NSID
+
+    /** good: already absolute */
+    absolute(rel@NSID(_, _), _) = rel.
+
+    /** good: relative to namespace of base */
+    absolute(NSIDShort(rel), NSID(base_ns, _)) = NSID(base_ns, rel).
+
+    /** good: sub-name relative to base */
+    absolute(rel@NSIDRel(name), NSID(base_ns, base_name)) = NSID(base_ns, nsidNameConcat(base_name, name)).
+
+    /** bad: misc */
+    absolute(rel@NSIDShort(name), base) = rel :-
+        false | error $[cannot compute absolute NSID of :[name] relative to [base]].
+
+    /** bad: misc */
+    absolute(rel@NSIDRel(name), base) = rel :-
+        false | error $[cannot compute absolute NSID of [name] relative to [base]].

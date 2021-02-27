@@ -1,0 +1,5 @@
+module statics/bind
+
+imports
+
+    statics/bind/mod

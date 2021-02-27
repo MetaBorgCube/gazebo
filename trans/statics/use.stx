@@ -3,11 +3,27 @@ module statics/use
 imports
 
     statics/common
+    statics/bind/mod
 
 rules
 
     usesOk maps useOk(*, list(*))
     useOk : scope * Use
-    useOk(s, Use(nsid)) :-
-        try { false }
-        | note $[to be implemented].
+
+    useOk(s, Use(nsid)) :- {curr abs s_mod}
+        // relativize the specified NSID to the current module
+        currentMod(s) == (curr, _),
+        abs == absolute(nsid, curr),
+
+        // resolve and add import edge
+        resolveMod(s, abs) == MOD(s_mod),
+        s -I-> s_mod.
+
+    /** resolve an absolute NSID either a module or an element of the parent module */
+    resolveModuleOrElemInModule : scope * NSID -> TYPE
+
+    // resolve to UNK if name is empty
+    resolveModuleOrElemInModule(s, nsid@NSID(_, NSIDName([]))) = UNK().
+
+    // TODO: resolve to element in module if no module was found
+    resolveModuleOrElemInModule(s, nsid@NSID(_, _)) = resolveMod(s, nsid).

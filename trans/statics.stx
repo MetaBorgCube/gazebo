@@ -7,15 +7,26 @@ imports
     statics/common
     statics/use
     statics/tli
+    statics/bind/mod
 
 rules // single-file entry point
 
     programOk : Start
 
-    programOk(Start(u, t)) :- {s}
-        new s,
-        usesOk(s, u),
-        tlisOk(s, t).
+    programOk(Start(u, t)) :- {s_root s_mod s_mod_init NSIDmod Tmod}
+        new s_root,
+
+        new s_mod_init, s_mod_init -M-> s_root,
+        declareMod(s_root, nsid("util", ["geometry", "rect"]), MOD(s_mod_init)),
+
+        new s_mod, s_mod -M-> s_root,
+        NSIDmod == nsid("myns", ["myname"]),
+        Tmod == MOD(s_mod),
+        declareMod(s_root, NSIDmod, Tmod),
+        !currmod[(NSIDmod, Tmod)] in s_mod,
+
+        usesOk(s_mod, u),
+        tlisOk(s_mod, t).
 
 rules // multi-file entry point
 

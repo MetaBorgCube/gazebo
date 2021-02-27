@@ -124,7 +124,7 @@ context-free sorts Range
 context-free syntax
 
     Expr = Range
-    Range.RangeFull = <<Expr-I>..<Expr-I>>
+    Range.RangeFull = <<Expr-I>..<Expr-I>> {left}
 
 /**
  * Position/vector
@@ -175,6 +175,3 @@ context-free priorities
         left:
         Expr.Or
     }
-
-
-
