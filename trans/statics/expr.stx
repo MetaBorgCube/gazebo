@@ -7,6 +7,7 @@ imports
     statics/expr/selector
     statics/expr/tag-resource
     statics/expr/literal
+    statics/expr/ref
 
 rules
 
@@ -47,7 +48,7 @@ rules // literal
 rules // ref
 
     typeOfExprImpl(s, Ref2Expr(ref)) = T :-
-        try { false } | note $[todo].
+        typeOfRef(s, ref) == T.
 
 rules // find (+ static)
 

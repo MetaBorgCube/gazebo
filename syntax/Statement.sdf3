@@ -31,7 +31,7 @@ context-free syntax
         <Statement*>
     }
     > {prefer} // prefer empty block over empty NBTCompound (see context-free priorities)
-    Block = Statement
+    Block.SingleStmt = [=> [Statement]]
 
 context-free priorities
 

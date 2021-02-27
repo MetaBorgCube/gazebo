@@ -9,7 +9,7 @@ rules
 
     blockOk : scope * Block
 
-    blockOk(s, Statement2Block(stmt)) :-
+    blockOk(s, SingleStmt(stmt)) :-
         statementOk(s, stmt).
 
     blockOk(s, Block(stmts)) :-

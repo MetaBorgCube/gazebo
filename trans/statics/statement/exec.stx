@@ -10,10 +10,14 @@ rules // entry point
 
     execOk : scope * Exec
 
-    execOk(s, Exec(frag, body)) :- {s_exec_body}
+    execOk(s, ExecFin(frag, body)) :- {s_exec_body}
         execFragOk(s, frag),
         new s_exec_body, s_exec_body -P-> s,
         blockOk(s_exec_body, body).
+
+    execOk(s, ExecChain(frag, next)) :-
+        // exec chain is typed just like a single-statement body
+        execOk(s, ExecFin(frag, SingleStmt(Exec2Statement(next)))).
 
 rules // fragments
 

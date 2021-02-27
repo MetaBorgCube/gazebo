@@ -51,6 +51,9 @@ context-free syntax
     Find.FindPathID = <<Expr-I>.<ID>>
     Find.FindPathString = <<Expr-I>.<STRING>>
 
+    // prevent any selector (e.g. @a[level>4]) to be interpreted as an index find
+    Find = <<Selector>[<Expr-I>]> {reject}
+
 /**
  * Static find (meant for enum references)
  */
@@ -80,14 +83,12 @@ context-free syntax
  */
 context-free syntax
 
-    Expr.Mul = <<Expr-I> * <Expr-I>>
-    Expr.Div = <<Expr-I> / <Expr-I>>
-    Expr.Mod = <<Expr-I> % <Expr-I>>
-    
-    Expr.Add = <<Expr-I> + <Expr-I>>
-    Expr.Sub = <<Expr-I> - <Expr-I>>
+    Expr.Mul = <<Expr-I> * <Expr-I>> {left}
+    Expr.Div = <<Expr-I> / <Expr-I>> {left}
+    Expr.Mod = <<Expr-I> % <Expr-I>> {left}
 
-// TODO: context-free priorities
+    Expr.Add = <<Expr-I> + <Expr-I>> {left}
+    Expr.Sub = <<Expr-I> - <Expr-I>> {left}
 
 /**
  * Boolean operations
@@ -95,12 +96,12 @@ context-free syntax
 context-free sorts Compare
 context-free syntax
 
-    Expr.And = <<Expr-I> and <Expr-I>>
-    Expr.Or = <<Expr-I> or <Expr-I>>
+    Expr.And = <<Expr-I> and <Expr-I>> {non-assoc}
+    Expr.Or = <<Expr-I> or <Expr-I>> {non-assoc}
 
     Expr.Not = <not <Expr-I>>
 
-    Expr.Cmp = <<Expr-I> <Compare> <Expr-I>>
+    Expr.Cmp = <<Expr-I> <Compare> <Expr-I>> {non-assoc}
     Compare.CmpGt = [>]
     Compare.CmpGte = [>=]
     Compare.CmpLt = [<]
@@ -114,8 +115,7 @@ lexical syntax
 
     ID = "eq" {reject}
     ID = "is" {reject}
-
-// TODO: context-free priorities
+    ID = "matches" {reject}
 
 /**
  * Range
@@ -125,8 +125,6 @@ context-free syntax
 
     Expr = Range
     Range.RangeFull = <<Expr-I>..<Expr-I>>
-    Range.RangeLower = <..<Expr-I>>
-    Range.RangeUpper = <<Expr-I>..>
 
 /**
  * Position/vector
@@ -144,7 +142,39 @@ context-free syntax
 
 context-free priorities
 
-    {Expr.Cmp} > {Range.RangeFull Range.RangeLower Range.RangeUpper}
+    {
+        Find.FindIndex
+        Find.FindPathID
+        Find.FindPathString
+        FindStatic.FindStaticID
+    } > {
+        Invoke.InvokeNone
+        Invoke.InvokeArgs
+        Invoke.InvokeArgsKwargs
+        Invoke.InvokeKwargs
+    } > {
+        left:
+        Range.RangeFull
+    } > {
+        Expr.Cmp
+    } > {
+        left:
+        Expr.Mul
+        Expr.Div
+        Expr.Mod
+    } > {
+        Expr.Not
+    } > {
+        left:
+        Expr.Add
+        Expr.Sub
+    } > {
+        left:
+        Expr.And
+    } > {
+        left:
+        Expr.Or
+    }
 
 
 

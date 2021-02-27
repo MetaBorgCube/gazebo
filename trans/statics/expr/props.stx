@@ -15,6 +15,7 @@ rules
 
     propOk : scope * Prop
 
-    propOk(s, ExprProp(k, v)).
+    propOk(s, KvProp(k, v)).
     propOk(s, IsProp(e)).
-    propOk(s, MapProp(k, kvs)).
+    propOk(s, CmpProp(k, cmp, v)).
+    propOk(s, MapProp(k, entries)).

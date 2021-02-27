@@ -26,11 +26,14 @@ lexical syntax
 
 context-free syntax
 
-    // TODO: (?) explicit execute chaining
-    Exec.Exec = <
+    Exec.ExecFin = <
         <ExecFrag>
         <Block>
     >
+    Exec.ExecChain = <
+        <ExecFrag>
+        <Exec>
+    > {prefer}
 
     ExecFrag.ExecAlign = <align <Expr>>
     ExecFrag.ExecAnchored = <anchored <ExecAnchor>>

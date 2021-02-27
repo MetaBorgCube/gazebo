@@ -10,14 +10,21 @@ signature
 
     constructors
 
+        // Primitives
         STRING : TYPE
         BOOL : TYPE
         INT : TYPE
         FLOAT : TYPE
 
+        // Basic constructs
         VEC : int -> TYPE
         RANGE : TYPE
 
+        // Specific types
         SELECTOR : TYPE
         TAG : NSID -> TYPE
         RESOURCE : NSID -> TYPE
+
+        // NBT-related exclusive types
+        COMPOUND : TYPE
+        LIST : TYPE

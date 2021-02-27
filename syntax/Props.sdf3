@@ -9,12 +9,14 @@ context-free sorts
 
     Props
     Prop
-    MapPropKv
+    MapProp
 
 context-free syntax
 
     Props.Props = <[<{Prop ", "}*>]>
-    Prop.ExprProp = <<ID> = <Expr>>
+    Prop.KvProp = <<ID> = <Expr>>
     Prop.IsProp = <is <Expr>>
-    Prop.MapProp = <<ID> = {<{MapPropKv ", "}*>}>
-    MapPropKv.MapPropKv = <<ID> = <Expr>>
+    Prop.CmpProp = <<ID> <Compare> <Expr>>
+    Prop.MapProp = <<ID> = {<{MapProp ", "}*>}>
+    MapProp.KvMapProp = <<ID> = <Expr>>
+    MapProp.CmpMapProp = <<ID> <Compare> <Expr>>

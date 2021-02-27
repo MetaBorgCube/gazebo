@@ -1,0 +1,12 @@
+module statics/expr/ref
+
+imports
+
+    statics/common
+
+rules
+
+    typeOfRef : scope * Ref -> TYPE
+
+    typeOfRef(s, nsid) = T :-
+        try { false } | note $[todo: resolve NSID and return referenced type].
