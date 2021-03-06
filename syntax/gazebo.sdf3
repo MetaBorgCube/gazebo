@@ -17,6 +17,7 @@ context-free sorts
 
     Start
     Use
+    UseFromPart
     Tli
 
 context-free syntax
@@ -33,6 +34,12 @@ context-free syntax
 
     // TODO: line breaks in PP
     Use.Use = <use <NSID>>
+    Use.UseAs = <use <NSID> as <ID>>
+    Use.UseFrom = <from <NSID> use <{UseFromPart ", "}+>>
+    Use.UseFromStar = <from <NSID> use *>
+
+    UseFromPart.UseFromPartRegular = <<ID>>
+    UseFromPart.UseFromPartAlias = <<ID> as <ID>>
 
     Tli = Alias
     Tli = Enum
