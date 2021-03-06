@@ -4,14 +4,16 @@ imports
 
     statics/common
     statics/expr
+    statics/bind/var
 
 rules // decl
 
     declOk : scope * Decl
 
     declOk(s, Decl(modifiers, name, e)) :- {T}
-        try { false } | note $[todo: declare in scope, respecting modifiers]@name,
         typeOfExpr(s, e) == T,
+        // TODO: (check redeclare in current scope?), warn if shadowing from parent scope
+        declareVar(s, name, T),
         @name.type += T.
 
 rules // assign

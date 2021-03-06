@@ -11,15 +11,14 @@ signature
 
         labels
             P // parent
-            M // module
-            I // import (use)
+            M // module boundary
+            I // star import (use)
 
     relations
 
         mod : NSID -> TYPE
         currmod : -> (NSID * TYPE)
-        var : ID -> TYPE
-        const : ID -> TYPE
+        memb : ID -> TYPE
 
 rules
 
@@ -42,6 +41,11 @@ rules
     nsid : string * list(string) -> NSID
 
     nsid(namespace, names) = NSID(namespace, NSIDName(names)).
+
+    nsidName : NSID -> NSIDName
+    nsidName(NSID(_, name)) = name.
+    nsidName(NSIDShort(name)) = name.
+    nsidName(NSIDRel(name)) = name.
 
     nsidNameConcat : NSIDName * NSIDName -> NSIDName
 

@@ -10,9 +10,6 @@ signature
 
     constructors
 
-        // Modules
-        MOD : scope -> TYPE
-
         // Primitives
         STRING : TYPE
         BOOL : TYPE
@@ -34,3 +31,11 @@ signature
 
         // Misc
         UNK : TYPE
+
+        // Modules
+        MOD : scope -> TYPE
+
+        // Members (constants, variables, functions)
+        CONST : TYPE
+        VAR : TYPE
+        FUNC : TYPE

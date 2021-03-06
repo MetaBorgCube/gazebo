@@ -32,6 +32,26 @@ rules
 
 rules
 
+    /**
+     * Resolve a module relative to the current module.
+     * If the given NSID is absolute, this function does not add any functionality.
+     * Any scope which has some path to the root scope suffices.
+     * A resolve is also attempted to the implicit namespaces.
+     */
+    resolveModRel : scope * NSID -> TYPE
+
+    resolveModRel(s, nsid) = T :- {curr abs}
+        // relativize the specified NSID to the current module
+        currentMod(s) == (curr, _),
+        abs == absolute(nsid, curr),
+
+        // TODO: attempt to import from the "minecraft" or "gzb" namespaces (the "implicit" namespaces)
+
+        // resolve
+        resolveMod(s, abs) == T@MOD(_).
+
+rules
+
     currentMod : scope -> (NSID * scope)
 
     // TODO: this could maybe also be implemented without the explicit presence of the currmod relation

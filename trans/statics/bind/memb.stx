@@ -1,0 +1,51 @@
+module statics/bind/memb
+
+imports
+
+    statics/common
+
+rules
+
+    declareMemb : scope * ID * TYPE
+
+    declareMemb(s, name, T) :-
+        // TODO: ensure member is not yet declared in the current scope
+        // TODO: if member is declared in some parent scope, emit a shadow warning
+        !memb[name, T] in s.
+
+rules
+
+    queryMembLocal : scope * ID -> list((path * (ID * TYPE)))
+
+    queryMembLocal(s, name) = p :-
+        query memb
+            filter P* and { x :- x == name }
+            min $ < P and false
+            in s |-> p.
+
+rules
+
+    queryMemb : scope * ID -> list((path * (ID * TYPE)))
+
+    queryMemb(s, name) = p :-
+        query memb
+            filter P* I? M? and { x :- x == name }
+            min $ < P, $ < M and false
+            in s |-> p.
+
+rules
+
+    resolveMemb : scope * ID -> TYPE
+
+    resolveMemb(s, name) = T :- {p p'}
+        queryMemb(s, name) == p,
+        // TODO: does path still match if there is a shadowed member?
+        p == [(p', (_, T))].
+
+rules
+
+    resolveMembLocal : scope * ID -> TYPE
+
+    resolveMembLocal(s, name) = T :- {p p'}
+        queryMembLocal(s, name) == p,
+        p == [(p', (_, T))].

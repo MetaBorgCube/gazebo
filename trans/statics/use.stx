@@ -4,20 +4,47 @@ imports
 
     statics/common
     statics/bind/mod
+    statics/bind/memb
 
 rules
 
     usesOk maps useOk(*, list(*))
     useOk : scope * Use
 
-    useOk(s, Use(nsid)) :- {curr abs s_mod}
-        // relativize the specified NSID to the current module
-        currentMod(s) == (curr, _),
-        abs == absolute(nsid, curr),
+    useOk(s, Use(nsid)) :- {name nameLast}
+        NSIDName(name) == nsidName(nsid),
+        nameLast == stringListLast(name),
+        useOk(s, UseAs(nsid, nameLast)).
 
-        // resolve and add import edge
-        resolveMod(s, abs) == MOD(s_mod),
+    useOk(s, UseAs(nsid, as)) :- {T s_mod}
+        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module]@nsid,
+        // TODO: might want to add some metadata to the member declaration that it has been imported
+        declareMemb(s, as, T).
+
+    useOk(s, UseFrom(nsid, froms)) :- {s_mod}
+        resolveModRel(s, nsid) == MOD(s_mod) | error $[not a valid module]@nsid,
+        useFromsOk(s, s_mod, froms).
+
+    useOk(s, UseFromStar(nsid)) :- {s_mod}
+        resolveModRel(s, nsid) == MOD(s_mod) | error $[not a valid module]@nsid,
+        // add an import edge to make all (visible) members visible to the current scope
         s -I-> s_mod.
+
+rules
+
+    useFromsOk maps useFromOk(*, *, list(*))
+    useFromOk : scope * scope * UseFromPart
+
+    useFromOk(s, s_mod, UseFromPartRegular(id)) :-
+        useFromOk(s, s_mod, UseFromPartAlias(id, id)).
+
+    useFromOk(s, s_mod, UseFromPartAlias(id, as)) :- {T}
+        resolveMembLocal(s_mod, id) == T | error $[member [id] not found in module]@id,
+        // TODO: might want to add some metadata to the member declaration that it has been imported
+        declareMemb(s, as, T),
+        @as.type += T.
+
+rules
 
     /** resolve an absolute NSID either a module or an element of the parent module */
     resolveModuleOrElemInModule : scope * NSID -> TYPE
