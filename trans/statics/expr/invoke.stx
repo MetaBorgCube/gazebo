@@ -1,0 +1,23 @@
+module statics/expr/invoke
+
+imports
+
+    statics/common
+    statics/expr
+
+rules
+
+    typeOfInvoke : scope * Invoke -> TYPE
+
+    typeOfInvoke(s, InvokeNone(e)) =
+        typeOfInvoke(s, InvokeArgsKwargs(e, Args([]), Kwargs([]))).
+
+    typeOfInvoke(s, InvokeArgs(e, a)) =
+        typeOfInvoke(s, InvokeArgsKwargs(e, a, Kwargs([]))).
+
+    typeOfInvoke(s, InvokeKwargs(e, k)) =
+        typeOfInvoke(s, InvokeArgsKwargs(e, Args([]), k)).
+
+    typeOfInvoke(s, InvokeArgsKwargs(Expr2Expr-I(e), a, k)) = STRING() :- {Tfn}
+        typeOfExpr(s, e) == Tfn,
+        try { false } | note $[todo].

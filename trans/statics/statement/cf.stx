@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/expr
+    statics/types
     statics/statement/block
 
 rules // for
@@ -34,6 +35,8 @@ rules // if
     ifOk(s, If(cond, body, else)) :- {Tc s_if}
         try { false } | note $[todo: assert bool type or check coercion]@cond,
         typeOfExpr(s, cond) == Tc,
+        typeBoolish(Tc) | error $[condition is not boolish, instead: [Tc]]@cond,
+
         new s_if, s_if -P-> s,
         blockOk(s_if, body),
         elseOk(s, else).

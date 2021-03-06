@@ -17,7 +17,7 @@ signature
         FLOAT : TYPE
 
         // Basic constructs
-        VEC : int -> TYPE
+        VEC : int * list(TYPE) -> TYPE
         RANGE : TYPE
 
         // Specific types
@@ -39,3 +39,13 @@ signature
         CONST : TYPE
         VAR : TYPE
         FUNC : TYPE
+
+rules
+
+    typeBoolish : TYPE
+
+    typeBoolish(BOOL()).
+    typeBoolish(SELECTOR()).
+    // TODO: VEC(3) only boolish if int/tilde
+    typeBoolish(VEC(3, _)).
+    typeBoolish(_) :- false.

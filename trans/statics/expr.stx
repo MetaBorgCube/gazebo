@@ -8,6 +8,8 @@ imports
     statics/expr/tag-resource
     statics/expr/literal
     statics/expr/ref
+    statics/expr/invoke
+    statics/types
 
 rules
 
@@ -17,10 +19,6 @@ rules
 
     /** do not refer directly, use typeOfExpr */
     typeOfExprImpl : scope * Expr -> TYPE
-
-    /** unwrap function to get Expr from Expr-I */
-    iu : Expr-I -> Expr
-    iu(Expr2Expr-I(e)) = e.
 
 rules // NBT
 
@@ -60,8 +58,8 @@ rules // find (+ static)
 
 rules // invoke
 
-    typeOfExprImpl(s, Invoke2Expr(ivk)) = T :-
-        try { false } | note $[todo].
+    typeOfExprImpl(s, Invoke2Expr(i)) = T :-
+        typeOfInvoke(s, i) == T.
 
 rules // arithmetic
 
@@ -82,16 +80,23 @@ rules // arithmetic
 
 rules // compare (boolean logic)
 
-    typeOfExprImpl(s, And(l, r)) = T :- {Tl Tr}
-        try { false } | note $[todo].
+    typeOfExprImpl(s, And(Expr2Expr-I(l), Expr2Expr-I(r))) = BOOL() :- {Tl Tr}
+        typeOfExpr(s, l) == Tl,
+        typeOfExpr(s, r) == Tr,
+        typeBoolish(Tl) | error $[cannot and non-boolean value]@l,
+        typeBoolish(Tr) | error $[cannot and non-boolean value]@r.
 
-    typeOfExprImpl(s, Or(l, r)) = T :- {Tl Tr}
-        try { false } | note $[todo].
+    typeOfExprImpl(s, Or(Expr2Expr-I(l), Expr2Expr-I(r))) = BOOL() :- {Tl Tr}
+        typeOfExpr(s, l) == Tl,
+        typeOfExpr(s, r) == Tr,
+        typeBoolish(Tl) | error $[cannot or non-boolean value]@l,
+        typeBoolish(Tr) | error $[cannot or non-boolean value]@r.
 
-    typeOfExprImpl(s, Not(e)) = T :- {Te}
-        try { false } | note $[todo].
+    typeOfExprImpl(s, Not(Expr2Expr-I(e))) = BOOL() :- {Te}
+        typeOfExpr(s, e) == Te,
+        typeBoolish(Te) | error $[cannot negate non-boolean value]@e.
 
-    typeOfExprImpl(s, Cmp(l, op, r)) = T :- {Tl Tr}
+    typeOfExprImpl(s, Cmp(l, op, r)) = BOOL() :- {Tl Tr}
         try { false } | note $[todo].
 
 rules // range
@@ -103,5 +108,5 @@ rules // range
 rules // vector
 
     typeOfExprImpl(s, Vec2Expr(vec)) = T :-
-        T == VEC(3).
-        //try { false } | note $[todo].
+        T == VEC(3, []),
+        try { false } | note $[todo].
