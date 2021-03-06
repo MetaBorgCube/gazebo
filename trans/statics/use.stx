@@ -17,16 +17,19 @@ rules
         useOk(s, UseAs(nsid, nameLast)).
 
     useOk(s, UseAs(nsid, as)) :- {T s_mod}
-        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module]@nsid,
+        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
+        s != s_mod | error $[can't import self]@nsid,
         // TODO: might want to add some metadata to the member declaration that it has been imported
         declareMemb(s, as, T).
 
-    useOk(s, UseFrom(nsid, froms)) :- {s_mod}
-        resolveModRel(s, nsid) == MOD(s_mod) | error $[not a valid module]@nsid,
+    useOk(s, UseFrom(nsid, froms)) :- {T s_mod}
+        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
+        s != s_mod | error $[can't import self]@nsid,
         useFromsOk(s, s_mod, froms).
 
-    useOk(s, UseFromStar(nsid)) :- {s_mod}
-        resolveModRel(s, nsid) == MOD(s_mod) | error $[not a valid module]@nsid,
+    useOk(s, UseFromStar(nsid)) :- {T s_mod}
+        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
+        s != s_mod | error $[can't import self]@nsid,
         // add an import edge to make all (visible) members visible to the current scope
         s -I-> s_mod.
 
@@ -42,15 +45,4 @@ rules
         resolveMembLocal(s_mod, id) == T | error $[member [id] not found in module]@id,
         // TODO: might want to add some metadata to the member declaration that it has been imported
         declareMemb(s, as, T),
-        @as.type += T.
-
-rules
-
-    /** resolve an absolute NSID either a module or an element of the parent module */
-    resolveModuleOrElemInModule : scope * NSID -> TYPE
-
-    // resolve to UNK if name is empty
-    resolveModuleOrElemInModule(s, nsid@NSID(_, NSIDName([]))) = UNK().
-
-    // TODO: resolve to element in module if no module was found
-    resolveModuleOrElemInModule(s, nsid@NSID(_, _)) = resolveMod(s, nsid).
+        @as.type := T.

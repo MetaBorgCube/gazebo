@@ -4,7 +4,7 @@ imports
 
     statics/common
     statics/expr
-    statics/bind/var
+    statics/bind/memb
 
 rules // decl
 
@@ -13,8 +13,8 @@ rules // decl
     declOk(s, Decl(modifiers, name, e)) :- {T}
         typeOfExpr(s, e) == T,
         // TODO: (check redeclare in current scope?), warn if shadowing from parent scope
-        declareVar(s, name, T),
-        @name.type += T.
+        declareMemb(s, name, T),
+        @name.type := T.
 
 rules // assign
 

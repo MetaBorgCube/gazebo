@@ -23,6 +23,17 @@ rules
 
 rules
 
+    concatQueryModRes : list((path * (NSID * TYPE))) * list((path * (NSID * TYPE))) -> list((path * (NSID * TYPE)))
+    concatQueryModRes([], r) = r.
+    concatQueryModRes([x|xs], r) = [x | concatQueryModRes(xs, r)].
+
+    flattenQueryModRes : list(list((path * (NSID * TYPE)))) -> list((path * (NSID * TYPE)))
+    flattenQueryModRes([]) = [].
+    flattenQueryModRes([x]) = x.
+    flattenQueryModRes([x|xs]) = concatQueryModRes(x, flattenQueryModRes(xs)).
+
+rules
+
     resolveMod : scope * NSID -> TYPE
 
     resolveMod(s, name) = T :- {p p'}
@@ -40,15 +51,24 @@ rules
      */
     resolveModRel : scope * NSID -> TYPE
 
-    resolveModRel(s, nsid) = T :- {curr abs}
+    resolveModRel(s, nsid) = T :- {curr abs imMc imGzb qcomb p'}
         // relativize the specified NSID to the current module
         currentMod(s) == (curr, _),
         abs == absolute(nsid, curr),
 
-        // TODO: attempt to import from the "minecraft" or "gzb" namespaces (the "implicit" namespaces)
+        // prep implicit
+        imMc == absolute(nsid, nsid("minecraft", [])),
+        imGzb == absolute(nsid, nsid("gzb", [])),
 
-        // resolve
-        resolveMod(s, abs) == T@MOD(_).
+        // resolve in order
+        qcomb == flattenQueryModRes([
+            queryMod(s, abs),
+            queryMod(s, imMc),
+            queryMod(s, imGzb)
+        ]),
+
+        // take head if exists, so respecting search order
+        qcomb == [(p', (_, T@MOD(_))) | _].
 
 rules
 

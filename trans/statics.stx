@@ -18,8 +18,8 @@ rules // single-file entry point
         new s_root,
 
         new s_mod_init, s_mod_init -M-> s_root,
-        declareMod(s_root, nsid("util", ["geometry"]), MOD(s_mod_init)),
-        declareMemb(s_mod_init, "rect", FUNC()),
+        declareMod(s_root, nsid("minecraft", ["world"]), MOD(s_mod_init)),
+        declareMemb(s_mod_init, "setblock", FUNC()),
 
         new s_mod, s_mod -M-> s_root,
         NSIDmod == nsid("myns", ["myname"]),

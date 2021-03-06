@@ -22,6 +22,11 @@ signature
 
 rules
 
+    stringListContains : list(string) * string
+    stringListContains([], _) :- false.
+    stringListContains([x], s) :- x == s.
+    stringListContains([x|xs], s) :- x == s.
+
     stringListConcat : list(string) * list(string) -> list(string)
     stringListConcat([], r) = r.
     stringListConcat([x|xs], r) = [x | stringListConcat(xs, r)].
@@ -67,7 +72,7 @@ rules
     absolute(NSIDShort(rel), NSID(base_ns, _)) = NSID(base_ns, rel).
 
     /** good: sub-name relative to base */
-    absolute(rel@NSIDRel(name), NSID(base_ns, base_name)) = NSID(base_ns, nsidNameConcat(base_name, name)).
+    absolute(rel@NSIDRel(name), NSID(base_ns, base_name)) = NSID(base_ns, nsidNameConcat(nsidNameStripLast(base_name), name)).
 
     /** bad: misc */
     absolute(rel@NSIDShort(name), base) = rel :-
