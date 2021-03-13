@@ -110,3 +110,8 @@ rules // vector
     typeOfExprImpl(s, Vec2Expr(vec)) = T :-
         T == VEC(3, []),
         try { false } | note $[todo].
+
+rules // lambda
+
+    typeOfExprImpl(s, Lambda2Expr(lambda)) = LAMBDA() :-
+        try { false } | note $[future].

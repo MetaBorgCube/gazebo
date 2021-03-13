@@ -138,6 +138,17 @@ context-free syntax
     VecElem.VecElemRel = [~[Expr?]]
     VecElem.VecElemLoc = [^[Expr?]]
 
+/**
+ * Lambda
+ */
+
+context-free sorts Lambda
+context-free syntax
+
+    Expr = Lambda
+    Lambda.LambdaParameterizedExpr = [\[{ID ", "}+] -> [Expr]\]
+    Lambda.LambdaExprOnly = [\[Expr]\]
+
 ////////
 
 context-free priorities

@@ -35,6 +35,9 @@ signature
         // Modules
         MOD : scope -> TYPE
 
+        // Lambda
+        LAMBDA : TYPE
+
         // Members (constants, variables, functions)
         CONST : TYPE
         VAR : TYPE
