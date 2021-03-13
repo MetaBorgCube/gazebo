@@ -9,11 +9,18 @@ imports
 context-free sorts
 
     NBT
+    NBTCompound
+    NBTArray
+    NBTList
     NBTKeyValue
 
 context-free syntax
 
-    NBT.NBTCompound = <
+    NBT = NBTCompound
+    NBT = NBTArray
+    NBT = NBTList
+
+    NBTCompound.NBTCompound = <
     {
         <{NBTKeyValue ",\n"}*>
     }
@@ -22,11 +29,7 @@ context-free syntax
     NBTKeyValue.KeyValueID = <<ID>: <Expr>>
     NBTKeyValue.KeyValueString = <<STRING>: <Expr>>
 
-    NBT.NBTArrayAnonymous = <[; <{Expr ", "}*>]>
-    NBT.NBTArrayExplicit = <[<Type>; <{Expr ", "}*>]>
+    NBTArray.NBTArrayAnonymous = <[; <{Expr ", "}*>]>
+    NBTArray.NBTArrayExplicit = <[<Type>; <{Expr ", "}*>]>
 
-    NBT.NBTList = <[<{Expr ", "}*>]>
-
-
-
-
+    NBTList.NBTList = <[<{Expr ", "}*>]>

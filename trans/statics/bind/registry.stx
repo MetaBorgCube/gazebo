@@ -1,0 +1,14 @@
+module statics/bind/registry
+
+imports
+
+    statics/common
+
+rules
+
+    /** root scope * registry name * registry scope */
+    declareRegistry : scope * NSID * scope
+
+    declareRegistry(s_root, nsid, s_reg) :-
+        // TODO: check duplicate
+        !registry[nsid, s_reg] in s_root.

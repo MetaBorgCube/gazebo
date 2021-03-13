@@ -6,25 +6,30 @@ imports
     statics/tli/alias
     statics/tli/enum
     statics/tli/fn
+    statics/tli/registry
     statics/statement/decl-assign
 
 rules
 
-    tlisOk maps tliOk(*, list(*))
-    tliOk : scope * Tli
+    tlisOk maps tliOk(*, *, list(*))
+    /** root scope * module scope * top-level item */
+    tliOk : scope * scope * Tli
 
-    tliOk(s, Alias2Tli(a)) :-
+    tliOk(_, s, Alias2Tli(a)) :-
         aliasOk(s, a).
 
-    tliOk(s, Enum2Tli(e)) :-
+    tliOk(_, s, Enum2Tli(e)) :-
         enumOk(s, e).
 
-    tliOk(s, Fn2Tli(fn)) :-
+    tliOk(_, s, Fn2Tli(fn)) :-
         fnOk(s, fn).
 
-    tliOk(s, Decl2Tli(decl)) :-
+    tliOk(_, s, Decl2Tli(decl)) :-
         declOk(s, decl).
 
-    tliOk(_, tli) :-
+    tliOk(s_root, s_mod, Registry2Tli(reg)) :-
+        registryOk(s_root, s_mod, reg).
+
+    tliOk(_, _, tli) :-
         false
         | error $[support for [tli] not implemented]@tli.

@@ -28,7 +28,7 @@ rules // single-file entry point
         !currmod[(NSIDmod, Tmod)] in s_mod,
 
         usesOk(s_mod, u),
-        tlisOk(s_mod, t).
+        tlisOk(s_root, s_mod, t).
 
 rules // multi-file entry point
 

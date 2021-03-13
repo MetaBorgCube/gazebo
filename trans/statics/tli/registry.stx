@@ -1,0 +1,56 @@
+module statics/tli/registry
+
+imports
+
+    statics/common
+    statics/bind/registry
+
+rules
+
+    /** root scope * module scope * registry */
+    registryOk : scope * scope * Registry
+
+    registryOk(s_root, s_mod, DynamicRegistry(RegistryName(nsid))) :- {s_reg}
+        nsid == NSID(_, _) | error $[dynamic registry name must include a namespace]@nsid,
+        new s_reg, s_reg -P-> s_mod,
+        declareRegistry(s_root, nsid, s_reg).
+
+    registryOk(s_root, s_mod, StaticRegistry(RegistryName(nsid), RegistryMeta(meta))) :- {s_reg}
+        nsid == NSID(_, _) | error $[static registry name must include a namespace]@nsid,
+        new s_reg, s_reg -P-> s_mod,
+        registryMetasOk(s_reg, meta),
+        declareRegistry(s_root, nsid, s_reg).
+
+rules
+
+    registryMetasOk maps registryMetaOk(*, list(*))
+    /** registry scope * meta */
+    registryMetaOk : scope * RegistryMetaEntry
+
+    registryMetaOk(s, RmeProtocolId(id)) :- {s_meta}
+        new s_meta,
+        // TODO: check duplicate
+        // TODO: declare actual value type as INT() in regmeta (scope?)
+        !regmeta["protocol", s_meta] in s.
+
+    registryMetaOk(s, RmeBlockStates(bss)) :-
+        try { false } | note $[todo].
+
+    registryMetaOk(s, RmeData()) :-
+        try { false } | note $[todo].
+
+    registryMetaOk(s, RmeRegistration(id, RegistryMeta(meta))) :- {s_reg}
+        id == NSID(_, _) | error $[registration name must include a namespace]@id,
+        new s_reg, s_reg -P-> s,
+        registryMetasNoRegistration(meta),
+        registryMetasOk(s_reg, meta),
+        // TODO: check duplicate
+        !registration[id, s_reg] in s.
+
+rules
+
+    registryMetasNoRegistration maps registryMetaNoRegistration(list(*))
+    registryMetaNoRegistration : RegistryMetaEntry
+    registryMetaNoRegistration(reg@RmeRegistration(_, _)) :-
+        false | error $[registration cannot contain another registration in its metadata]@reg.
+    registryMetaNoRegistration(_).

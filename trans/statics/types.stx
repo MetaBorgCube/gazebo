@@ -23,7 +23,8 @@ signature
         // Specific types
         SELECTOR : TYPE
         TAG : NSID -> TYPE
-        RESOURCE : NSID -> TYPE
+        /** registry * registration */
+        RESOURCE : NSID * NSID -> TYPE
 
         // NBT-related exclusive types
         COMPOUND : TYPE

@@ -18,6 +18,15 @@ context-free syntax
     TRIdent.TRIdentAonymous = [        [NSID]]
     TRIdent.TRIdentExplicit = [<[NSID]>[NSID]]
 
-    Resource.Resource = <$<TRIdent><Props?><NBT?>>
+    Resource.ResourceBare  = <$<TRIdent>>
+    Resource.ResourceProps = <$<TRIdent><Props>>
+    Resource.ResourceNBT   = <$<TRIdent><NBTCompound>>
+    Resource.ResourceFull  = <$<TRIdent><Props><NBTCompound>>
+
+    // rejections for empty props and payload
+    // only necessary if NBT becomes a valid statement
+    //Resource = <$<TRIdent>[]> {reject}
+    //Resource = <$<TRIdent>[]{}> {reject}
+    //Resource = <$<TRIdent>{}> {reject}
 
     Tag.Tag = <#<TRIdent>>

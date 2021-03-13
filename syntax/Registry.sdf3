@@ -1,0 +1,53 @@
+module Registry
+
+imports
+
+    Common
+    NSID
+    Expr
+    Type
+    Literals
+
+context-free sorts
+
+    Registry
+    RegistryName
+    RegistryMeta
+    RegistryMetaEntry
+    RmeBlockState
+
+context-free syntax // common
+
+    RegistryName.RegistryName = [$<[NSID]>]
+
+context-free syntax // registry decl
+
+    Registry.DynamicRegistry = <dynamic registry <RegistryName>>
+    Registry.StaticRegistry = <
+        static registry <RegistryName>
+        {
+            <RegistryMeta>
+        }
+    >
+
+context-free syntax // meta
+
+    RegistryMeta.RegistryMeta = <<{RegistryMetaEntry "\n"}+>>
+    RegistryMetaEntry.RmeRegistration = <
+        register <NSID>
+        {
+            <RegistryMeta>
+        }
+    >
+    RegistryMetaEntry.RmeProtocolId = <protocol_id <INT>>
+    RegistryMetaEntry.RmeBlockStates = <
+        block_states
+        {
+            <{RmeBlockState "\n"}*>
+        }
+    >
+    RegistryMetaEntry.RmeData = <data {}>
+
+context-free syntax // meta specifics
+
+    RmeBlockState.RmeBlockState = <<ID_UNRESTR> <Type> { <{Literal ", "}+> }>

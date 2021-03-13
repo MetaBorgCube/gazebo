@@ -23,7 +23,7 @@ context-free syntax
 
     Expr-I = Expr
     Expr-I = <(<Expr-I>)> {bracket}
-    
+
     // from imports:
     Expr = NBT
     Expr = Selector
@@ -81,14 +81,16 @@ context-free syntax
 /**
  * Arithmetic
  */
+context-free sorts Arith
 context-free syntax
 
-    Expr.Mul = <<Expr-I> * <Expr-I>> {left}
-    Expr.Div = <<Expr-I> / <Expr-I>> {left}
-    Expr.Mod = <<Expr-I> % <Expr-I>> {left}
+    Expr = Arith
+    Arith.Mul = <<Expr-I> * <Expr-I>> {left}
+    Arith.Div = <<Expr-I> / <Expr-I>> {left}
+    Arith.Mod = <<Expr-I> % <Expr-I>> {left}
 
-    Expr.Add = <<Expr-I> + <Expr-I>> {left}
-    Expr.Sub = <<Expr-I> - <Expr-I>> {left}
+    Arith.Add = <<Expr-I> + <Expr-I>> {left}
+    Arith.Sub = <<Expr-I> - <Expr-I>> {left}
 
 /**
  * Boolean operations
@@ -170,15 +172,15 @@ context-free priorities
         Expr.Cmp
     } > {
         left:
-        Expr.Mul
-        Expr.Div
-        Expr.Mod
+        Arith.Mul
+        Arith.Div
+        Arith.Mod
     } > {
         Expr.Not
     } > {
         left:
-        Expr.Add
-        Expr.Sub
+        Arith.Add
+        Arith.Sub
     } > {
         left:
         Expr.And

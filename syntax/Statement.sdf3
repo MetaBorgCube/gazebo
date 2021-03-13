@@ -5,6 +5,7 @@ imports
     Common
     Expr
     Exec
+    NBT
 
 context-free sorts
 
@@ -21,7 +22,7 @@ context-free syntax
     Statement = Exec
 
     // Primitive statements
-    Statement.ExprStmt = <<Expr>>
+    Statement.InvokeStmt = Invoke
     Noop.Noop = <;>
     Statement = Noop
 
@@ -30,13 +31,8 @@ context-free syntax
     {
         <Statement*>
     }
-    > {prefer} // prefer empty block over empty NBTCompound (see context-free priorities)
+    >
     Block.SingleStmt = [=> [Statement]]
-
-context-free priorities
-
-    // FIXME: Other situation where context-free priorities do not seem to have any effect, but {prefer} does
-    Block.Block > Statement.ExprStmt
 
 /**
  * Declaration statement

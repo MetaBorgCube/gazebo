@@ -8,6 +8,7 @@ imports
     NSID
     Function
     Statement
+    Registry
 
 context-free start-symbols
   
@@ -23,16 +24,15 @@ context-free sorts
 context-free syntax
 
     Start.Start = <
-        <Use*>
+        <{Use "\n"}*>
 
-        <Tli*>
+        <{Tli "\n\n"}*>
 
     >
     // ^ end with blank line to end file with newline
 
 context-free syntax
 
-    // TODO: line breaks in PP
     Use.Use = <use <NSID>>
     Use.UseAs = <use <NSID> as <ID>>
     Use.UseFrom = <from <NSID> use <{UseFromPart ", "}+>>
@@ -45,3 +45,4 @@ context-free syntax
     Tli = Enum
     Tli = Fn
     Tli = Decl
+    Tli = Registry

@@ -6,12 +6,14 @@ imports
     Type
     Statement
     TagAndResource
+    Expr
 
 context-free sorts
 
     Fn
     FnMod
     Sign
+    FnSpec
     Params
     Param
     RetSpec
@@ -26,12 +28,13 @@ context-free syntax
     Param.Param = <<{ID ", "}+> <Type>>
     RetSpec.RetSpec = [-> [Type]]
 
-    // TODO: PP: blank lines between separate funcs
-    Fn.FnDef = <
+    FnSpec.FnSpec = <
         <Tag*>
-        <FnMod*> func <ID><Sign>
+        <FnMod*> func <ID><Sign>>
+
+    Fn.FnBlock = <
+        <FnSpec>
         <Block>
     >
-    Fn.FnExt = <
-        extern func <ID><Sign>
-    >
+    Fn.FnExpr = <<FnSpec> = <Expr>>
+    Fn.FnExt = <extern func <ID><Sign>>

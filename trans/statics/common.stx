@@ -18,7 +18,10 @@ signature
 
         mod : NSID -> TYPE
         currmod : -> (NSID * TYPE)
-        memb : ID -> TYPE
+        memb : string -> TYPE
+        registry : NSID -> scope
+        registration : NSID -> scope
+        regmeta : string -> scope
 
 rules
 

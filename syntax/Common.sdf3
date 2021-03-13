@@ -1,14 +1,17 @@
 module Common
 
 lexical sorts
-  ID INT FLOAT STRING
+  ID_UNRESTR ID
+  INT FLOAT
+  STRING
   STRING_CHAR BACKSLASH_CHAR
   COMMENT_CHAR INSIDE_COMMENT
   NEWLINE_EOF EOF
 
 lexical syntax
 
-  ID               = [a-zA-Z] [a-zA-Z0-9\_]*
+  ID               = ID_UNRESTR
+  ID_UNRESTR       = [a-zA-Z] [a-zA-Z0-9\_]*
   // TODO: allow underscores in integers
   INT              = "-"? [0-9]+
   FLOAT            = INT FLOAT_SUFFIX
@@ -34,7 +37,7 @@ lexical restrictions
   
   COMMENT_CHAR    -/- [\/]
   INT             -/- [dfDF0-9] // not followed by any float suffix, must be FLOAT then
-  ID              -/- [a-zA-Z0-9\_]
+  ID_UNRESTR      -/- [a-zA-Z0-9\_]
   
   // Floats may not be followed by another suffix
   FLOAT           -/- [dfDF]

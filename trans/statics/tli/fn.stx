@@ -4,15 +4,22 @@ imports
 
     statics/common
     statics/statement/block
+    statics/expr
 
 rules
 
     fnOk : scope * Fn
 
-    fnOk(s, FnDef(tags, modifiers, name, signature, body)) :- {s_body}
+    fnOk(s, FnBlock(FnSpec(tags, modifiers, name, signature), body)) :- {s_body}
         new s_body, s_body -P-> s,
         // TODO: signagure in scope as immutable variables with possible ^ct
         blockOk(s_body, body),
+        true.
+
+    fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_body T}
+        new s_body, s_body -P-> s,
+        typeOfExpr(s_body, e) == T,
+        // TODO: ensure return type is a subtype of T
         true.
 
     fnOk(s, FnExt(name, signature)) :-

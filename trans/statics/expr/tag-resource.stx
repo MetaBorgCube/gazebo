@@ -3,6 +3,7 @@ module statics/expr/tag-resource
 imports
 
     statics/common
+    statics/bind/registry
 
 rules // tag
 
@@ -16,6 +17,15 @@ rules // resource
 
     typeOfResource : scope * Resource -> TYPE
 
-    typeOfResource(s, Resource(ident, props, payl)) = T :-
+    typeOfResource(s, ResourceBare(ident)) =
+        typeOfResource(s, ResourceFull(ident, Props([]), NBTCompound([]))).
+
+    typeOfResource(s, ResourceProps(ident, props)) =
+        typeOfResource(s, ResourceFull(ident, props, NBTCompound([]))).
+
+    typeOfResource(s, ResourceNBT(ident, payl)) =
+        typeOfResource(s, ResourceFull(ident, Props([]), payl)).
+
+    typeOfResource(s, ResourceFull(ident, props, payl)) = T :-
         try { false } | note $[todo: infer registry, check props and payl]@ident,
-        T == RESOURCE(nsid("minecraft", ["block"])).
+        T == RESOURCE(nsid("minecraft", ["block"]), nsid("minecraft", ["repeater"])).

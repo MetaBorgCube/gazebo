@@ -26,10 +26,10 @@ rules // exec
     statementOk(s, Exec2Statement(ex)) :-
         execOk(s, ex).
 
-rules // expr
+rules // expr (invoke only)
 
-    statementOk(s, ExprStmt(e)) :- {T}
-        typeOfExpr(s, e) == T.
+    statementOk(s, stmt@InvokeStmt(i)) :- {T}
+        typeOfExpr(s, Invoke2Expr(i)) == T.
 
 rules // noop
 
