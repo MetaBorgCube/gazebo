@@ -63,19 +63,19 @@ rules // invoke
 
 rules // arithmetic
 
-    typeOfExprImpl(s, Mul(l, r)) = T :- {Tl Tr}
+    typeOfExprImpl(s, Arith2Expr(Mul(l, r))) = T :- {Tl Tr}
         try { false } | note $[todo].
 
-    typeOfExprImpl(s, Div(l, r)) = T :- {Tl Tr}
+    typeOfExprImpl(s, Arith2Expr(Div(l, r))) = T :- {Tl Tr}
         try { false } | note $[todo].
 
-    typeOfExprImpl(s, Mod(l, r)) = T :- {Tl Tr}
+    typeOfExprImpl(s, Arith2Expr(Mod(l, r))) = T :- {Tl Tr}
         try { false } | note $[todo].
 
-    typeOfExprImpl(s, Add(l, r)) = T :- {Tl Tr}
+    typeOfExprImpl(s, Arith2Expr(Add(l, r))) = T :- {Tl Tr}
         try { false } | note $[todo].
 
-    typeOfExprImpl(s, Sub(l, r)) = T :- {Tl Tr}
+    typeOfExprImpl(s, Arith2Expr(Sub(l, r))) = T :- {Tl Tr}
         try { false } | note $[todo].
 
 rules // compare (boolean logic)
