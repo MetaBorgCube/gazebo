@@ -6,11 +6,19 @@ imports
 
 rules
 
+// FIXME: seems to cause the Statix solver to get in an infinite loop
+//    declareMembs : scope * list((ID * TYPE))
+//
+//    declareMembs(s, [(name, T) | xs]) :-
+//        declareMemb(s, name, T),
+//        declareMembs(s, xs).
+
     declareMemb : scope * ID * TYPE
 
     declareMemb(s, name, T) :-
         // TODO: ensure member is not yet declared in the current scope
         // TODO: if member is declared in some parent scope, emit a shadow warning
+        // TODO: add information about mutability and other access modifiers of the member
         !memb[name, T] in s.
 
 rules

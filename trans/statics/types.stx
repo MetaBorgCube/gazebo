@@ -17,7 +17,7 @@ signature
         FLOAT : TYPE
 
         // Basic constructs
-        VEC : int * list(TYPE) -> TYPE
+        VEC : list(TYPE) -> TYPE
         RANGE : TYPE
 
         // Specific types
@@ -25,10 +25,13 @@ signature
         TAG : NSID -> TYPE
         /** registry * registration */
         RESOURCE : NSID * NSID -> TYPE
+        ITER : TYPE -> TYPE
+        VOID : TYPE
 
         // NBT-related exclusive types
         COMPOUND : TYPE
-        LIST : TYPE
+        LIST : TYPE -> TYPE
+        ARRAY : TYPE -> TYPE
 
         // Misc
         UNK : TYPE
@@ -42,7 +45,7 @@ signature
         // Members (constants, variables, functions)
         CONST : TYPE
         VAR : TYPE
-        FUNC : TYPE
+        FUNC : list(TYPE) * TYPE -> TYPE
 
 rules
 
@@ -51,5 +54,20 @@ rules
     typeBoolish(BOOL()).
     typeBoolish(SELECTOR()).
     // TODO: VEC(3) only boolish if int/tilde
-    typeBoolish(VEC(3, _)).
+    typeBoolish(VEC([_, _, _])).
     typeBoolish(_) :- false.
+
+rules
+
+    /** resolves to UNK if type is not iterable */
+    typeUnwrapIter : TYPE -> TYPE
+    typeUnwrapIter(ITER(T)) = T.
+    typeUnwrapIter(LIST(T)) = T.
+    typeUnwrapIter(ARRAY(T)) = T.
+    typeUnwrapIter(T) = UNK().
+
+rules
+
+    destructType : TYPE -> list(TYPE)
+    destructType(VEC(elems)) = elems.
+    destructType(t) = [] :- false | error $[cannot destruct type [t]].

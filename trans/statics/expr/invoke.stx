@@ -18,6 +18,7 @@ rules
     typeOfInvoke(s, InvokeKwargs(e, k)) =
         typeOfInvoke(s, InvokeArgsKwargs(e, Args([]), k)).
 
-    typeOfInvoke(s, InvokeArgsKwargs(Expr2Expr-I(e), a, k)) = STRING() :- {Tfn}
+    typeOfInvoke(s, InvokeArgsKwargs(Expr2Expr-I(e), a, k)) = Tr :- {Tfn Tpar}
         typeOfExpr(s, e) == Tfn,
-        try { false } | note $[todo].
+        Tfn == FUNC(Tpar, Tr) | error $[cannot invoke, type [Tfn] is not a function]@e,
+        try { false } | note $[todo: check subtypes on the parameter types].

@@ -6,6 +6,26 @@ imports
     statics/expr
     statics/types
     statics/statement/block
+    statics/bind/memb
+
+rules // some VERY NOT NICE rules to do type explosion combined with declaring the members during zipping
+
+    zipSafeLeft_string_TYPE_andDecl : scope * list(string) * list(TYPE) -> list((string * TYPE))
+    zipSafeLeft_string_TYPE_andDecl(_, [], _) = [].
+    zipSafeLeft_string_TYPE_andDecl(_, x, []) = [] :-
+        x == [] | error $[too few items in right list].
+    zipSafeLeft_string_TYPE_andDecl(s, [x|xs], [y|ys]) = [(x, y) | zipSafeLeft_string_TYPE_andDecl(s, xs, ys)] :-
+        @x.type := y,
+        declareMemb(s, x, y).
+
+    typeDestructAssign_andDecl : scope * list(string) * TYPE -> list((string * TYPE))
+    typeDestructAssign_andDecl(_, [], _) = [].
+    typeDestructAssign_andDecl(s, [x], T) = [(x, T)] :-
+        @x.type := T,
+        declareMemb(s, x, T).
+    typeDestructAssign_andDecl(s, names, Tdestr) = zipped :- {Tdestr'}
+        destructType(Tdestr) == Tdestr',
+        zipSafeLeft_string_TYPE_andDecl(s, names, Tdestr') == zipped.
 
 rules // for
 
@@ -16,16 +36,18 @@ rules // for
         blockOk(s_for_inf, body).
 
     forOk(s, ForWhile(cond, body)) :- {Tc s_for_wh}
-        try { false } | note $[todo: assert bool type or check coercion]@cond,
         typeOfExpr(s, cond) == Tc,
+        typeBoolish(Tc) | error $[condition is not boolish, instead: [Tc]]@cond,
         new s_for_wh, s_for_wh -P-> s,
         blockOk(s_for_wh, body).
 
-    forOk(s, ForIn(names, iter, body)) :- {Ti s_for_in}
-        try { false } | note $[todo: assert iter type]@iter,
+    forOk(s, ForIn(names, iter, body)) :- {Ti Telem Tassigned s_for_in}
         typeOfExpr(s, iter) == Ti,
+        Telem != UNK() | error $[type [Ti] is not iterable]@iter,
+        typeUnwrapIter(Ti) == Telem,
         new s_for_in, s_for_in -P-> s,
-        try { false } | note $[todo: declare names in scope, with ^ct dependig on cond]@names,
+        // TODO: ensure the declared members are not marked mutable
+        typeDestructAssign_andDecl(s_for_in, names, Telem) == Tassigned,
         blockOk(s_for_in, body).
 
 rules // if

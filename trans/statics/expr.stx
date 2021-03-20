@@ -108,7 +108,7 @@ rules // range
 rules // vector
 
     typeOfExprImpl(s, Vec2Expr(vec)) = T :-
-        T == VEC(3, []),
+        T == VEC([INT(), INT(), INT()]),
         try { false } | note $[todo].
 
 rules // lambda

@@ -9,4 +9,6 @@ rules
     typeOfRef : scope * Ref -> TYPE
 
     typeOfRef(s, nsid) = T :-
+        // dummy signature: iter func() -> PosI
+        T == FUNC([], ITER(VEC([INT(), INT(), INT()]))),
         try { false } | note $[todo: resolve NSID and return referenced type].
