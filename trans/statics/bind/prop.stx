@@ -1,0 +1,32 @@
+module statics/bind/prop
+
+imports
+
+    statics/common
+
+rules
+
+    declareProp : scope * ID * PROP
+
+    declareProp(s, name, prop) :-
+        !prop[name, prop] in s.
+
+rules
+
+    queryProp : scope * ID -> list((path * (string * PROP)))
+
+    queryProp(s, name) = p :-
+        // TODO: check query
+        query prop
+            filter A* and { x :- x == name}
+            min $ < A and false
+            in s |-> p.
+
+rules
+
+    resolveProp : scope * ID -> PROP
+
+    resolveProp(s, name) = prop :- {p p'}
+        queryProp(s, name) == p,
+        // TODO: support mutliprops, probably only ever used for the "tag" prop (because selector can constrain on multiple tags) 
+        p == [(p', (_, prop))].

@@ -1,0 +1,57 @@
+advancements map: TODO
+distance cmp: INT or FLOAT or RANGE(INT) or RANGE(FLOAT)
+dx kv: FLOAT
+dy kv: FLOAT
+dz kv: FLOAT
+gamemode eqspecial: STRING ["adventure" | "creative" | "spectator" | "survival"]
+level cmp: INT or RANGE(INT)
+limit kv: INT
+name kv: STRING
+nbt kv: NBT [compound conforming to a fully optional version of the target entity type]
+predicate eqmulti: $<minecraft:predicate> [maybe don't support it from GZB?]
+scores map: TODO
+sort kv: STRING ["arbitrary" | "furthest" | "nearest" | "random"]
+tag eqmulti: STRING
+team kv: STRING
+type eqspecial: $<minecraft:entity>
+x kv: INT or FLOAT
+y kv: INT or FLOAT
+z kv: INT or FLOAT
+x_rotation kv: INT or FLOAT
+y_rotation kv: INT or FLOAT
+z_rotation kv: INT or FLOAT
+
+----
+
+kv props (only =, only once):
+- dx
+- dy
+- dz
+- limit
+- name
+- nbt
+- sort
+- team
+- type
+- x
+- y
+- z
+- x_rotation
+- y_rotation
+- z_rotation
+
+cmp props (allowed: ==, >=, <=, matches, disallowed: !=, eq, is):
+- distance
+- level (only applicable if type=player)
+
+eqmulti props (only == and !=, but no limit):
+- predicate
+- tag
+
+eqspecial props (arbitrary !=, but once == then no != anymore):
+- gamemode
+- type
+
+map props (TODO):
+- advancements
+- scores

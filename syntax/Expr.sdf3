@@ -109,6 +109,7 @@ context-free syntax
     Compare.CmpLt = [<]
     Compare.CmpLte = [<=]
     Compare.CmpEqual = [==]
+    Compare.CmpNotEqual = [!=]
     Compare.CmpEquiv = [eq] 
     Compare.CmpIs = [is]
     Compare.CmpMatches = [matches]

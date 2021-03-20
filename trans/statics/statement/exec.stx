@@ -30,20 +30,17 @@ rules // fragments
     execFragOk(s, ExecAnchored(a)).
 
     execFragOk(s, ExecAs(t)) :- {T}
-        typeOfExpr(s, t) == T,
-        try { false } | note $[todo: assert ^ct selector]@t.
+        typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
     execFragOk(s, ExecAt(t)) :- {T}
-        typeOfExpr(s, t) == T,
-        try { false } | note $[todo: assert ^ct selector]@t.
+        typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
     execFragOk(s, ExecFacingPos(p)) :- {T}
         typeOfExpr(s, p) == T,
         try { false } | note $[todo: assert ^ct pos]@p.
 
     execFragOk(s, ExecFacingEntity(t, a)) :- {T}
-        typeOfExpr(s, t) == T,
-        try { false } | note $[todo: assert ^ct selector]@t.
+        typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
     execFragOk(s, ExecIn(dim)) :- {T}
         typeOfExpr(s, dim) == T,
@@ -54,8 +51,7 @@ rules // fragments
         try { false } | note $[todo: assert ^ct pos]@p.
 
     execFragOk(s, ExecPositionedAs(t)) :- {T}
-        typeOfExpr(s, t) == T,
-        try { false } | note $[todo: assert ^ct selector]@t.
+        typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
     execFragOk(s, ExecRotatedAbs(r)) :- {T}
         typeOfExpr(s, r) == T,
@@ -66,5 +62,4 @@ rules // fragments
         try { false } | note $[todo: assert ^ct double]@r.
 
     execFragOk(s, ExecRotatedAs(t)) :- {T}
-        typeOfExpr(s, t) == T,
-        try { false } | note $[todo: assert ^ct selector]@t.
+        typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.

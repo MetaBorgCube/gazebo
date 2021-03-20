@@ -3,7 +3,9 @@ module statics/expr/selector
 imports
 
     statics/common
-    statics/expr/props
+    statics/expr
+    statics/bind/alias
+    statics/bind/prop
 
 rules
 
@@ -12,8 +14,221 @@ rules
     // overload to account for optionality of a selector's props
     typeOfSelector(s, Selector(name, [])) = typeOfSelector(s, Selector(name, [Props([])])).
 
-    typeOfSelector(s, Selector(name, [props])) = SELECTOR() :- {s_sel}
-        try { false } | note $[resolve to either default or alias]@name,
-        try { false } | note $[if default: add specs to scope. always add props to scope]@props,
-        new s_sel, s_sel -P-> s, // TODO: different kind of edge
-        propsOk(s_sel, props).
+    typeOfSelector(s, Selector(name, [props])) = SELECTOR(s_sel) :- {s_alias}
+        resolveAlias(s, name) == s_alias,
+        new s_sel, s_sel -P-> s, s_sel -A-> s_alias,
+        selectorPropsOk(s_sel, props).
+
+rules
+
+    selectorPropsOk : scope * Props
+    selectorPropsOk(s, Props(props)) :-
+        selectorPropsInnerOk(s, props).
+    selectorPropsInnerOk maps selectorPropOk(*, list(*))
+    /**
+     * selector scope * props
+     * Checks if property is OK for a selector and declares it in the current selector scope.
+     * Errors on any unoverridable properties (from parents).
+     */
+    selectorPropOk : scope * Prop
+
+    selectorPropOk(s, KvProp(k, v)) :-
+        selectorKvPropOk(s, k, v).
+
+    selectorPropOk(s, IsProp(v)) :-
+        // TODO: also support tag negate ("!is" perhaps?)
+        selectorPropOk(s, CmpProp("tag", CmpEqual(), v)).
+
+    selectorPropOk(s, CmpProp(k, cmp, v)) :-
+        selectorOkDispatchCmpOp(s, k, cmp, v).
+
+    selectorPropOk(s, MapProp(k, entries)) :-
+        try { false } | note $[todo: map props ('advancements' and 'scores')].
+
+rules // prop class: kv
+
+    /** selector scope * key * value */
+    selectorKvPropOk : scope * ID * Expr
+
+    // TODO: don't hard-code this here, perhaps at some other place and use a SG query
+    selectorKvPropOk(s, k@"dx", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"dy", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"dz", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"limit", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"name", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"nbt", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"sort", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"team", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"type", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"x", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"x_rotation", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"y", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"y_rotation", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"z", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(s, k@"z_rotation", e) :- selectorKvPropInternalOk(s, k, e).
+    selectorKvPropOk(_, k, _) :-
+        false | error $[property key not recognized with key-value operation]@k.
+
+    selectorKvPropInternalOk : scope * ID * Expr
+
+    selectorKvPropInternalOk(s, k, e) :- {Te}
+        typeOfExpr(s, e) == Te,
+        // TODO: ensure prop is not already declared "final"
+        // TODO: add note if overriding from alias
+        // TODO: do not allow the same prop in this scope
+        declareProp(s, k, PROP_KV(Te)).
+
+rules // prop class: dispatch for cmp, eqmulti and eqspecial
+
+    /** selector scope * key * op * expr */
+    selectorOkDispatchCmpOp : scope * ID * Compare * Expr
+
+    // dispatch cmp
+    selectorOkDispatchCmpOp(s, k@"distance", op, e) :-
+        selectorCmpPropOk(s, k, op, e).
+    selectorOkDispatchCmpOp(s, k@"level", op, e) :-
+        selectorCmpPropOk(s, k, op, e).
+
+    // dispatch eqmulti
+    selectorOkDispatchCmpOp(s, k@"predicate", op, e) :-
+        selectorEqmultiPropOk(s, k, op, e).
+    selectorOkDispatchCmpOp(s, k@"tag", op, e) :-
+        selectorEqmultiPropOk(s, k, op, e).
+
+    // dispatch eqspecial
+    selectorOkDispatchCmpOp(s, k@"gamemode", op, e) :-
+        selectorEqspecialPropOk(s, k, op, e).
+    selectorOkDispatchCmpOp(s, k@"type", op, e) :-
+        selectorEqspecialPropOk(s, k, op, e).
+
+    // fallback
+    selectorOkDispatchCmpOp(_, k, _, _) :-
+        false | error $[property key not recognized with comparison operator]@k.
+
+rules // class: cmp
+
+    // prefilter on allowed comparison operator
+    selectorCmpPropOk : scope * ID * Compare * Expr
+    selectorCmpPropOk(s, k, cmp@CmpGt(), e) :- {Te}
+        selectorCmpPropOk_common(s, k, e) == Te,
+        selectorCmpPropInternalOk(k, cmp, Te).
+    selectorCmpPropOk(s, k, cmp@CmpGte(), e) :- {Te}
+        selectorCmpPropOk_common(s, k, e) == Te,
+        selectorCmpPropInternalOk(k, cmp, Te).
+    selectorCmpPropOk(s, k, cmp@CmpLt(), e) :- {Te}
+        selectorCmpPropOk_common(s, k, e) == Te,
+        selectorCmpPropInternalOk(k, cmp, Te).
+    selectorCmpPropOk(s, k, cmp@CmpLte(), e) :- {Te}
+        selectorCmpPropOk_common(s, k, e) == Te,
+        selectorCmpPropInternalOk(k, cmp, Te).
+    selectorCmpPropOk(s, k, cmp@CmpEqual(), e) :- {Te}
+        selectorCmpPropOk_common(s, k, e) == Te,
+        selectorCmpPropInternalOk(k, cmp, Te).
+    selectorCmpPropOk(s, k, cmp@CmpMatches(), e) :- {Te}
+        selectorCmpPropOk_common(s, k, e) == Te,
+        selectorCmpPropInternalOk(k, cmp, Te).
+    selectorCmpPropOk(_, _, cmp, _) :-
+        false | error $[disallowed comparison operator]@cmp.
+
+    // common rule
+    selectorCmpPropOk_common : scope * ID * Expr -> TYPE
+    selectorCmpPropOk_common(s, k, e) = Te :-
+        typeOfExpr(s, e) == Te,
+        // TODO: ensure prop is not already declared "final"
+        // TODO: add note if overriding from alias
+        // TODO: do not allow the same prop in this scope
+        declareProp(s, k, PROP_KV(Te)).
+
+    // key-specific implementations
+    selectorCmpPropInternalOk : ID * Compare * TYPE
+
+    selectorCmpPropInternalOk("distance", cmp, T) :-
+        selectorCmpPropInternalOk_distance(cmp, T).
+    selectorCmpPropInternalOk_distance : Compare * TYPE
+    selectorCmpPropInternalOk_distance(cmp@CmpMatches(), RANGE(INT())).
+    selectorCmpPropInternalOk_distance(cmp@CmpMatches(), RANGE(FLOAT())).
+    selectorCmpPropInternalOk_distance(cmp@CmpMatches(), T) :-
+        false | error $[cannot match distance with type [T]]@cmp.
+    selectorCmpPropInternalOk_distance(_, INT()).
+    selectorCmpPropInternalOk_distance(_, FLOAT()).
+    selectorCmpPropInternalOk_distance(cmp, T) :-
+        false | error $[cannot compare distance to value of type [T]]@cmp.
+
+    selectorCmpPropInternalOk("level", cmp, T) :-
+        // TODO: ensure there is prop [type=$<minecraft:entity>minecraft:player]
+        selectorCmpPropInternalOk_level(cmp, T).
+    selectorCmpPropInternalOk_level : Compare * TYPE
+    selectorCmpPropInternalOk_level(cmp@CmpMatches(), RANGE(INT())).
+    selectorCmpPropInternalOk_level(cmp@CmpMatches(), T) :-
+        false | error $[cannot match level with type [T]]@cmp.
+    selectorCmpPropInternalOk_level(_, INT()).
+    selectorCmpPropInternalOk_level(cmp, T) :-
+        false | error $[cannot compare level to value of type [T]]@cmp.
+
+rules // class: eqmulti
+
+    selectorEqmultiPropOk : scope * ID * Compare * Expr
+    selectorEqmultiPropOk(s, k, cmp@CmpEqual(), e) :- {Te}
+        selectorEqmultiPropOk_common(s, k, e) == Te,
+        selectorEqmultiPropInternalOk(k, Te).
+    selectorEqmultiPropOk(s, k, cmp@CmpNotEqual(), e) :- {Te}
+        selectorEqmultiPropOk_common(s, k, e) == Te,
+        selectorEqmultiPropInternalOk(k, Te).
+    selectorEqmultiPropOk(_, _, cmp, _) :-
+        false | error $[disallowed comparison operator]@cmp.
+
+    selectorEqmultiPropOk_common : scope * ID * Expr -> TYPE
+    selectorEqmultiPropOk_common(s, k, e) = Te :-
+        typeOfExpr(s, e) == Te,
+        // TODO: no need to check for override
+        // TODO: (implicitly) do not allow the same prop in this scope
+        // TODO: change to different and more suitable PROP constructor
+        declareProp(s, k, PROP_KV(Te)).
+
+    selectorEqmultiPropInternalOk : ID * TYPE
+    selectorEqmultiPropInternalOk("predicate", res@RESOURCE(ns, _)) :-
+        ns == nsid("minecraft", ["predicate"]) | error $[incompatible resource from registry [ns]]@res.
+    selectorEqmultiPropInternalOk("predicate", T) :-
+        false | error $[not an predicate]@T.
+    selectorEqmultiPropInternalOk("tag", STRING()).
+    selectorEqmultiPropInternalOk("tag", T) :-
+        false | error $[tag can only be of string]@T.
+
+rules // class: eqspecial
+
+    selectorEqspecialPropOk : scope * ID * Compare * Expr
+    selectorEqspecialPropOk(s, k, cmp@CmpEqual(), e) :- {Te}
+        selectorEqspecialPropOk_common(s, k, e) == Te,
+        selectorEqspecialConstraintOk(s, k, cmp),
+        selectorEqspecialPropInternalOk(k, Te).
+    selectorEqspecialPropOk(s, k, cmp@CmpNotEqual(), e) :- {Te}
+        selectorEqspecialPropOk_common(s, k, e) == Te,
+        selectorEqspecialConstraintOk(s, k, cmp),
+        selectorEqspecialPropInternalOk(k, Te).
+    selectorEqspecialPropOk(_, _, cmp, _) :-
+        false | error $[disallowed comparison operator]@cmp.
+
+    selectorEqspecialPropOk_common : scope * ID * Expr -> TYPE
+    selectorEqspecialPropOk_common(s, k, e) = Te :-
+        typeOfExpr(s, e) == Te,
+        // TODO: check if can override (not "final"), because built-in
+        // TODO: always declare unoverridable ("final")
+        // TODO: add NO note if overriding from alias (because only case is overriding from built-in)
+        // TODO: (implicitly) do not allow the same prop in this scope
+        // TODO: change to different and more suitable PROP constructor
+        declareProp(s, k, PROP_KV(Te)).
+
+    /** check if the eqspecial constraint holds */
+    selectorEqspecialConstraintOk : scope * ID * Compare
+    selectorEqspecialConstraintOk(s, k, cmp) :-
+        // TODO: ensure only one kind of cmp is used
+        // TODO: ensure == is only used when once (or multiple times, but only if being overridden)
+        false | error $[implement eqspecial constraint].
+
+    selectorEqspecialPropInternalOk : ID * TYPE
+    selectorEqspecialPropInternalOk("gamemode", T) :-
+        try { false } | note $[todo: check gamemode type]@T.
+    selectorEqspecialPropInternalOk("type", res@RESOURCE(ns, _)) :-
+        ns == nsid("minecraft", ["entity_type"]) | error $[incompatible resource from registry [ns], must be an entity type]@res.
+    selectorEqspecialPropInternalOk("type", T) :-
+        false | error $[not an entity type]@T.

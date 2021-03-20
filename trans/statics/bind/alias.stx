@@ -1,0 +1,31 @@
+module statics/bind/alias
+
+imports
+
+    statics/common
+
+rules
+
+    declareAlias : scope * ID * scope
+
+    declareAlias(s, name, s_sel) :-
+        !alias[name, s_sel] in s.
+
+rules
+
+    queryAlias : scope * ID -> list((path * (string * scope)))
+
+    queryAlias(s, name) = p :-
+        query alias
+            filter (P* M?) | A* and { x :- x == name}
+            min $ < P, $ < M and false
+            in s |-> p.
+
+rules
+
+    resolveAlias : scope * ID -> scope
+
+    resolveAlias(s, name) = s_sel :- {p p'}
+        queryAlias(s, name) == p,
+        // TODO: does path still match if there is a shadowed alias?
+        p == [(p', (_, s_sel))].

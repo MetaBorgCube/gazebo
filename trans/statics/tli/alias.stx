@@ -4,14 +4,15 @@ imports
 
     statics/common
     statics/expr/selector
+    statics/bind/alias
 
 rules
 
     aliasOk : scope * Alias
 
-    aliasOk(s, Alias(dst@Selector(name, dstProps), src)) :- {T}
+    aliasOk(s, Alias(dst@Selector(name, dstProps), src)) :- {T s_sel}
         dstProps == [] | error $[destination must not have any properties]@dstProps,
-        // TODO: declare alias name in current scope
         // TODO: ensure compile-time computation computability of srcProps
         typeOfSelector(s, src) == T,
-        T == SELECTOR().
+        T == SELECTOR(s_sel),
+        declareAlias(s, name, s_sel).

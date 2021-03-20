@@ -18,10 +18,10 @@ signature
 
         // Basic constructs
         VEC : list(TYPE) -> TYPE
-        RANGE : TYPE
+        RANGE : TYPE -> TYPE
 
         // Specific types
-        SELECTOR : TYPE
+        SELECTOR : scope -> TYPE
         TAG : NSID -> TYPE
         /** registry * registration */
         RESOURCE : NSID * NSID -> TYPE
@@ -52,7 +52,7 @@ rules
     typeBoolish : TYPE
 
     typeBoolish(BOOL()).
-    typeBoolish(SELECTOR()).
+    typeBoolish(SELECTOR(_)).
     // TODO: VEC(3) only boolish if int/tilde
     typeBoolish(VEC([_, _, _])).
     typeBoolish(_) :- false.

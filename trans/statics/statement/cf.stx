@@ -55,7 +55,6 @@ rules // if
     ifOk : scope * If
 
     ifOk(s, If(cond, body, else)) :- {Tc s_if}
-        try { false } | note $[todo: assert bool type or check coercion]@cond,
         typeOfExpr(s, cond) == Tc,
         typeBoolish(Tc) | error $[condition is not boolish, instead: [Tc]]@cond,
 

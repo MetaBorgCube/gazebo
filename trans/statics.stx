@@ -7,8 +7,39 @@ imports
     statics/common
     statics/use
     statics/tli
+    statics/bind/alias
     statics/bind/mod
     statics/bind/memb
+
+rules
+
+    /** declare the selectors @e, @a, @p, @r and @s as aliases */
+    populateDefaultSelectors : scope
+    populateDefaultSelectors(s_root) :- {s_sel_e s_sel_a s_sel_p s_sel_r s_sel_s}
+        // @e: the base selector of all selectors
+        new s_sel_e,
+        // TODO: perhaps add [type==$<minecraft:entity>gzb:base_entity] to make nbt= type checking easier (keep overridable)
+        declareAlias(s_root, "e", s_sel_e),
+
+        // @a: all players
+        new s_sel_a, s_sel_a -A-> s_sel_e,
+        // TODO: declare properties [type==$<minecraft:entity>minecraft:player] on s_sel_a, mark them as unoverridable
+        declareAlias(s_root, "a", s_sel_a),
+
+        // @p: nearest players
+        new s_sel_p, s_sel_p -A-> s_sel_a,
+        // TODO: declare properties [sort="nearest",limit=1] on s_sel_p, mark them as unoverridable
+        declareAlias(s_root, "p", s_sel_p),
+
+        // @r: random players
+        new s_sel_r, s_sel_r -A-> s_sel_a,
+        // TODO: declare properties [sort="random",limit=1] on s_sel_r, mark them as unoverridable
+        declareAlias(s_root, "r", s_sel_r),
+
+        // @s: sender
+        new s_sel_s, s_sel_s -A-> s_sel_e,
+        // TODO: implement proper semantics, at least declare properties [limit=1] on s_sel_s
+        declareAlias(s_root, "s", s_sel_s).
 
 rules // single-file entry point
 
@@ -16,6 +47,8 @@ rules // single-file entry point
 
     programOk(Start(u, t)) :- {s_root s_mod s_mod_init NSIDmod Tmod}
         new s_root,
+        populateDefaultSelectors(s_root),
+        // TODO: declare global gamemode enum???
 
         new s_mod_init, s_mod_init -M-> s_root,
         declareMod(s_root, nsid("minecraft", ["world"]), MOD(s_mod_init)),
