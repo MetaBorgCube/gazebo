@@ -9,7 +9,8 @@ rules
     declareMod : scope * NSID * TYPE
 
     declareMod(s, name, T) :-
-        !mod[name, T] in s.
+        !mod[name, T] in s,
+        queryMod(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
 
 rules
 

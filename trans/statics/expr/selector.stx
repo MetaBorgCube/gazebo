@@ -59,7 +59,6 @@ rules // prop class: kv
     selectorKvPropOk(s, k@"nbt", e) :- selectorKvPropInternalOk(s, k, e).
     selectorKvPropOk(s, k@"sort", e) :- selectorKvPropInternalOk(s, k, e).
     selectorKvPropOk(s, k@"team", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"type", e) :- selectorKvPropInternalOk(s, k, e).
     selectorKvPropOk(s, k@"x", e) :- selectorKvPropInternalOk(s, k, e).
     selectorKvPropOk(s, k@"x_rotation", e) :- selectorKvPropInternalOk(s, k, e).
     selectorKvPropOk(s, k@"y", e) :- selectorKvPropInternalOk(s, k, e).
@@ -73,10 +72,7 @@ rules // prop class: kv
 
     selectorKvPropInternalOk(s, k, e) :- {Te}
         typeOfExpr(s, e) == Te,
-        // TODO: ensure prop is not already declared "final"
-        // TODO: add note if overriding from alias
-        // TODO: do not allow the same prop in this scope
-        declareProp(s, k, PROP_KV(Te)).
+        declareProp(s, k, PROP_FINAL(Te)).
 
 rules // prop class: dispatch for cmp, eqmulti and eqspecial
 
@@ -134,10 +130,7 @@ rules // class: cmp
     selectorCmpPropOk_common : scope * ID * Expr -> TYPE
     selectorCmpPropOk_common(s, k, e) = Te :-
         typeOfExpr(s, e) == Te,
-        // TODO: ensure prop is not already declared "final"
-        // TODO: add note if overriding from alias
-        // TODO: do not allow the same prop in this scope
-        declareProp(s, k, PROP_KV(Te)).
+        declareProp(s, k, PROP_FINAL(Te)).
 
     // key-specific implementations
     selectorCmpPropInternalOk : ID * Compare * TYPE
@@ -180,13 +173,10 @@ rules // class: eqmulti
     selectorEqmultiPropOk_common : scope * ID * Expr -> TYPE
     selectorEqmultiPropOk_common(s, k, e) = Te :-
         typeOfExpr(s, e) == Te,
-        // TODO: no need to check for override
-        // TODO: (implicitly) do not allow the same prop in this scope
-        // TODO: change to different and more suitable PROP constructor
-        declareProp(s, k, PROP_KV(Te)).
+        declareProp(s, k, PROP_OVERRIDABLE(Te)).
 
     selectorEqmultiPropInternalOk : ID * TYPE
-    selectorEqmultiPropInternalOk("predicate", res@RESOURCE(ns, _)) :-
+    selectorEqmultiPropInternalOk("predicate", res@RESOURCE(ns)) :-
         ns == nsid("minecraft", ["predicate"]) | error $[incompatible resource from registry [ns]]@res.
     selectorEqmultiPropInternalOk("predicate", T) :-
         false | error $[not an predicate]@T.
@@ -211,12 +201,7 @@ rules // class: eqspecial
     selectorEqspecialPropOk_common : scope * ID * Expr -> TYPE
     selectorEqspecialPropOk_common(s, k, e) = Te :-
         typeOfExpr(s, e) == Te,
-        // TODO: check if can override (not "final"), because built-in
-        // TODO: always declare unoverridable ("final")
-        // TODO: add NO note if overriding from alias (because only case is overriding from built-in)
-        // TODO: (implicitly) do not allow the same prop in this scope
-        // TODO: change to different and more suitable PROP constructor
-        declareProp(s, k, PROP_KV(Te)).
+        declareProp(s, k, PROP_FINAL(Te)).
 
     /** check if the eqspecial constraint holds */
     selectorEqspecialConstraintOk : scope * ID * Compare
@@ -228,7 +213,7 @@ rules // class: eqspecial
     selectorEqspecialPropInternalOk : ID * TYPE
     selectorEqspecialPropInternalOk("gamemode", T) :-
         try { false } | note $[todo: check gamemode type]@T.
-    selectorEqspecialPropInternalOk("type", res@RESOURCE(ns, _)) :-
+    selectorEqspecialPropInternalOk("type", res@RESOURCE(ns)) :-
         ns == nsid("minecraft", ["entity_type"]) | error $[incompatible resource from registry [ns], must be an entity type]@res.
     selectorEqspecialPropInternalOk("type", T) :-
         false | error $[not an entity type]@T.

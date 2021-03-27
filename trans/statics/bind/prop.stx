@@ -9,7 +9,8 @@ rules
     declareProp : scope * ID * PROP
 
     declareProp(s, name, prop) :-
-        !prop[name, prop] in s.
+        !prop[name, prop] in s,
+        propOverrideChainOk(name, queryProp(s, name)).
 
 rules
 
@@ -18,7 +19,7 @@ rules
     queryProp(s, name) = p :-
         // TODO: check query
         query prop
-            filter A* and { x :- x == name}
+            filter A* and { x :- x == name }
             min $ < A and false
             in s |-> p.
 
@@ -29,4 +30,23 @@ rules
     resolveProp(s, name) = prop :- {p p'}
         queryProp(s, name) == p,
         // TODO: support mutliprops, probably only ever used for the "tag" prop (because selector can constrain on multiple tags) 
-        p == [(p', (_, prop))].
+        p == [(p', (_, prop))|_].
+
+rules
+
+    propOverrideChainOk : ID * list((path * (string * PROP)))
+
+    propOverrideChainOk(_, []).
+
+    propOverrideChainOk(src, [_|xs]) :-
+        propOverrideChainOk_tail(src, xs).
+
+    propOverrideChainOk_tail : ID * list((path * (string * PROP)))
+
+    propOverrideChainOk_tail(_, []).
+
+    propOverrideChainOk_tail(src, [(_, (_, PROP_OVERRIDABLE(_))) | xs]) :-
+        propOverrideChainOk_tail(src, xs).
+
+    propOverrideChainOk_tail(src, [(_, (name, _))]) :-
+        false | error $[property is not overridable]@src.

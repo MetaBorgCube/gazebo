@@ -21,8 +21,8 @@ signature
 
     constructors
 
-        PROP_KV : TYPE -> PROP
-        // TODO: other prop types?
+        PROP_OVERRIDABLE : TYPE -> PROP
+        PROP_FINAL : TYPE -> PROP
 
     relations
 

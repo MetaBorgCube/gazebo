@@ -28,4 +28,4 @@ rules // resource
 
     typeOfResource(s, ResourceFull(ident, props, payl)) = T :-
         try { false } | note $[todo: infer registry, check props and payl]@ident,
-        T == RESOURCE(nsid("minecraft", ["block"]), nsid("minecraft", ["repeater"])).
+        T == RESOURCE(nsid("minecraft", ["block"])).

@@ -9,7 +9,8 @@ rules
     declareAlias : scope * ID * scope
 
     declareAlias(s, name, s_sel) :-
-        !alias[name, s_sel] in s.
+        !alias[name, s_sel] in s,
+        queryAlias(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
 
 rules
 

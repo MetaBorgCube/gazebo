@@ -32,7 +32,6 @@ kv props (only =, only once):
 - nbt
 - sort
 - team
-- type
 - x
 - y
 - z

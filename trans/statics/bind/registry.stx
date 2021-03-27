@@ -10,5 +10,5 @@ rules
     declareRegistry : scope * NSID * scope
 
     declareRegistry(s_root, nsid, s_reg) :-
-        // TODO: check duplicate
         !registry[nsid, s_reg] in s_root.
+        //queryRegistry(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
