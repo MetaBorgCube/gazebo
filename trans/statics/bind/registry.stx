@@ -10,5 +10,88 @@ rules
     declareRegistry : scope * NSID * scope
 
     declareRegistry(s_root, nsid, s_reg) :-
-        !registry[nsid, s_reg] in s_root.
-        //queryRegistry(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
+        !registry[nsid, s_reg] in s_root,
+        queryRegistry(s_root, nsid) == [(_, (_, _))] | error $[duplicate definition]@nsid.
+
+rules
+
+    queryRegistry : scope * NSID -> list((path * (NSID * scope)))
+
+    queryRegistry(s, name) = p :-
+        query registry
+            filter P* M? and { x :- x == name }
+            min and false
+            in s |-> p.
+
+rules
+
+    queryAllRegistries : scope -> list((path * (NSID * scope)))
+
+    queryAllRegistries(s) = p :-
+        query registry
+            filter P* M? and true
+            min and false
+            in s |-> p.
+
+rules
+
+    allRegistries : scope -> list((NSID * scope))
+
+    allRegistries(s) = allRegistries_map(queryAllRegistries(s)).
+
+    allRegistries_map : list((path * (NSID * scope))) -> list((NSID * scope))
+    allRegistries_map([]) = [].
+    allRegistries_map([(_, (name, s)) | tail]) = [(name, s) | allRegistries_map(tail)].
+
+rules
+
+    concatQueryRegistryRes : list((path * (NSID * scope))) * list((path * (NSID * scope))) -> list((path * (NSID * scope)))
+    concatQueryRegistryRes([], r) = r.
+    concatQueryRegistryRes([x|xs], r) = [x | concatQueryRegistryRes(xs, r)].
+
+    flattenQueryRegistryRes : list(list((path * (NSID * scope)))) -> list((path * (NSID * scope)))
+    flattenQueryRegistryRes([]) = [].
+    flattenQueryRegistryRes([x]) = x.
+    flattenQueryRegistryRes([x|xs]) = concatQueryRegistryRes(x, flattenQueryRegistryRes(xs)).
+
+rules
+
+    /**
+     * Allow absolute NSIDs and short NSIDs (explicitly relative to the current namespace),
+     * but disallow any relative NSID.
+     * In the latter case the corresponding NSID is an absolute NSID,
+     * but with the namespace part set to "$illegal", causing it to be not found,
+     * giving room for other query results.
+     */
+    intern_prepRegistryNSID : NSID -> NSID
+    intern_prepRegistryNSID(NSIDRel(name)) = NSID("$illegal", name).
+    intern_prepRegistryNSID(nsid) = nsid.
+
+rules
+
+    /**
+     * Resolve a registry relative to the current module.
+     * If the given NSID is absolute, this function does not add any functionality.
+     * Any scope which has some path to the root scope suffices.
+     * A resolve is also attempted to the implicit namespaces.
+     */
+    resolveRegistryRel : scope * NSID -> (NSID * scope)
+
+    resolveRegistryRel(s, nsid) = (id_reg, s_reg) :- {curr abs imMc imGzb qcomb p'}
+        // relativize the specified NSID to the namespace of the current module
+        currentMod(s) == (curr, _),
+        abs == absolute(intern_prepRegistryNSID(nsid), curr),
+
+        // prep implicit
+        imMc == absolute(nsid, nsid("minecraft", [])),
+        imGzb == absolute(nsid, nsid("gzb", [])),
+
+        // resolve in order
+        qcomb == flattenQueryRegistryRes([
+            queryRegistry(s, abs),
+            queryRegistry(s, imMc),
+            queryRegistry(s, imGzb)
+        ]),
+
+        // take head if exists, so respecting search order
+        qcomb == [(p', (id_reg, s_reg)) | _].

@@ -19,7 +19,7 @@ rules
     queryMod(s, name) = p :-
         query mod
             filter P* M and { x :- x == name }
-            min $ < P, $ < M and false
+            min and false
             in s |-> p.
 
 rules
@@ -70,16 +70,3 @@ rules
 
         // take head if exists, so respecting search order
         qcomb == [(p', (_, T@MOD(_))) | _].
-
-rules
-
-    currentMod : scope -> (NSID * scope)
-
-    // TODO: this could maybe also be implemented without the explicit presence of the currmod relation
-    currentMod(s) = (name, s_mod) :- {p p' T}
-        query currmod
-            filter P* and true
-            min $ < P and false
-            in s |-> p,
-        p == [(p', (name, T))] | error $[no single mod, instead: [p]],
-        T == MOD(s_mod).

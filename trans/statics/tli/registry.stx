@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/bind/registry
+    statics/bind/registration
 
 rules
 
@@ -31,7 +32,7 @@ rules
         new s_meta,
         // TODO: check duplicate
         // TODO: declare actual value type as INT() in regmeta (scope?)
-        !regmeta["protocol", s_meta] in s.
+        !regmeta["protocol_id", s_meta] in s.
 
     registryMetaOk(s, RmeBlockStates(bss)) :-
         try { false } | note $[todo].
@@ -42,13 +43,13 @@ rules
     registryMetaOk(s, RmeRegistration(id, RegistryMeta(meta))) :- {s_reg}
         id == NSID(_, _) | error $[registration name must include a namespace]@id,
         new s_reg, s_reg -P-> s,
+        declareRegistration(s, id, s_reg),
         registryMetasNoRegistration(meta),
-        registryMetasOk(s_reg, meta),
-        // TODO: check duplicate
-        !registration[id, s_reg] in s.
+        registryMetasOk(s_reg, meta).
 
 rules
 
+    /** ensure that a list of registry meta entries does not contain a registration */
     registryMetasNoRegistration maps registryMetaNoRegistration(list(*))
     registryMetaNoRegistration : RegistryMetaEntry
     registryMetaNoRegistration(reg@RmeRegistration(_, _)) :-

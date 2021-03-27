@@ -37,6 +37,19 @@ signature
 
 rules
 
+    currentMod : scope -> (NSID * scope)
+
+    // TODO: this could maybe also be implemented without the explicit presence of the currmod relation
+    currentMod(s) = (name, s_mod) :- {p p' T}
+        query currmod
+            filter P* and true
+            min $ < P and false
+            in s |-> p,
+        p == [(p', (name, T))] | error $[no single mod, instead: [p]],
+        T == MOD(s_mod).
+
+rules
+
     stringListContains : list(string) * string
     stringListContains([], _) :- false.
     stringListContains([x], s) :- x == s.

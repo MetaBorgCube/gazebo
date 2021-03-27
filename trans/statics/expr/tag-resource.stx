@@ -4,14 +4,13 @@ imports
 
     statics/common
     statics/bind/registry
+    statics/bind/registration
 
 rules // tag
 
     typeOfTag : scope * Tag -> TYPE
 
-    typeOfTag(s, Tag(ident)) = T :-
-        try { false } | note $[todo: infer registry]@ident,
-        T == TAG(nsid("gzb", ["dummy_ref"])).
+    typeOfTag(s, Tag(_)) = TAG().
 
 rules // resource
 
@@ -26,6 +25,20 @@ rules // resource
     typeOfResource(s, ResourceNBT(ident, payl)) =
         typeOfResource(s, ResourceFull(ident, Props([]), payl)).
 
-    typeOfResource(s, ResourceFull(ident, props, payl)) = T :-
-        try { false } | note $[todo: infer registry, check props and payl]@ident,
-        T == RESOURCE(nsid("minecraft", ["block"])).
+    typeOfResource(s, ResourceFull(ident, props, payl)) = T :- {id_registry s_registry id_registration s_registration}
+        inferRegistry(s, ident) == ((id_registry, s_registry), (id_registration, s_registration)),
+        T == RESOURCE(id_registry),
+        try { false } | note $[todo: check props and payl]@ident.
+
+rules
+
+    inferRegistry : scope * TRIdent -> ((NSID * scope) * (NSID * scope))
+
+    inferRegistry(s, TRIdentExplicit(id_registry, id_registration)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
+        resolveRegistryRel(s, id_registry) == (id_registry_full, s_registry)
+        | error $[registry not found]@id_registry,
+        resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
+        | error $[registration not found in registry]@id_registration.
+
+    inferRegistry(s, TRIdentAnonymous(id_registration)) =
+        resolveRegistryAndRegistrationFromAllRegistries(s, allRegistries(s), id_registration).

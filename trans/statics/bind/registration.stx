@@ -1,0 +1,119 @@
+module statics/bind/registration
+
+imports
+
+    statics/common
+
+rules
+
+    /** parent registration scope * registration name * this registration scope */
+    declareRegistration : scope * NSID * scope
+
+    declareRegistration(s_registry, name, s_registration) :-
+        !registration[name, s_registration] in s_registry,
+        queryRegistration(s_registry, name) == [(_, (_, _))] | error $[duplicate definition]@name.
+
+rules
+
+    queryRegistration : scope * NSID -> list((path * (NSID * scope)))
+
+    queryRegistration(s, name) = p :-
+        query registration
+            filter e and { x :- x == name }
+            min and false
+            in s |-> p.
+
+rules
+
+    queryRegistrationNamePart : scope * NSIDName -> list((path * (NSID * scope)))
+
+    queryRegistrationNamePart(s, name) = p :-
+        query registration
+            filter e and { x :- x == NSID(_, name) }
+            min and false
+            in s |-> p.
+
+rules
+
+    resolveRegistration : scope * NSID -> (NSID * scope)
+
+    resolveRegistration(s_registry, name@NSIDShort(_)) = res :- {curr abs}
+        currentMod(s_registry) == (curr, _),
+        abs == absolute(name, curr),
+        res == resolveRegistration(s_registry, abs).
+
+    resolveRegistration(s_registry, name@NSID(_, _)) = (id_registration, s_registration) :- {p name'}
+        queryRegistration(s_registry, name) == p,
+        resolveRegistration_firstOrAmb(name, p) == (id_registration, s_registration).
+
+    resolveRegistration(s_registry, name@NSIDRel(rel)) = (id_registration, s_registration) :- {all}
+        queryRegistrationNamePart(s_registry, rel) == all,
+        resolveRegistration_firstOrAmb(name, all) == (id_registration, s_registration).
+
+    /* source name (for ambiguity error) * query res */
+    resolveRegistration_firstOrAmb : NSID * list((path * (NSID * scope))) -> (NSID * scope)
+    resolveRegistration_firstOrAmb(_, []) = _ :- false.
+    resolveRegistration_firstOrAmb(src, [(_, (name, s)) | tail]) = (name, s) :-
+        tail == [] | error $[ambiguous]@src.
+
+rules
+
+    /**
+     * current general scope * all registries * registration name (possibly relative) -> (registry, registration)
+     *
+     * Resolve both the registry and corresponding registration
+     * from just a single registration name.
+     * Will error if there is any ambiguity between possible registries
+     * or registrations within registries.
+     */
+    resolveRegistryAndRegistrationFromAllRegistries : scope * list((NSID * scope)) * NSID -> ((NSID * scope) * (NSID * scope))
+
+    // special overload for short NSID, because it is just syntactic sugar,
+    // this will be delegated to the next implementation of the rule
+    resolveRegistryAndRegistrationFromAllRegistries(s, all, name@NSIDShort(_)) = res :- {curr abs}
+        currentMod(s) == (curr, _),
+        abs == absolute(name, curr),
+        res == resolveRegistryAndRegistrationFromAllRegistries(s, all, abs).
+
+    resolveRegistryAndRegistrationFromAllRegistries(_, all, name) = res :- {qres}
+        qres == intern_queryAll(all, name),
+        res == resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(name, qres).
+
+    resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb : NSID * list(((NSID * scope) * (NSID * scope))) -> ((NSID * scope) * (NSID * scope))
+    resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(_, []) = _ :- false.
+    resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(src, [x|xs]) = x :-
+        xs == [] | error $[ambiguous]@src.
+
+    intern_stripPath : list((path * (NSID * scope))) -> list((NSID * scope))
+    intern_stripPath([]) = [].
+    intern_stripPath([(_, (n, s)) | xs]) = [(n, s) | intern_stripPath(xs)].
+
+    intern_queryAll : list((NSID * scope)) * NSID -> list(((NSID * scope) * (NSID * scope)))
+    intern_queryAll([], _) = [].
+    intern_queryAll(all, name@NSID(_, _)) = intern_queryAll_abs(all, name).
+    intern_queryAll(all, name@NSIDRel(rel)) = intern_queryAll_rel(all, rel).
+
+    intern_queryAll_abs : list((NSID * scope)) * NSID -> list(((NSID * scope) * (NSID * scope)))
+    intern_queryAll_abs([], _) = [].
+    intern_queryAll_abs([reg | xs], name) = conc :- {s_registry qres qres_paired}
+        reg == (_, s_registry),
+        qres == intern_stripPath(queryRegistration(s_registry, name)),
+        qres_paired == pairL(reg, qres),
+        conc == concatQueryAllRes(qres_paired, intern_queryAll_abs(xs, name)).
+
+    intern_queryAll_rel : list((NSID * scope)) * NSIDName -> list(((NSID * scope) * (NSID * scope)))
+    intern_queryAll_rel([], _) = [].
+    intern_queryAll_rel([reg | xs], name) = conc :- {s_registry qres qres_paired}
+        reg == (_, s_registry),
+        qres == intern_stripPath(queryRegistrationNamePart(s_registry, name)),
+        qres_paired == pairL(reg, qres),
+        conc == concatQueryAllRes(qres_paired, intern_queryAll_rel(xs, name)).
+
+    /* left-pair all elements from the right list with a constant element */
+    pairL : (NSID * scope) * list((NSID * scope)) -> list(((NSID * scope) * (NSID * scope)))
+    pairL(_, []) = [].
+    pairL(l, [x|xs]) = [(l, x) | pairL(l, xs)].
+
+    concatQueryAllRes : list(((NSID * scope) * (NSID * scope))) * list(((NSID * scope) * (NSID * scope))) -> list(((NSID * scope) * (NSID * scope)))
+    concatQueryAllRes([], r) = r.
+    concatQueryAllRes([x|xs], r) = [x | concatQueryAllRes(xs, r)].
