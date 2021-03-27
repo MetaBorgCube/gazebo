@@ -22,7 +22,7 @@ signature
 
         // Specific types
         SELECTOR : scope -> TYPE
-        TAG : NSID -> TYPE
+        TAG : TYPE
         /** registry */
         RESOURCE : NSID -> TYPE
         ITER : TYPE -> TYPE

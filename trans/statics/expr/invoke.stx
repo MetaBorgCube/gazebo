@@ -20,5 +20,18 @@ rules
 
     typeOfInvoke(s, InvokeArgsKwargs(Expr2Expr-I(e), a, k)) = Tr :- {Tfn Tpar}
         typeOfExpr(s, e) == Tfn,
-        Tfn == FUNC(Tpar, Tr) | error $[cannot invoke, type [Tfn] is not a function]@e,
+        typeOfInvoke_internal(s, Tfn, a, k) == Tr | error $[cannot invoke, type [Tfn] is not a function]@e.
+
+rules
+
+    typeOfInvoke_internal : scope * TYPE * Args * Kwargs -> TYPE
+
+    typeOfInvoke_internal(s, FUNC(Tpar, Tr), a, k) = Tr :-
         try { false } | note $[todo: check subtypes on the parameter types].
+
+    typeOfInvoke_internal(s, TAG(), Args(a), Kwargs(k)) = VOID() :-
+        a == [] | error $[a tag can only be invoked without arguments],
+        k == [] | error $[a tag can only be invoked without arguments].
+
+    typeOfInvoke_internal(_, _, _, _) = UNK() :-
+        false.
