@@ -16,10 +16,9 @@ rules
     declareMemb : scope * ID * TYPE
 
     declareMemb(s, name, T) :-
-        // TODO: ensure member is not yet declared in the current scope
-        // TODO: if member is declared in some parent scope, emit a shadow warning
         // TODO: add information about mutability and other access modifiers of the member
-        !memb[name, T] in s.
+        !memb[name, T] in s,
+        queryMemb(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
 
 rules
 
@@ -45,10 +44,10 @@ rules
 
     resolveMemb : scope * ID -> TYPE
 
-    resolveMemb(s, name) = T :- {p p'}
+    resolveMemb(s, name) = T :- {p name'}
         queryMemb(s, name) == p,
-        // TODO: does path still match if there is a shadowed member?
-        p == [(p', (_, T))].
+        p == [(_, (name', T))|_],
+        @name.ref := name'.
 
 rules
 
@@ -56,4 +55,5 @@ rules
 
     resolveMembLocal(s, name) = T :- {p p'}
         queryMembLocal(s, name) == p,
-        p == [(p', (_, T))].
+        p == [(p', (_, T))],
+        @name.type := T.

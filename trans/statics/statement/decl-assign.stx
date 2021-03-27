@@ -12,7 +12,6 @@ rules // decl
 
     declOk(s, Decl(modifiers, name, e)) :- {T}
         typeOfExpr(s, e) == T,
-        // TODO: (check redeclare in current scope?), warn if shadowing from parent scope
         declareMemb(s, name, T),
         @name.type := T.
 

@@ -45,4 +45,5 @@ rules
         resolveMembLocal(s_mod, id) == T | error $[member [id] not found in module]@id,
         // TODO: might want to add some metadata to the member declaration that it has been imported
         declareMemb(s, as, T),
-        @as.type := T.
+        // may produce a warning if as==id (from above overload), because a type is already associated to id
+        try { @as.type := T }.

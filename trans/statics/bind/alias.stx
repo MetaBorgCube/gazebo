@@ -25,7 +25,7 @@ rules
 
     resolveAlias : scope * ID -> scope
 
-    resolveAlias(s, name) = s_sel :- {p p'}
+    resolveAlias(s, name) = s_sel :- {p name'}
         queryAlias(s, name) == p,
-        // TODO: does path still match if there is a shadowed alias?
-        p == [(p', (_, s_sel))].
+        p == [(_, (name', s_sel))|_],
+        @name.ref := name'.
