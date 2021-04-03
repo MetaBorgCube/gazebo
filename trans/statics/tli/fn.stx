@@ -5,6 +5,7 @@ imports
     statics/common
     statics/statement/block
     statics/expr
+    statics/bind/memb
 
 rules
 
@@ -14,14 +15,15 @@ rules
         new s_body, s_body -P-> s,
         // TODO: signagure in scope as immutable variables with possible ^ct
         blockOk(s_body, body),
-        true.
+        // TODO: declare with proper types
+        declareMemb(s, name, FUNC([], VOID())).
 
     fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_body T}
         new s_body, s_body -P-> s,
         typeOfExpr(s_body, e) == T,
         // TODO: ensure return type is a subtype of T
-        true.
+        declareMemb(s, name, FUNC([], T)).
 
     fnOk(s, FnExt(name, signature)) :-
         // TODO: assume everything is valid, just declare the name with signature in scope
-        true.
+        declareMemb(s, name, FUNC([], VOID())).

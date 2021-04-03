@@ -3,12 +3,41 @@ module statics/expr/ref
 imports
 
     statics/common
+    statics/bind/memb
+    statics/bind/mod
 
 rules
 
     typeOfRef : scope * Ref -> TYPE
 
-    typeOfRef(s, nsid) = T :-
-        // dummy signature: iter func() -> PosI
-        T == FUNC([], ITER(VEC([INT(), INT(), INT()]))),
-        try { false } | note $[todo: resolve NSID and return referenced type].
+    typeOfRef(s, Ref(nsid)) = typeOfRef_i(s, nsid).
+
+rules
+
+    typeOfRef_i : scope * NSID -> TYPE
+
+    // overload to account for syntactic sugar
+    typeOfRef_i(s, NSIDShort(name)) = typeOfRef_i(s, NSID(curr_ns, _)) :-
+        currentMod(s) == (NSID(curr_ns, _), _).
+
+    // case: relative NSID with 1 name element
+    // simplest rule
+    typeOfRef_i(s, nsid@NSIDRel(NSIDName([name]))) = T :-
+        T == resolveMemb(s, name) | error $[no member found with name [name]]@nsid.
+
+    // case: relative NSID with 2 name elements
+    // name part of this NSIDRel should be at least of length 2, because earlier rule captures 1-length
+    typeOfRef_i(s, nsid@NSIDRel(NSIDName([name_mod, name_memb]))) = Tmemb :- {Tmod s_mod}
+        Tmod == resolveMemb(s, name_mod),
+        Tmod == MOD(s_mod),
+        Tmemb == resolveMemb(s_mod, name_memb) | error $[[name_memb] is not a member of module [name_mod]]@name_memb.
+
+    // case: absolute NSID with 1 name element
+    typeOfRef_i(s, nsid@NSID(_, NSIDName([_]))) = resolveMod(s, nsid).
+
+    // case: absolute NSID with 2 or more name elements
+    typeOfRef_i(s, nsid@NSID(ns, NSIDName(name))) = Tmemb :- {nsid_init Tmod s_mod}
+        nsid_init == nsid(ns, stringListInit(name)),
+        Tmod == resolveMod(s, nsid_init),
+        Tmod == MOD(s_mod),
+        Tmemb == resolveMemb(s_mod, stringListLast(name)).

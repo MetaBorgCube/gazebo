@@ -15,7 +15,7 @@ rules
 
     typeOfExpr : scope * Expr -> TYPE
 
-    typeOfExpr(s, e) = T@typeOfExprImpl(s, e) :- /*@e.type := T*/true.
+    typeOfExpr(s, e) = T@typeOfExprImpl(s, e) :- try { @e.type := T }.
 
     /** do not refer directly, use typeOfExpr */
     typeOfExprImpl : scope * Expr -> TYPE

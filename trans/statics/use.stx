@@ -20,6 +20,7 @@ rules
         resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
         s != s_mod | error $[can't import self]@nsid,
         // TODO: might want to add some metadata to the member declaration that it has been imported
+        // TODO: ensure this is not resolved via an I-edge (e.g. by declaring it private)
         declareMemb(s, as, T).
 
     useOk(s, UseFrom(nsid, froms)) :- {T s_mod}
@@ -44,6 +45,7 @@ rules
     useFromOk(s, s_mod, UseFromPartAlias(id, as)) :- {T}
         resolveMembLocal(s_mod, id) == T | error $[member [id] not found in module]@id,
         // TODO: might want to add some metadata to the member declaration that it has been imported
+        // TODO: ensure this is not resolved via an I-edge (e.g. by declaring it private)
         declareMemb(s, as, T),
         // may produce a warning if as==id (from above overload), because a type is already associated to id
         try { @as.type := T }.
