@@ -36,7 +36,7 @@ lexical restrictions
   // Ensure greedy matching for lexicals
   
   COMMENT_CHAR    -/- [\/]
-  INT             -/- [dfDF0-9] // not followed by any float suffix, must be FLOAT then
+  INT             -/- [0-9]
   ID_UNRESTR      -/- [a-zA-Z0-9\_]
   
   // Floats may not be followed by another suffix
