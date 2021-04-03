@@ -6,24 +6,87 @@ imports
     statics/statement/block
     statics/expr
     statics/bind/memb
+    statics/types
 
 rules
 
     fnOk : scope * Fn
 
-    fnOk(s, FnBlock(FnSpec(tags, modifiers, name, signature), body)) :- {s_body}
-        new s_body, s_body -P-> s,
-        // TODO: signagure in scope as immutable variables with possible ^ct
+    fnOk(s, FnBlock(FnSpec(tags, modifiers, name, signature), body)) :- {s_params s_body Tparams Tret}
+        (Tparams, Tret) == typeOfSign(s, signature),
+
+        new s_params, s_params -P-> s,
+        declareParams(s_params, Tparams),
+
+        new s_body, s_body -P-> s_params,
         blockOk(s_body, body),
-        // TODO: declare with proper types
-        declareMemb(s, name, FUNC([], VOID())).
 
-    fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_body T}
-        new s_body, s_body -P-> s,
-        typeOfExpr(s_body, e) == T,
-        // TODO: ensure return type is a subtype of T
-        declareMemb(s, name, FUNC([], T)).
+        declareMemb(s, name, FUNC(Tparams, Tret)).
 
-    fnOk(s, FnExt(name, signature)) :-
-        // TODO: assume everything is valid, just declare the name with signature in scope
-        declareMemb(s, name, FUNC([], VOID())).
+    fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_params s_body Te Tparams Tret}
+        (Tparams, Tret) == typeOfSign(s, signature),
+
+        new s_params, s_params -P-> s,
+        declareParams(s_params, Tparams),
+
+        new s_body, s_body -P-> s_params,
+        declareParams(s_body, Tparams),
+
+        typeOfExpr(s_body, e) == Te,
+        // TODO: subtype(T, Tret)
+
+        declareMemb(s, name, FUNC(Tparams, Tret)).
+
+    fnOk(s, FnExt(name, signature)) :- {Tparams Tret}
+        (Tparams, Tret) == typeOfSign(s, signature),
+        declareMemb(s, name, FUNC(Tparams, Tret)).
+
+rules
+
+    typeOfSign : scope * Sign -> (list((ID * TYPE)) * TYPE)
+
+    typeOfSign(s, Sign([], [])) = ([], VOID()).
+
+    typeOfSign(s, Sign([], [ret])) = ([], typeOfSign_retSpec(s, ret)).
+
+    typeOfSign(s, Sign([params], [])) = (typeOfSign_params(s, params), VOID()).
+
+    typeOfSign(s, Sign([params], [ret])) = (typeOfSign_params(s, params), typeOfSign_retSpec(s, ret)).
+
+rules
+
+    typeOfSign_params : scope * Params -> list((ID * TYPE))
+
+    typeOfSign_params(s, Params(params)) = flattenIdTypeList(typeOfParams(s, params)).
+
+    typeOfParams maps typeOfParam(*, list(*)) = list(*)
+    typeOfParam : scope * Param -> list((ID * TYPE))
+    typeOfParam(s, Param(names, type)) = zipParamType(names, typeOfType(s, type)).
+
+    zipParamType : list(ID) * TYPE -> list((ID * TYPE))
+    zipParamType([], _) = [].
+    zipParamType([x|xs], T) = [(x, T) | zipParamType(xs, T)].
+
+    concatIdTypeList : list((ID * TYPE)) * list((ID * TYPE)) -> list((ID * TYPE))
+    concatIdTypeList([], r) = r.
+    concatIdTypeList([x|xs], r) = [x | concatIdTypeList(xs, r)].
+
+    flattenIdTypeList : list(list((ID * TYPE))) -> list((ID * TYPE))
+    flattenIdTypeList([]) = [].
+    flattenIdTypeList([x]) = x.
+    flattenIdTypeList([x|xs]) = concatIdTypeList(x, flattenIdTypeList(xs)).
+
+rules
+
+    typeOfSign_retSpec : scope * RetSpec -> TYPE
+
+    typeOfSign_retSpec(s, RetSpec(type)) = typeOfType(s, type).
+
+rules
+
+    declareParams : scope * list((ID * TYPE))
+
+    declareParams(s_params, []).
+    declareParams(s_params, [(name, T)|xs]) :-
+        declareMemb(s_params, name, T),
+        declareParams(s_params, xs).

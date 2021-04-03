@@ -3,6 +3,7 @@ module statics/types
 imports
 
     signatures/NSID-sig
+    signatures/Type-sig
 
 signature
 
@@ -45,7 +46,19 @@ signature
         // Members (constants, variables, functions)
         CONST : TYPE
         VAR : TYPE
-        FUNC : list(TYPE) * TYPE -> TYPE
+        FUNC : list((ID * TYPE)) * TYPE -> TYPE
+
+rules
+
+    typeOfType : scope * Type -> TYPE
+
+    typeOfType(_, TypeString()) = STRING().
+    typeOfType(_, TypeBool()) = BOOL().
+    typeOfType(_, TypeInt()) = INT().
+    typeOfType(_, TypeFloat()) = FLOAT().
+    typeOfType(_, TypeTag()) = TAG().
+    typeOfType(_, _) = UNK() :-
+        try { false } | note $[todo: other types].
 
 rules
 

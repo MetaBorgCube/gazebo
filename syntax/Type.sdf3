@@ -11,12 +11,23 @@ context-free sorts
 
 context-free syntax
 
+    Type.TypeString = <String>
+    Type.TypeBool = <Bool>
+    Type.TypeInt = <Int>
+    Type.TypeFloat = <Float>
     Type.TypeRef = <<NSID>>
     Type.TypeResourceRegistry = [$<[NSID]>]
-    Type.TypeTagRegistry = [#<[NSID]>]
+    Type.TypeTag = [#]
     
     // TODO: think more about this notation
     Type.TypeArrayDynamic = <[<Type>;]>
     Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>
     Type.TypeArrayFixedNamed = <[<Type>; <{ID ", "}+>]>
     Type.TypeList = <[<Type>]>
+
+lexical syntax
+
+    ID = "String" {reject}
+    ID = "Bool" {reject}
+    ID = "Int" {reject}
+    ID = "Float" {reject}
