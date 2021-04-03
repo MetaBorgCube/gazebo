@@ -1,0 +1,104 @@
+module statics/expr/vec
+
+imports
+
+    statics/common
+    statics/expr
+    statics/types
+
+rules
+
+    typeOfVec : scope * Vec -> TYPE
+
+    typeOfVec(s, vec) = POS(kind, T) :-
+        (kind, T) == typeOfVecElems_step0(s, vec).
+
+rules
+
+    kindOfPos : Vec -> POS_KIND
+
+    kindOfPos(Vec(VecElemAbs(_), VecElemAbs(_), VecElemAbs(_))) = POS_ABS().
+
+rules
+
+    typeOfVecElems_elemType : scope * VecElem * TYPE -> TYPE
+
+    typeOfVecElems_elemType(s, VecElemAbs(e), Tv) = lub(Tv, Te) :-
+        Te == typeOfExpr(s, e).
+    typeOfVecElems_elemType(s, VecElemRel([e]), Tv) = lub(Tv, Te) :-
+        Te == typeOfExpr(s, e).
+    typeOfVecElems_elemType(s, VecElemLoc([e]), Tv) = lub(Tv, Te) :-
+        Te == typeOfExpr(s, e).
+
+    typeOfVecElems_elemType(s, VecElemRel([]), Tv) = Tv.
+    typeOfVecElems_elemType(s, VecElemLoc([]), Tv) = Tv.
+
+rules
+
+    typeOfVecElems_step0 : scope * Vec -> (POS_KIND * TYPE)
+
+    typeOfVecElems_step0(s, vec@Vec(elem@VecElemAbs(_), _, _)) =
+        typeOfVecElems_step1(s, vec, (POS_ABS(), typeOfVecElems_elemType(s, elem, UNK()))).
+
+    typeOfVecElems_step0(s, vec@Vec(elem@VecElemRel(_), _, _)) =
+        typeOfVecElems_step1(s, vec, (POS_REL(), typeOfVecElems_elemType(s, elem, UNK()))).
+
+    typeOfVecElems_step0(s, vec@Vec(elem@VecElemLoc(_), _, _)) =
+        typeOfVecElems_step1(s, vec, (POS_LOC(), typeOfVecElems_elemType(s, elem, UNK()))).
+
+rules
+
+    typeOfVecElems_step1 : scope * Vec * (POS_KIND * TYPE) -> (POS_KIND * TYPE)
+
+    // abs element keeps kind but may downgrade value type
+    typeOfVecElems_step1(s, vec@Vec(_, elem@VecElemAbs(_), _), (kind, T)) =
+        typeOfVecElems_step2(s, vec, (kind, typeOfVecElems_elemType(s, elem, T))).
+
+    // rel element is disallowed if kind is already LOC
+    typeOfVecElems_step1(_, Vec(_, elem@VecElemRel(_), _), Tvec@(POS_LOC(), _)) = Tvec :-
+        false | error $[relative element not allowed after local element]@elem.
+
+    // otherwise the kind becomes rel
+    typeOfVecElems_step1(s, vec@Vec(_, elem@VecElemRel(_), _), (_, T)) =
+        typeOfVecElems_step2(s, vec, (POS_REL(), typeOfVecElems_elemType(s, elem, T))).
+
+    // loc element is disallowed if kind is already REL
+    typeOfVecElems_step1(_, Vec(_, elem@VecElemLoc(_), _), Tvec@(POS_REL(), _)) = Tvec :-
+        false | error $[local element not allowed after relative element]@elem.
+
+    // otherwise the kind becomes loc
+    typeOfVecElems_step1(s, vec@Vec(_, elem@VecElemLoc(_), _), (_, T)) =
+        typeOfVecElems_step2(s, vec, (POS_LOC(), typeOfVecElems_elemType(s, elem, T))).
+
+rules
+
+    typeOfVecElems_step2 : scope * Vec * (POS_KIND * TYPE) -> (POS_KIND * TYPE)
+
+    // abs element keeps kind but may downgrade value type
+    typeOfVecElems_step2(s, vec@Vec(_, _, elem@VecElemAbs(_)), (kind, T)) =
+        typeOfVecElems_step3((kind, typeOfVecElems_elemType(s, elem, T))).
+
+    // rel element is disallowed if kind is already LOC
+    typeOfVecElems_step2(_, Vec(_, _, elem@VecElemRel(_)), Tvec@(POS_LOC(), _)) = Tvec :-
+        false | error $[relative element not allowed after local element]@elem.
+
+    // otherwise the kind becomes rel
+    typeOfVecElems_step2(s, vec@Vec(_, _, elem@VecElemRel(_)), (_, T)) =
+        typeOfVecElems_step3((POS_REL(), typeOfVecElems_elemType(s, elem, T))).
+
+    // loc element is disallowed if kind is already REL
+    typeOfVecElems_step2(_, Vec(_, _, elem@VecElemLoc(_)), Tvec@(POS_REL(), _)) = Tvec :-
+        false | error $[local element not allowed after relative element]@elem.
+
+    // otherwise the kind becomes loc
+    typeOfVecElems_step2(s, vec@Vec(_, _, elem@VecElemLoc(_)), (_, T)) =
+        typeOfVecElems_step3((POS_LOC(), typeOfVecElems_elemType(s, elem, T))).
+
+rules
+
+    typeOfVecElems_step3 : (POS_KIND * TYPE) -> (POS_KIND * TYPE)
+
+    // fallback to INT value type if the entire vector expression does not contain any expression (only rel/loc indicators)
+    typeOfVecElems_step3((kind, UNK())) = (kind, INT()).
+
+    typeOfVecElems_step3(Tvec) = Tvec.

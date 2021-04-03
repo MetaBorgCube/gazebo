@@ -11,13 +11,14 @@ imports
     statics/expr/invoke
     statics/expr/arith
     statics/expr/range
+    statics/expr/vec
     statics/types
 
 rules
 
     typeOfExpr : scope * Expr -> TYPE
 
-    typeOfExpr(s, e) = T@typeOfExprImpl(s, e) :- try { @e.type := T }.
+    typeOfExpr(s, e) = T@typeOfExprImpl(s, e) /*:- @e.type := T*/.
 
     /** do not refer directly, use typeOfExpr */
     typeOfExprImpl : scope * Expr -> TYPE
@@ -94,11 +95,10 @@ rules // range
     typeOfExprImpl(s, Range2Expr(range)) = T :-
         T == typeOfRange(s, range).
 
-rules // vector
+rules // vector (position)
 
     typeOfExprImpl(s, Vec2Expr(vec)) = T :-
-        T == VEC([INT(), INT(), INT()]),
-        try { false } | note $[todo].
+        T == typeOfVec(s, vec).
 
 rules // lambda
 

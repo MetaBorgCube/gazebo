@@ -63,7 +63,13 @@ rules // single-file entry point
 
         new s_mod_init, s_mod_init -M-> s_root,
         declareMod(s_root, nsid("minecraft", ["world"]), MOD(s_mod_init)),
-        declareMemb(s_mod_init, "setblock", FUNC([/*TODO*/], VOID())),
+        declareMemb(s_mod_init, "setblock",
+            FUNC([
+                // TODO: allow any pos
+                ("pos", POS(POS_ABS(), INT())),
+                ("block", RESOURCE(nsid("minecraft", ["block"])))
+            ], VOID())
+        ),
 
         new s_mod, s_mod -M-> s_root,
         NSIDmod == nsid("myns", ["myname"]),

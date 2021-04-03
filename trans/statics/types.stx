@@ -18,7 +18,7 @@ signature
         FLOAT : TYPE
 
         // Basic constructs
-        VEC : list(TYPE) -> TYPE
+        POS : POS_KIND * TYPE -> TYPE
         RANGE : TYPE -> TYPE
 
         // Specific types
@@ -48,6 +48,17 @@ signature
         VAR : TYPE
         FUNC : list((ID * TYPE)) * TYPE -> TYPE
 
+    sorts POS_KIND
+
+    constructors
+
+        /** absolute */
+        POS_ABS : POS_KIND
+        /** relative ("tilde notation") */
+        POS_REL : POS_KIND
+        /** local ("caret notation") */
+        POS_LOC : POS_KIND
+
 rules
 
     typeOfType : scope * Type -> TYPE
@@ -63,9 +74,11 @@ rules
 rules
 
     /** check if first type is a subtype of the second type */
+    // TODO: check if all possibilities are defined
     subtype : TYPE * TYPE
 
-    //subtype(VEC(a), VEC(b)) :- subtype(a, b).
+    // TODO: ensure POS kinds are legal
+    subtype(POS(ka, Ta), POS(kb, Tb)) :- subtype(Ta, Tb).
     subtype(RANGE(a), RANGE(b)) :- subtype(a, b).
 
     subtype(ITER(a), ITER(b)) :- subtype(a, b).
@@ -81,12 +94,36 @@ rules
 
 rules
 
+    /** derive least upper bound */
+    // TODO: check if all possibilities are defined
+    lub : TYPE * TYPE -> TYPE
+
+    lub(FLOAT(), INT()) = FLOAT().
+    lub(INT(), FLOAT()) = FLOAT().
+
+    //lub(POS(a), POS(b)) :- lub(a, b).
+    lub(RANGE(a), RANGE(b)) = RANGE(lub(a, b)).
+
+    lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
+
+    //COMPOUND: union
+    lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
+    lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
+
+    lub(a, UNK()) = a.
+    lub(UNK(), b) = b.
+
+    lub(a, b) = a :-
+        a == b | error $[t].
+
+rules
+
     typeBoolish : TYPE
 
     typeBoolish(BOOL()).
     typeBoolish(SELECTOR(_)).
-    // TODO: VEC(3) only boolish if int/tilde
-    typeBoolish(VEC([_, _, _])).
+    typeBoolish(POS(_, INT())).
+    typeBoolish(POS(_, FLOAT())).
     typeBoolish(_) :- false.
 
 rules
@@ -101,5 +138,5 @@ rules
 rules
 
     destructType : TYPE -> list(TYPE)
-    destructType(VEC(elems)) = elems.
+    destructType(POS(POS_ABS(), T)) = [T, T, T].
     destructType(t) = [] :- false | error $[cannot destruct type [t]].
