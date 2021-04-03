@@ -62,6 +62,25 @@ rules
 
 rules
 
+    /** check if first type is a subtype of the second type */
+    subtype : TYPE * TYPE
+
+    //subtype(VEC(a), VEC(b)) :- subtype(a, b).
+    subtype(RANGE(a), RANGE(b)) :- subtype(a, b).
+
+    subtype(ITER(a), ITER(b)) :- subtype(a, b).
+
+    //COMPOUND
+    subtype(LIST(a), LIST(b)) :- subtype(a, b).
+    subtype(ARRAY(a), ARRAY(b)) :- subtype(a, b).
+
+    subtype(_, UNK()).
+    //LAMBDA
+
+    subtype(a, b) :- a == b.
+
+rules
+
     typeBoolish : TYPE
 
     typeBoolish(BOOL()).

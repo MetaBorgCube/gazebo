@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/expr
+    statics/types
 
 rules
 
@@ -26,8 +27,9 @@ rules
 
     typeOfInvoke_internal : scope * TYPE * Args * Kwargs -> TYPE
 
-    typeOfInvoke_internal(s, FUNC(Tpar, Tr), a, k) = Tr :-
-        try { false } | note $[todo: check subtypes on the parameter types].
+    typeOfInvoke_internal(s, FUNC(Tparams, Tr), a, k) = Tr :- {Tparams_remaining}
+        funcArgsOk(s, Tparams, a) == Tparams_remaining,
+        funcKwargsOk(s, Tparams_remaining, k).
 
     typeOfInvoke_internal(s, TAG(), Args(a), Kwargs(k)) = VOID() :-
         a == [] | error $[a tag can only be invoked without arguments],
@@ -35,3 +37,31 @@ rules
 
     typeOfInvoke_internal(_, _, _, _) = UNK() :-
         false.
+
+rules
+
+    funcArgsOk : scope * list((ID * TYPE)) * Args -> list((ID * TYPE))
+
+    funcArgsOk(_, [], Args(args@[_|_])) = [] :-
+        false | error $[too many positional arguments given]@args.
+
+    funcArgsOk(_, params, Args([])) = params.
+
+    funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = funcArgsOk(s, xs, Args(ys)) :- {Te}
+        Te == typeOfExpr(s, e),
+        subtype(Tpar, Te) | error $[expression type not suitable for parameter of type [Tpar]]@e.
+
+rules
+
+    funcKwargsOk : scope * list((ID * TYPE)) * Kwargs
+
+    funcKwargsOk(s, [], Kwargs([])).
+
+    funcKwargsOk(s, [], Kwargs(kwargs@[_|_])) :-
+        false | error $[too many keyword arguments given]@kwargs.
+
+    funcKwargsOk(_, params@[_|_], Kwargs([])) :-
+        false | error $[too few arguments]@params.
+
+    funcKwargsOk(_, _, _) :-
+        try { false } | note $[TODO: implement kwargs (using scopes)].

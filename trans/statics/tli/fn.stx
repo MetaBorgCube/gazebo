@@ -33,7 +33,7 @@ rules
         declareParams(s_body, Tparams),
 
         typeOfExpr(s_body, e) == Te,
-        // TODO: subtype(T, Tret)
+        subtype(Te, Tret),
 
         declareMemb(s, name, FUNC(Tparams, Tret)).
 
