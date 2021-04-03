@@ -1,0 +1,39 @@
+module statics/expr/arith
+
+imports
+
+    statics/common
+    statics/expr
+
+rules
+
+    typeOfArith : scope * Arith -> TYPE
+
+    typeOfArith(s, m@Mul(Expr2Expr-I(l), Expr2Expr-I(r))) = typeOfArith_i(s, l, r).
+    typeOfArith(s, m@Div(Expr2Expr-I(l), Expr2Expr-I(r))) = typeOfArith_i(s, l, r).
+    typeOfArith(s, m@Mod(Expr2Expr-I(l), Expr2Expr-I(r))) = typeOfArith_i(s, l, r).
+
+    typeOfArith(s, m@Add(Expr2Expr-I(l), Expr2Expr-I(r))) = typeOfArith_i(s, l, r).
+    typeOfArith(s, m@Sub(Expr2Expr-I(l), Expr2Expr-I(r))) = typeOfArith_i(s, l, r).
+
+rules
+
+    typeOfArith_i : scope * Expr * Expr -> TYPE
+
+    typeOfArith_i(s, l, r) = T :- {Tl Tr}
+        Tl == typeOfExpr(s, l),
+        Tr == typeOfExpr(s, r),
+        T == typeOfArith_numCompat(s, Tl, Tr).
+
+rules
+
+    typeOfArith_numCompat : scope * TYPE * TYPE -> TYPE
+
+    typeOfArith_numCompat(s, INT(), INT()) = INT().
+
+    typeOfArith_numCompat(s, FLOAT(), FLOAT()) = FLOAT().
+
+    // TODO: support coercion operations (?) (with warning)
+
+    typeOfArith_numCompat(s, l, r) = UNK() :-
+        false | error $[arithmetic operation is not defined between [l] and [r]].

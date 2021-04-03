@@ -1,0 +1,32 @@
+module statics/expr/range
+
+imports
+
+    statics/common
+    statics/expr
+
+rules
+
+    typeOfRange : scope * Range -> TYPE
+
+    typeOfRange(s, RangeFull(Expr2Expr-I(l), Expr2Expr-I(r))) = typeOfRange_i(s, l, r).
+
+rules
+
+    typeOfRange_i : scope * Expr * Expr -> TYPE
+
+    typeOfRange_i(s, l, r) = T :- {Tl Tr}
+        Tl == typeOfExpr(s, l),
+        Tr == typeOfExpr(s, r),
+        T == RANGE(typeOfRange_numCompat(s, Tl, Tr)).
+
+rules
+
+    typeOfRange_numCompat : scope * TYPE * TYPE -> TYPE
+
+    typeOfRange_numCompat(s, INT(), INT()) = INT().
+
+    typeOfRange_numCompat(s, FLOAT(), FLOAT()) = FLOAT().
+
+    typeOfRange_numCompat(s, l, r) = UNK() :-
+        false | error $[range is not defined between [l] and [r]].

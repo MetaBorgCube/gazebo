@@ -9,6 +9,8 @@ imports
     statics/expr/literal
     statics/expr/ref
     statics/expr/invoke
+    statics/expr/arith
+    statics/expr/range
     statics/types
 
 rules
@@ -63,20 +65,8 @@ rules // invoke
 
 rules // arithmetic
 
-    typeOfExprImpl(s, Arith2Expr(Mul(l, r))) = T :- {Tl Tr}
-        try { false } | note $[todo].
-
-    typeOfExprImpl(s, Arith2Expr(Div(l, r))) = T :- {Tl Tr}
-        try { false } | note $[todo].
-
-    typeOfExprImpl(s, Arith2Expr(Mod(l, r))) = T :- {Tl Tr}
-        try { false } | note $[todo].
-
-    typeOfExprImpl(s, Arith2Expr(Add(l, r))) = T :- {Tl Tr}
-        try { false } | note $[todo].
-
-    typeOfExprImpl(s, Arith2Expr(Sub(l, r))) = T :- {Tl Tr}
-        try { false } | note $[todo].
+    typeOfExprImpl(s, Arith2Expr(arith)) = T :-
+        typeOfArith(s, arith) == T.
 
 rules // compare (boolean logic)
 
@@ -102,8 +92,7 @@ rules // compare (boolean logic)
 rules // range
 
     typeOfExprImpl(s, Range2Expr(range)) = T :-
-        T == RANGE(INT()),
-        try { false } | note $[todo: determine range type].
+        T == typeOfRange(s, range).
 
 rules // vector
 
