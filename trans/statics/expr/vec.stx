@@ -15,12 +15,6 @@ rules
 
 rules
 
-    kindOfPos : Vec -> POS_KIND
-
-    kindOfPos(Vec(VecElemAbs(_), VecElemAbs(_), VecElemAbs(_))) = POS_ABS().
-
-rules
-
     typeOfVecElems_elemType : scope * VecElem * TYPE -> TYPE
 
     typeOfVecElems_elemType(s, VecElemAbs(e), Tv) = lub(Tv, Te) :-
