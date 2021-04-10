@@ -27,7 +27,7 @@ rules
 rules // NBT
 
     typeOfExprImpl(s, NBT2Expr(nbt)) = T :-
-        typeOfNBT(s, nbt) == T.
+        typeOfNBT(s, nbt, UNK()) == T.
 
 rules // selector
 

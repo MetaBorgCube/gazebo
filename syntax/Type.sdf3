@@ -19,7 +19,7 @@ context-free syntax
     Type.TypeRef = <<NSID>>
     Type.TypeResourceRegistry = [$<[NSID]>]
     Type.TypeTag = [#]
-    
+
     // TODO: think more about this notation
     Type.TypeArrayDynamic = <[<Type>;]>
     Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>

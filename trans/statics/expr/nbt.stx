@@ -3,7 +3,76 @@ module statics/expr/nbt
 imports
 
     statics/common
+    statics/expr
+    statics/bind/memb
+    statics/types
 
 rules
 
-    typeOfNBT : scope * NBT -> TYPE
+    /** scope * NBT * hint type */
+    typeOfNBT : scope * NBT * TYPE -> TYPE
+
+    typeOfNBT(s, NBTCompound2NBT(compound), hint) = typeOfNBTCompound(s, compound, hint).
+    typeOfNBT(s, NBTArray2NBT(array), hint) = typeOfNBTArray(s, array, hint).
+    typeOfNBT(s, NBTList2NBT(list), hint) = typeOfNBTList(s, list, hint).
+
+rules
+
+    typeOfNBTCompound : scope * NBTCompound * TYPE -> TYPE
+
+    typeOfNBTCompound(s, NBTCompound(kvs), UNK()) = COMPOUND(s_derived) :-
+        new s_derived, s_derived -P-> s.
+
+    nbtCompoundKvsOk maps nbtCompoundKvOk(*, list(*))
+    nbtCompoundKvOk : scope * NBTKeyValue
+
+    nbtCompoundKvOk(s_comp, KeyValueID(key, value)) :- {T}
+        T == typeOfExpr(s_comp, value),
+        declareMemb(s_comp, key, MEMB_MODVARFN(), T).
+
+    // TODO: rules with hints
+
+rules
+
+    extractIterableType_array : TYPE -> TYPE
+    extractIterableType_array(ARRAY(T)) = T.
+    extractIterableType_array(UNK()) = UNK().
+    extractIterableType_array(_) = UNK() :-
+        false | error $[incompatible with constructor type hint].
+
+    extractIterableType_list : TYPE -> TYPE
+    extractIterableType_list(LIST(T)) = T.
+    extractIterableType_list(UNK()) = UNK().
+    extractIterableType_list(_) = UNK() :-
+        false | error $[incompatible with constructor type hint].
+
+rules
+
+    typeOfNBTArray : scope * NBTArray * TYPE -> TYPE
+
+    typeOfNBTArray(s, NBTArrayAnonymous(values), Thint) = ARRAY(T) :-
+        T == typeOfNBTIterable(s, values, extractIterableType_array(Thint), extractIterableType_array(Thint)).
+
+    typeOfNBTArray(s, NBTArrayExplicit(t, values), Thint) = ARRAY(T) :- {Tarr}
+        T == typeOfType(s, t),
+        Tarr == typeOfNBTIterable(s, values, T, extractIterableType_array(Thint)),
+        subtype(ARRAY(T), Thint) | error $[array type is not compatible with required type]@values.
+
+rules
+
+    typeOfNBTList : scope * NBTList * TYPE -> TYPE
+
+    typeOfNBTList(s, NBTList(values), Thint) = LIST(T) :-
+        T == typeOfNBTIterable(s, values, extractIterableType_list(Thint), extractIterableType_list(Thint)).
+
+rules
+
+    /** scope * values * lower bound * current upper bound -> final element type */
+    typeOfNBTIterable : scope * list(Expr) * TYPE * TYPE -> TYPE
+
+    typeOfNBTIterable(s, [], _, b_upper) = b_upper.
+
+    typeOfNBTIterable(s, [x|xs], b_lower, b_upper) = lub(b_upper, Ttail) :- {T}
+        T == typeOfExpr(s, x),
+        Ttail == typeOfNBTIterable(s, xs, b_lower, lub(b_upper, T)),
+        subtype(T, b_lower) | error $[element type is not compatible with required type]@x.

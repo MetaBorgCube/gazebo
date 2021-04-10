@@ -74,10 +74,24 @@ rules
 
     typeOfType(_, TypeTag()) = TAG().
 
-    // TODO: type of resource registry, array, list, interface
+    // TODO: type of resource registry, interface, distinguish between different array/list fixed types
 
     typeOfType(s, TypeRef(nsid)) = T :-
         T == resolveMembRef(s, nsid, MEMB_TYPE()).
+
+    typeOfType(s, TypeArrayDynamic(t)) = ARRAY(T) :-
+        T == typeOfType(s, t).
+    typeOfType(s, TypeArrayFixedAnonymous(t, size)) = ARRAY(T) :-
+        T == typeOfType(s, t).
+    typeOfType(s, TypeArrayFixedNamed(t, names)) = ARRAY(T) :-
+        T == typeOfType(s, t).
+
+    typeOfType(s, TypeListDynamic(t)) = LIST(T) :-
+        T == typeOfType(s, t).
+    typeOfType(s, TypeListFixedAnonymous(t, size)) = LIST(T) :-
+        T == typeOfType(s, t).
+    typeOfType(s, TypeListFixedNamed(t, names)) = LIST(T) :-
+        T == typeOfType(s, t).
 
     typeOfType(s, TypeEnum(keys)) = ENUM(s_enum) :-
         new s_enum, s_enum -P-> s,
@@ -98,6 +112,8 @@ rules
     /** check if first type is a subtype of the second type */
     // TODO: check if all possibilities are defined
     subtype : TYPE * TYPE
+
+    subtype(INT(), FLOAT()).
 
     // TODO: ensure POS kinds are legal
     subtype(POS(ka, Ta), POS(kb, Tb)) :- subtype(Ta, Tb).
