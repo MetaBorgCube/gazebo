@@ -26,10 +26,9 @@ context-free syntax
     Noop.Noop = <;>
     Statement = Noop
 
-    // TODO: newline after Statement
     Block.Block = <
     {
-        <Statement*>
+        <{Statement "\n"}*>
     }
     >
     Block.SingleStmt = [=> [Statement]]
