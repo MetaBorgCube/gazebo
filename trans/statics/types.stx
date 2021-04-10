@@ -30,7 +30,7 @@ signature
         VOID : TYPE
 
         // NBT-related exclusive types
-        COMPOUND : TYPE
+        COMPOUND : scope -> TYPE
         LIST : TYPE -> TYPE
         ARRAY : TYPE -> TYPE
 
@@ -106,7 +106,7 @@ rules
 
     lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
 
-    //COMPOUND: union
+    //COMPOUND: intersection
     lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
     lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
 
@@ -114,7 +114,7 @@ rules
     lub(UNK(), b) = b.
 
     lub(a, b) = a :-
-        a == b | error $[t].
+        a == b | error $[no type commonality].
 
 rules
 
