@@ -44,6 +44,14 @@ signature
 
 rules
 
+    withTypeInject : scope * TYPE -> scope
+
+    withTypeInject(s, T) = s_tinj :-
+        new s_tinj, s_tinj -P-> s,
+        !tinj[T] in s_tinj.
+
+rules
+
     currentMod : scope -> (NSID * scope)
 
     // TODO: this could maybe also be implemented without the explicit presence of the currmod relation

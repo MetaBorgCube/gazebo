@@ -79,16 +79,16 @@ rules // match
 
     matchOk(s, m@Match(e, cases)) :- {T}
         typeOfExpr(s, e) == T,
-        try { false } | note $[subtype check on case expr, enum key scope injection]@e,
         cases != [] | error $[specify at least one case]@m,
-        matchCasesOk(s, cases).
+        matchCasesOk(s, T, cases).
 
-    matchCasesOk maps matchCaseOk(*, list(*))
+    matchCasesOk maps matchCaseOk(*, *, list(*))
 
-    matchCaseOk : scope * Case
+    matchCaseOk : scope * TYPE * Case
 
-    matchCaseOk(s, Case(e, body)) :- {T s_case}
-        typeOfExpr(s, e) == T,
+    matchCaseOk(s, Tmatch, Case(e, body)) :- {Tcase s_case}
+        typeOfExpr(withTypeInject(s, Tmatch), e) == Tcase,
+        subtype(Tcase, Tmatch) | error $[case type is not applicable]@e,
         new s_case, s_case -P-> s,
         try { false } | note $[shadow on ref match]@e,
         blockOk(s_case, body).

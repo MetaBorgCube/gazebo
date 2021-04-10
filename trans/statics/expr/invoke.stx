@@ -47,10 +47,8 @@ rules
 
     funcArgsOk(_, params, Args([])) = params.
 
-    funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = funcArgsOk(s, xs, Args(ys)) :- {Te s_tinj}
-        new s_tinj, s_tinj -P-> s,
-        !tinj[Tpar] in s_tinj,
-        Te == typeOfExpr(s_tinj, e),
+    funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = funcArgsOk(s, xs, Args(ys)) :- {Te}
+        Te == typeOfExpr(withTypeInject(s, Tpar), e),
         subtype(Tpar, Te) | error $[expression type not suitable for parameter of type [Tpar]]@e.
 
 rules

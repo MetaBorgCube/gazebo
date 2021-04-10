@@ -20,11 +20,9 @@ rules // assign
 
     assignOk : scope * Assign
 
-    assignOk(s, AssignEq(dst, src)) :- {Td Ts s_tinj}
+    assignOk(s, AssignEq(dst, src)) :- {Td Ts}
         typeOfExpr(s, dst) == Td,
-        new s_tinj, s_tinj -P-> s,
-        !tinj[Td] in s_tinj,
-        typeOfExpr(s_tinj, src) == Ts,
+        typeOfExpr(withTypeInject(s, Td), src) == Ts,
         subtype(Ts, Td) | error $[[Ts] is not assignable to [Td]]@src.
 
     assignOk(s, AssignAdd(dst, src)) :- {Td Ts}
