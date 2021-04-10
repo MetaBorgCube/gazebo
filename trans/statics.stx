@@ -64,6 +64,7 @@ rules // single-file entry point
         new s_mod_init, s_mod_init -M-> s_root,
         declareMod(s_root, nsid("minecraft", ["world"]), MOD(s_mod_init)),
         declareMemb(s_mod_init, "setblock",
+            MEMB_MODVARFN(),
             FUNC([
                 // TODO: allow any pos
                 ("pos", POS(POS_ABS(), INT())),

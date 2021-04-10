@@ -18,22 +18,29 @@ signature
     sorts
 
         PROP
+        MEMB_KIND
 
     constructors
 
         PROP_OVERRIDABLE : TYPE -> PROP
         PROP_FINAL : TYPE -> PROP
 
+        MEMB_MODVARFN : MEMB_KIND
+        MEMB_TYPE : MEMB_KIND
+        MEMB_ENUMKEY : MEMB_KIND
+
     relations
 
         mod : NSID -> TYPE
         currmod : -> (NSID * TYPE)
-        memb : string -> TYPE
+        memb : (string * MEMB_KIND) -> TYPE
         registry : NSID -> scope
         registration : NSID -> scope
         regmeta : string -> scope
         alias : string -> scope
         prop : string -> PROP
+        enumkey : -> string
+        tinj : -> TYPE
 
 rules
 

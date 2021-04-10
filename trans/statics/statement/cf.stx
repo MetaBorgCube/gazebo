@@ -16,13 +16,13 @@ rules // some VERY NOT NICE rules to do type explosion combined with declaring t
         x == [] | error $[too few items in right list].
     zipSafeLeft_string_TYPE_andDecl(s, [x|xs], [y|ys]) = [(x, y) | zipSafeLeft_string_TYPE_andDecl(s, xs, ys)] :-
         @x.type := y,
-        declareMemb(s, x, y).
+        declareMemb(s, x, MEMB_MODVARFN(), y).
 
     typeDestructAssign_andDecl : scope * list(string) * TYPE -> list((string * TYPE))
     typeDestructAssign_andDecl(_, [], _) = [].
     typeDestructAssign_andDecl(s, [x], T) = [(x, T)] :-
         @x.type := T,
-        declareMemb(s, x, T).
+        declareMemb(s, x, MEMB_MODVARFN(), T).
     typeDestructAssign_andDecl(s, names, Tdestr) = zipped :- {Tdestr'}
         destructType(Tdestr) == Tdestr',
         zipSafeLeft_string_TYPE_andDecl(s, names, Tdestr') == zipped.

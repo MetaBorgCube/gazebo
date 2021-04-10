@@ -1,0 +1,41 @@
+module statics/expr/construct
+
+imports
+
+    statics/common
+    statics/expr
+    statics/types
+    statics/bind/memb
+
+rules
+
+    typeOfConstruct : scope * Construct -> TYPE
+
+    typeOfConstruct(s, ConstructExplicit(t, item)) = T :-
+        T == typeOfType(s, t),
+        constructOk(s, T, item).
+
+    typeOfConstruct(s, constr@ConstructInfer(item)) = T :-
+        queryTinj(s) == [(_, T)] | error $[no construct context available here]@constr,
+        constructOk(s, T, item).
+
+rules
+
+    queryTinj : scope -> list((path * TYPE))
+
+    queryTinj(s) = p :-
+        query tinj
+            filter e and true
+            min and false
+            in s |-> p.
+
+rules
+
+    constructOk : scope * TYPE * ConstructItem
+
+    constructOk(s, T, ConstructNBT(nbt)) :-
+        try { false } | note $[todo].
+
+    constructOk(s, T, constr@ConstructEnum(key)) :- {s_enum}
+        T == ENUM(s_enum) | error $[context type is not an enum]@constr,
+        resolveMembLocal(s_enum, key, MEMB_ENUMKEY()) == ENUMKEY() | error $[key does not exist on enum]@key.

@@ -5,6 +5,7 @@ imports
     statics/common
     statics/expr
     statics/bind/memb
+    statics/types
 
 rules // decl
 
@@ -12,17 +13,19 @@ rules // decl
 
     declOk(s, Decl(modifiers, name, e)) :- {T}
         typeOfExpr(s, e) == T,
-        declareMemb(s, name, T),
+        declareMemb(s, name, MEMB_MODVARFN(), T),
         @name.type := T.
 
 rules // assign
 
     assignOk : scope * Assign
 
-    assignOk(s, AssignEq(dst, src)) :- {Td Ts}
-        try { false } | note $[todo: check subtype, enum key scope injection],
+    assignOk(s, AssignEq(dst, src)) :- {Td Ts s_tinj}
         typeOfExpr(s, dst) == Td,
-        typeOfExpr(s, src) == Ts.
+        new s_tinj, s_tinj -P-> s,
+        !tinj[Td] in s_tinj,
+        typeOfExpr(s_tinj, src) == Ts,
+        subtype(Ts, Td) | error $[[Ts] is not assignable to [Td]]@src.
 
     assignOk(s, AssignAdd(dst, src)) :- {Td Ts}
         try { false } | note $[todo: check + op],

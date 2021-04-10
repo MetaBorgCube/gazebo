@@ -1,0 +1,15 @@
+module statics/tli/typedecl
+
+imports
+
+    statics/common
+    statics/types
+    statics/bind/memb
+
+rules
+
+    typeDeclOk : scope * TypeDecl
+
+    typeDeclOk(s, TypeDecl(name, type)) :- {T}
+        T == typeOfType(s, type),
+        declareMemb(s, name, MEMB_TYPE(), T).

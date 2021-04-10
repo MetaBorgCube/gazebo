@@ -12,6 +12,7 @@ imports
     statics/expr/arith
     statics/expr/range
     statics/expr/vec
+    statics/expr/construct
     statics/types
 
 rules
@@ -101,3 +102,8 @@ rules // lambda
 
     typeOfExprImpl(s, Lambda2Expr(lambda)) = LAMBDA() :-
         try { false } | note $[future].
+
+rules // construct
+
+    typeOfExprImpl(s, Construct2Expr(constr)) = T :-
+        T == typeOfConstruct(s, constr).

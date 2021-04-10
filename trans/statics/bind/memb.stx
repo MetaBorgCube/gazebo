@@ -3,6 +3,7 @@ module statics/bind/memb
 imports
 
     statics/common
+    statics/bind/mod
 
 rules
 
@@ -13,47 +14,79 @@ rules
 //        declareMemb(s, name, T),
 //        declareMembs(s, xs).
 
-    declareMemb : scope * ID * TYPE
+    declareMemb : scope * ID * MEMB_KIND * TYPE
 
-    declareMemb(s, name, T) :-
+    declareMemb(s, name, kind, T) :-
         // TODO: add information about mutability and other access modifiers of the member
-        !memb[name, T] in s,
-        queryMemb(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
+        !memb[(name, kind), T] in s,
+        queryMemb(s, name, kind) == [(_, (_, _))] | error $[duplicate definition]@name.
 
 rules
 
-    queryMembLocal : scope * ID -> list((path * (ID * TYPE)))
+    queryMembLocal : scope * ID * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
 
-    queryMembLocal(s, name) = p :-
+    queryMembLocal(s, name, kind) = p :-
         query memb
-            filter P* and { x :- x == name }
+            filter P* and { x :- x == (name, kind) }
             min $ < P and false
             in s |-> p.
 
 rules
 
-    queryMemb : scope * ID -> list((path * (ID * TYPE)))
+    queryMemb : scope * ID * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
 
-    queryMemb(s, name) = p :-
+    queryMemb(s, name, kind) = p :-
         query memb
-            filter P* I? M? and { x :- x == name }
+            filter P* I? M? and { x :- x == (name, kind) }
             min $ < P, $ < M and false
             in s |-> p.
 
 rules
 
-    resolveMemb : scope * ID -> TYPE
+    resolveMemb : scope * ID * MEMB_KIND -> TYPE
 
-    resolveMemb(s, name) = T :- {p name'}
-        queryMemb(s, name) == p,
-        p == [(_, (name', T))|_],
-        @name.ref := name'.
+    resolveMemb(s, name, kind) = T :- {p name'}
+        queryMemb(s, name, kind) == p,
+        p == [(_, ((name', _), T))|_],
+        @name.ref := name',
+        @name.type := T.
 
 rules
 
-    resolveMembLocal : scope * ID -> TYPE
+    resolveMembLocal : scope * ID * MEMB_KIND -> TYPE
 
-    resolveMembLocal(s, name) = T :- {p p'}
-        queryMembLocal(s, name) == p,
-        p == [(p', (_, T))],
+    resolveMembLocal(s, name, kind) = T :- {p p' name'}
+        queryMembLocal(s, name, kind) == p,
+        p == [(p', ((name', _), T))],
+        @name.ref := name',
         @name.type := T.
+
+rules
+
+    resolveMembRef : scope * NSID * MEMB_KIND -> TYPE
+
+    // overload to account for syntactic sugar
+    resolveMembRef(s, NSIDShort(name), kind) = resolveMembRef(s, NSID(curr_ns, name), kind) :-
+        currentMod(s) == (NSID(curr_ns, _), _).
+
+    // case: relative NSID with 1 name element
+    // simplest rule
+    resolveMembRef(s, nsid@NSIDRel(NSIDName([name])), kind) = T :-
+        T == resolveMemb(s, name, kind) | error $[no member found with name [name]]@nsid.
+
+    // case: relative NSID with 2 name elements
+    // name part of this NSIDRel should be at least of length 2, because earlier rule captures 1-length
+    resolveMembRef(s, nsid@NSIDRel(NSIDName([name_mod, name_memb])), kind) = Tmemb :- {Tmod s_mod}
+        Tmod == resolveMemb(s, name_mod, kind),
+        Tmod == MOD(s_mod),
+        Tmemb == resolveMemb(s_mod, name_memb, kind) | error $[[name_memb] is not a member of module [name_mod]]@name_memb.
+
+    // case: absolute NSID with 2 or more name elements
+    resolveMembRef(s, nsid@NSID(ns, NSIDName(name)), kind) = Tmemb :- {nsid_init Tmod s_mod}
+        nsid_init == nsid(ns, stringListInit(name)),
+        Tmod == resolveMod(s, nsid_init),
+        Tmod == MOD(s_mod),
+        Tmemb == resolveMemb(s_mod, stringListLast(name), kind).
+
+    resolveMembRef(s, nsid, _) = UNK() :-
+        false | error $[don't know how to resolve reference]@nsid.

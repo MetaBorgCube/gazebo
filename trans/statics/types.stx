@@ -4,6 +4,8 @@ imports
 
     signatures/NSID-sig
     signatures/Type-sig
+    statics/common
+    statics/bind/memb
 
 signature
 
@@ -16,6 +18,7 @@ signature
         BOOL : TYPE
         INT : TYPE
         FLOAT : TYPE
+        ENUM : scope -> TYPE
 
         // Basic constructs
         POS : POS_KIND * TYPE -> TYPE
@@ -34,9 +37,6 @@ signature
         LIST : TYPE -> TYPE
         ARRAY : TYPE -> TYPE
 
-        // Misc
-        UNK : TYPE
-
         // Modules
         MOD : scope -> TYPE
 
@@ -47,6 +47,10 @@ signature
         CONST : TYPE
         VAR : TYPE
         FUNC : list((ID * TYPE)) * TYPE -> TYPE
+
+        // Misc
+        UNK : TYPE
+        ENUMKEY : TYPE
 
     sorts POS_KIND
 
@@ -67,9 +71,27 @@ rules
     typeOfType(_, TypeBool()) = BOOL().
     typeOfType(_, TypeInt()) = INT().
     typeOfType(_, TypeFloat()) = FLOAT().
+
     typeOfType(_, TypeTag()) = TAG().
+
+    // TODO: type of resource registry, array, list, interface
+
+    typeOfType(s, TypeRef(nsid)) = T :-
+        T == resolveMembRef(s, nsid, MEMB_TYPE()).
+
+    typeOfType(s, TypeEnum(keys)) = ENUM(s_enum) :-
+        new s_enum, s_enum -P-> s,
+        declareEnumKeys(s_enum, keys).
+
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].
+
+rules
+
+    declareEnumKeys maps declareEnumKey(*, list(*))
+    declareEnumKey : scope * string
+    declareEnumKey(s, key) :-
+        declareMemb(s, key, MEMB_ENUMKEY(), ENUMKEY()).
 
 rules
 

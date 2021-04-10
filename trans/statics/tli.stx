@@ -6,6 +6,7 @@ imports
     statics/tli/alias
     statics/tli/fn
     statics/tli/registry
+    statics/tli/typedecl
     statics/statement/decl-assign
 
 rules
@@ -27,7 +28,7 @@ rules
         registryOk(s_root, s_mod, reg).
 
     tliOk(_, s_mod, TypeDecl2Tli(tdecl)) :-
-        false.
+        typeDeclOk(s_mod, tdecl).
 
     tliOk(_, _, tli) :-
         false

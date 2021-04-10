@@ -21,7 +21,7 @@ rules
         new s_body, s_body -P-> s_params,
         blockOk(s_body, body),
 
-        declareMemb(s, name, FUNC(Tparams, Tret)).
+        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
 
     fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_params s_body Te Tparams Tret}
         (Tparams, Tret) == typeOfSign(s, signature),
@@ -35,11 +35,11 @@ rules
         typeOfExpr(s_body, e) == Te,
         subtype(Te, Tret),
 
-        declareMemb(s, name, FUNC(Tparams, Tret)).
+        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
 
     fnOk(s, FnExt(name, signature)) :- {Tparams Tret}
         (Tparams, Tret) == typeOfSign(s, signature),
-        declareMemb(s, name, FUNC(Tparams, Tret)).
+        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
 
 rules
 
@@ -88,5 +88,5 @@ rules
 
     declareParams(s_params, []).
     declareParams(s_params, [(name, T)|xs]) :-
-        declareMemb(s_params, name, T),
+        declareMemb(s_params, name, MEMB_MODVARFN(), T),
         declareParams(s_params, xs).
