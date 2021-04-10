@@ -51,12 +51,9 @@ rules // ref
     typeOfExprImpl(s, Ref2Expr(ref)) = T :-
         typeOfRef(s, ref) == T.
 
-rules // find (+ static)
+rules // find
 
     typeOfExprImpl(s, Find2Expr(find)) = T :-
-        try { false } | note $[todo].
-
-    typeOfExprImpl(s, FindStatic2Expr(find)) = T :-
         try { false } | note $[todo].
 
 rules // invoke

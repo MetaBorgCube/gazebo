@@ -4,11 +4,11 @@ imports
   
     Common
     Alias
-    Enum
     NSID
     Function
     Statement
     Registry
+    Type
 
 context-free start-symbols
   
@@ -42,7 +42,7 @@ context-free syntax
     UseFromPart.UseFromPartAlias = <<ID> as <ID>>
 
     Tli = Alias
-    Tli = Enum
     Tli = Fn
     Tli = Decl
     Tli = Registry
+    Tli = TypeDecl

@@ -55,15 +55,6 @@ context-free syntax
     Find = <<Selector>[<Expr-I>]> {reject}
 
 /**
- * Static find (meant for enum references)
- */
-context-free sorts FindStatic
-context-free syntax
-
-    Expr = FindStatic
-    FindStatic.FindStaticID = <<Expr-I>::<ID>>
-
-/**
  * Invoke
  */
 context-free sorts Invoke Args Kwargs Kwarg
@@ -152,6 +143,20 @@ context-free syntax
     Lambda.LambdaParameterizedExpr = [\[{ID ", "}+] -> [Expr]\]
     Lambda.LambdaExprOnly = [\[Expr]\]
 
+/**
+ * Construction
+ */
+
+context-free sorts Construct ConstructItem
+context-free syntax
+
+    Expr = Construct
+    Construct.ConstructExplicit = <<Type>::<ConstructItem>>
+    Construct.ConstructInfer = <::<ConstructItem>>
+
+    ConstructItem.ConstructNBT = <<NBT>>
+    ConstructItem.ConstructEnum = <<ID>>
+
 ////////
 
 context-free priorities
@@ -160,7 +165,6 @@ context-free priorities
         Find.FindIndex
         Find.FindPathID
         Find.FindPathString
-        FindStatic.FindStaticID
     } > {
         Invoke.InvokeNone
         Invoke.InvokeArgs

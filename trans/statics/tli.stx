@@ -4,7 +4,6 @@ imports
 
     statics/common
     statics/tli/alias
-    statics/tli/enum
     statics/tli/fn
     statics/tli/registry
     statics/statement/decl-assign
@@ -18,9 +17,6 @@ rules
     tliOk(_, s, Alias2Tli(a)) :-
         aliasOk(s, a).
 
-    tliOk(_, s, Enum2Tli(e)) :-
-        enumOk(s, e).
-
     tliOk(_, s, Fn2Tli(fn)) :-
         fnOk(s, fn).
 
@@ -29,6 +25,9 @@ rules
 
     tliOk(s_root, s_mod, Registry2Tli(reg)) :-
         registryOk(s_root, s_mod, reg).
+
+    tliOk(_, s_mod, TypeDecl2Tli(tdecl)) :-
+        false.
 
     tliOk(_, _, tli) :-
         false

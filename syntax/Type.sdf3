@@ -8,6 +8,7 @@ imports
 context-free sorts
 
     Type
+    InterfaceMember
 
 context-free syntax
 
@@ -23,7 +24,24 @@ context-free syntax
     Type.TypeArrayDynamic = <[<Type>;]>
     Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>
     Type.TypeArrayFixedNamed = <[<Type>; <{ID ", "}+>]>
-    Type.TypeList = <[<Type>]>
+    Type.TypeListDynamic = <[<Type>]>
+    Type.TypeListFixedAnonymous = <[<Type>: <INT>]>
+    Type.TypeListFixedNamed = <[<Type>: <{ID ", "}+>]>
+    Type.TypeEnum = <
+        enum
+        {
+            <{ID ",\n"}*>
+        }
+    >
+    // TODO: interface composition
+    Type.TypeInterface = <
+        interface
+        {
+            <{InterfaceMember "\n"}*>
+        }
+    >
+
+    InterfaceMember.InterfaceMember = <<ID> <Type>>
 
 lexical syntax
 
@@ -31,3 +49,12 @@ lexical syntax
     ID = "Bool" {reject}
     ID = "Int" {reject}
     ID = "Float" {reject}
+    ID = "enum" {reject}
+
+context-free sorts
+
+    TypeDecl
+
+context-free syntax
+
+    TypeDecl.TypeDecl = <type <ID> <Type>>
