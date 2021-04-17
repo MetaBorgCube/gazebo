@@ -1,0 +1,44 @@
+module statics/expr/find
+
+imports
+
+    statics/common
+    statics/expr
+    statics/bind/memb
+
+rules
+
+    typeOfFind : scope * Find -> TYPE
+
+    typeOfFind(s, FindIndex(Expr2Expr-I(e), Expr2Expr-I(idx))) = typeOfFindIndex(s, Te, Tidx) :-
+        Te == typeOfExpr(s, e),
+        Tidx == typeOfExpr(s, idx).
+    typeOfFind(s, FindPathID(Expr2Expr-I(e), id)) = typeOfFindString(s, Te, id) :-
+        Te == typeOfExpr(s, e).
+    typeOfFind(s, FindPathString(Expr2Expr-I(e), str)) = typeOfFindString(s, Te, str) :-
+        Te == typeOfExpr(s, e).
+
+rules
+
+    typeOfFindIndex : scope * TYPE * TYPE -> TYPE
+
+    typeOfFindIndex(s, LIST(Tf), INT()) = Tf.
+
+    typeOfFindIndex(s, ARRAY(Tf), INT()) = Tf.
+
+    // TODO: constrain on fixed-size arrays/lists (?)
+
+    typeOfFindIndex(_, Te, Tidx) = UNK() :-
+        false | error $[index find by [Tidx] not defined on type [Te]].
+
+rules
+
+    typeOfFindString : scope * TYPE * string -> TYPE
+
+    typeOfFindString(s, COMPOUND(s_compound), id) = Tf :-
+        Tf == resolveMemb(s_compound, id, MEMB_MODVARFN()).
+
+    // TODO: find on named arrays/lists and positions
+
+    typeOfFindString(_, Te, id) = UNK() :-
+        false | error $[find operation not defined on type [Te]]@id.

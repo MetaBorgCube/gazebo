@@ -8,6 +8,7 @@ imports
     statics/expr/tag-resource
     statics/expr/literal
     statics/expr/ref
+    statics/expr/find
     statics/expr/invoke
     statics/expr/arith
     statics/expr/range
@@ -55,7 +56,7 @@ rules // ref
 rules // find
 
     typeOfExprImpl(s, Find2Expr(find)) = T :-
-        try { false } | note $[todo].
+        typeOfFind(s, find) == T.
 
 rules // invoke
 
