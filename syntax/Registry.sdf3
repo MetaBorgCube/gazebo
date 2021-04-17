@@ -46,7 +46,7 @@ context-free syntax // meta
             <{RmeBlockState "\n"}*>
         }
     >
-    RegistryMetaEntry.RmeData = <data {}>
+    RegistryMetaEntry.RmeData = <data <Type>>
 
 context-free syntax // meta specifics
 

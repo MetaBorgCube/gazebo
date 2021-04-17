@@ -37,7 +37,7 @@ rules
     registryMetaOk(s, RmeBlockStates(bss)) :-
         try { false } | note $[todo].
 
-    registryMetaOk(s, RmeData()) :-
+    registryMetaOk(s, RmeData(t)) :-
         try { false } | note $[todo].
 
     registryMetaOk(s, RmeRegistration(id, RegistryMeta(meta))) :- {s_reg}
