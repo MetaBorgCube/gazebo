@@ -18,32 +18,47 @@ rules
 
 rules
 
-    typeOfNBTCompound : scope * NBTCompound * TYPE -> TYPE
-
-    typeOfNBTCompound(s, NBTCompound(kvs), UNK()) = COMPOUND(s_derived) :-
-        new s_derived, s_derived -P-> s.
-
-    nbtCompoundKvsOk maps nbtCompoundKvOk(*, list(*))
-    nbtCompoundKvOk : scope * NBTKeyValue
-
-    nbtCompoundKvOk(s_comp, KeyValueID(key, value)) :- {T}
-        T == typeOfExpr(s_comp, value),
-        declareMemb(s_comp, key, MEMB_MODVARFN(), T).
-
-    // TODO: rules with hints
+    /** create a list of either 1 or 0 elements containing a compound hint scope from a hint type */
+    extractCompoundTypeHint : TYPE -> list(scope)
+    extractCompoundTypeHint(COMPOUND(s_comp)) = [s_comp].
+    extractCompoundTypeHint(UNK()) = [].
+    extractCompoundTypeHint(_) = [] :-
+        false | error $[incompatible with constructor type hint].
 
 rules
 
-    extractIterableType_array : TYPE -> TYPE
-    extractIterableType_array(ARRAY(T)) = T.
-    extractIterableType_array(UNK()) = UNK().
-    extractIterableType_array(_) = UNK() :-
+    typeOfNBTCompound : scope * NBTCompound * TYPE -> TYPE
+
+    typeOfNBTCompound(s, NBTCompound(kvs), Thint) = COMPOUND(s_derived) :- {ss_hint}
+        ss_hint == extractCompoundTypeHint(Thint),
+        new s_derived,
+        nbtCompoundKvsOk(s, s_derived, ss_hint, kvs).
+
+    nbtCompoundKvsOk maps nbtCompoundKvOk(*, *, *, list(*))
+    /** origin scope * compound derivation scope * 1-or-0 (optional) compound hint scope * kv entry */
+    nbtCompoundKvOk : scope * scope * list(scope) * NBTKeyValue
+
+    nbtCompoundKvOk(s, s_comp, [], KeyValueID(key, value)) :- {T}
+        T == typeOfExpr(s, value),
+        declareMemb(s_comp, key, MEMB_MODVARFN(), T).
+
+    nbtCompoundKvOk(s, s_comp, [s_hint], KeyValueID(key, value)) :- {T Thint}
+        Thint == resolveMemb(s_hint, key, MEMB_MODVARFN()) | error $[unhinted key]@key,
+        T == typeOfExpr(withTypeInject(s, Thint), value),
+        declareMemb(s_comp, key, MEMB_MODVARFN(), T).
+
+rules
+
+    extractIterableTypeHint_array : TYPE -> TYPE
+    extractIterableTypeHint_array(ARRAY(T)) = T.
+    extractIterableTypeHint_array(UNK()) = UNK().
+    extractIterableTypeHint_array(_) = UNK() :-
         false | error $[incompatible with constructor type hint].
 
-    extractIterableType_list : TYPE -> TYPE
-    extractIterableType_list(LIST(T)) = T.
-    extractIterableType_list(UNK()) = UNK().
-    extractIterableType_list(_) = UNK() :-
+    extractIterableTypeHint_list : TYPE -> TYPE
+    extractIterableTypeHint_list(LIST(T)) = T.
+    extractIterableTypeHint_list(UNK()) = UNK().
+    extractIterableTypeHint_list(_) = UNK() :-
         false | error $[incompatible with constructor type hint].
 
 rules
@@ -51,11 +66,11 @@ rules
     typeOfNBTArray : scope * NBTArray * TYPE -> TYPE
 
     typeOfNBTArray(s, NBTArrayAnonymous(values), Thint) = ARRAY(T) :-
-        T == typeOfNBTIterable(s, values, extractIterableType_array(Thint), extractIterableType_array(Thint)).
+        T == typeOfNBTIterable(s, values, extractIterableTypeHint_array(Thint), extractIterableTypeHint_array(Thint)).
 
     typeOfNBTArray(s, NBTArrayExplicit(t, values), Thint) = ARRAY(T) :- {Tarr}
         T == typeOfType(s, t),
-        Tarr == typeOfNBTIterable(s, values, T, extractIterableType_array(Thint)),
+        Tarr == typeOfNBTIterable(s, values, T, extractIterableTypeHint_array(Thint)),
         subtype(ARRAY(T), Thint) | error $[array type is not compatible with required type]@values.
 
 rules
@@ -63,7 +78,7 @@ rules
     typeOfNBTList : scope * NBTList * TYPE -> TYPE
 
     typeOfNBTList(s, NBTList(values), Thint) = LIST(T) :-
-        T == typeOfNBTIterable(s, values, extractIterableType_list(Thint), extractIterableType_list(Thint)).
+        T == typeOfNBTIterable(s, values, extractIterableTypeHint_list(Thint), extractIterableTypeHint_list(Thint)).
 
 rules
 
@@ -73,6 +88,6 @@ rules
     typeOfNBTIterable(s, [], _, b_upper) = b_upper.
 
     typeOfNBTIterable(s, [x|xs], b_lower, b_upper) = lub(b_upper, Ttail) :- {T}
-        T == typeOfExpr(s, x),
+        T == typeOfExpr(withTypeInject(s, b_lower), x),
         Ttail == typeOfNBTIterable(s, xs, b_lower, lub(b_upper, T)),
         subtype(T, b_lower) | error $[element type is not compatible with required type]@x.

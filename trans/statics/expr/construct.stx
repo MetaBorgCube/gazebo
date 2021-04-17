@@ -36,7 +36,7 @@ rules
 
     constructOk(s, Tconstr, constr@ConstructNBT(nbt)) :- {Tnbt}
         Tnbt == typeOfNBT(s, nbt, Tconstr),
-        subtype(Tnbt, Tconstr) | error $[expression is not a subtype of the given constructor type]@constr.
+        subtype(Tnbt, Tconstr) | error $[expression is not a subtype of the given constructor type ([Tconstr])]@constr.
 
     constructOk(s, T, constr@ConstructEnum(key)) :- {s_enum}
         T == ENUM(s_enum) | error $[context type is not an enum]@constr,

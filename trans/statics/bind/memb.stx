@@ -33,6 +33,16 @@ rules
 
 rules
 
+    queryAllMembLocal : scope * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
+
+    queryAllMembLocal(s, kind) = p :-
+        query memb
+            filter P* and { x :- x == (_, kind) }
+            min $ < P and false
+            in s |-> p.
+
+rules
+
     queryMemb : scope * ID * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
 
     queryMemb(s, name, kind) = p :-
@@ -43,11 +53,17 @@ rules
 
 rules
 
+    matchMemb : list((path * ((ID * MEMB_KIND) * TYPE))) -> (ID * TYPE)
+    matchMemb([(_, ((name', _), T))|_]) = (name', T).
+    matchMemb(_) = ("$unmatched", UNK()) :- false.
+
+rules
+
     resolveMemb : scope * ID * MEMB_KIND -> TYPE
 
     resolveMemb(s, name, kind) = T :- {p name'}
         queryMemb(s, name, kind) == p,
-        p == [(_, ((name', _), T))|_],
+        (name', T) == matchMemb(p),
         @name.ref := name',
         @name.type := T.
 
@@ -55,9 +71,9 @@ rules
 
     resolveMembLocal : scope * ID * MEMB_KIND -> TYPE
 
-    resolveMembLocal(s, name, kind) = T :- {p p' name'}
+    resolveMembLocal(s, name, kind) = T :- {p name'}
         queryMembLocal(s, name, kind) == p,
-        p == [(p', ((name', _), T))],
+        (name', T) == matchMemb(p),
         @name.ref := name',
         @name.type := T.
 

@@ -94,8 +94,12 @@ rules
         T == typeOfType(s, t).
 
     typeOfType(s, TypeEnum(keys)) = ENUM(s_enum) :-
-        new s_enum, s_enum -P-> s,
+        new s_enum,
         declareEnumKeys(s_enum, keys).
+
+    typeOfType(s, TypeInterface(membs)) = COMPOUND(s_interf) :-
+        new s_interf,
+        declareInterfaceMembers(s, s_interf, membs).
 
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].
@@ -106,6 +110,14 @@ rules
     declareEnumKey : scope * string
     declareEnumKey(s, key) :-
         declareMemb(s, key, MEMB_ENUMKEY(), ENUMKEY()).
+
+rules
+
+    declareInterfaceMembers maps declareInterfaceMember(*, *, list(*))
+    declareInterfaceMember : scope * scope * InterfaceMember
+    declareInterfaceMember(s, s_interf, InterfaceMember(name, t)) :- {T}
+        T == typeOfType(s, t),
+        declareMemb(s_interf, name, MEMB_MODVARFN(), T).
 
 rules
 
@@ -121,7 +133,7 @@ rules
 
     subtype(ITER(a), ITER(b)) :- subtype(a, b).
 
-    //COMPOUND
+    subtype(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) :- subtypeCompound(s_comp_a, s_comp_b).
     subtype(LIST(a), LIST(b)) :- subtype(a, b).
     subtype(ARRAY(a), ARRAY(b)) :- subtype(a, b).
 
@@ -129,6 +141,23 @@ rules
     //LAMBDA
 
     subtype(a, b) :- a == b.
+
+rules
+
+    /** check if the first compound scope is a structural subtype of the second compound scope */
+    subtypeCompound : scope * scope
+
+    subtypeCompound(s_comp_a, s_comp_b) :- {allmembs_b}
+        // all members of 'b' must be present in 'a' with the 'a' items being a subtype of the corresponding 'b' item,
+        // but 'a' may have more members
+        allmembs_b == queryAllMembLocal(s_comp_b, MEMB_MODVARFN()),
+        subtypeCompound_membersOk(s_comp_a, allmembs_b).
+
+    subtypeCompound_membersOk maps subtypeCompound_memberOk(*, list(*))
+    subtypeCompound_memberOk : scope * (path * ((ID * MEMB_KIND) * TYPE))
+    subtypeCompound_memberOk(s_comp_a, memb_b@(_, ((name, kind), Tb))) :- {Ta}
+        [(_, ((_, _), Ta))|_] == queryMemb(s_comp_a, name, kind),
+        subtype(Ta, Tb).
 
 rules
 
@@ -145,6 +174,7 @@ rules
     lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
 
     //COMPOUND: intersection
+    lub(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(intersectCompound(s_comp_a, s_comp_b)).
     lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
     lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
 
@@ -153,6 +183,14 @@ rules
 
     lub(a, b) = a :-
         a == b | error $[no type commonality].
+
+rules
+
+    intersectCompound : scope * scope -> scope
+
+    // TODO: this is a placeholder implementation
+    intersectCompound(s_comp_a, s_comp_b) = s_res :-
+        new s_res, s_res -P-> s_comp_a, s_res -P-> s_comp_b.
 
 rules
 

@@ -27,8 +27,8 @@ rules
     tliOk(s_root, s_mod, Registry2Tli(reg)) :-
         registryOk(s_root, s_mod, reg).
 
-    tliOk(_, s_mod, TypeDecl2Tli(tdecl)) :-
-        typeDeclOk(s_mod, tdecl).
+    tliOk(_, s, TypeDecl2Tli(tdecl)) :-
+        typeDeclOk(s, tdecl).
 
     tliOk(_, _, tli) :-
         false
