@@ -49,7 +49,7 @@ rules
 
     funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = funcArgsOk(s, xs, Args(ys)) :- {Te}
         Te == typeOfExpr(withTypeInject(s, Tpar), e),
-        subtype(Tpar, Te) | error $[expression type not suitable for parameter of type [Tpar]]@e.
+        subtype(Te, Tpar) | error $[expression type not suitable for parameter of type [Tpar]]@e.
 
 rules
 

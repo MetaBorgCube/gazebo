@@ -14,6 +14,7 @@ signature
             M // module boundary
             I // star import (use)
             A // alias-of (for selectors)
+            B // base (interfaces)
 
     sorts
 
@@ -34,6 +35,7 @@ signature
         mod : NSID -> TYPE
         currmod : -> (NSID * TYPE)
         memb : (string * MEMB_KIND) -> TYPE
+        field : string -> TYPE
         registry : NSID -> scope
         registration : NSID -> scope
         regmeta : string -> scope

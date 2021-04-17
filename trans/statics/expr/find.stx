@@ -4,7 +4,7 @@ imports
 
     statics/common
     statics/expr
-    statics/bind/memb
+    statics/bind/field
 
 rules
 
@@ -35,8 +35,10 @@ rules
 
     typeOfFindString : scope * TYPE * string -> TYPE
 
-    typeOfFindString(s, COMPOUND(s_compound), id) = Tf :-
-        Tf == resolveMemb(s_compound, id, MEMB_MODVARFN()).
+    typeOfFindString(s, COMPOUND(s_compound), id) = Tf :- {name}
+        (name, Tf) == resolveField(s_compound, id),
+        @id.ref := name,
+        @id.type := Tf.
 
     // TODO: find on named arrays/lists and positions
 

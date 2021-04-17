@@ -33,9 +33,14 @@ context-free syntax
             <{ID ",\n"}*>
         }
     >
-    // TODO: interface composition
     Type.TypeInterface = <
         interface
+        {
+            <{InterfaceMember "\n"}*>
+        }
+    >
+    Type.TypeInterfaceCompose = <
+        interface : <{Type ", "}+>
         {
             <{InterfaceMember "\n"}*>
         }

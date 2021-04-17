@@ -4,7 +4,7 @@ imports
 
     statics/common
     statics/expr
-    statics/bind/memb
+    statics/bind/field
     statics/types
 
 rules
@@ -40,12 +40,13 @@ rules
 
     nbtCompoundKvOk(s, s_comp, [], KeyValueID(key, value)) :- {T}
         T == typeOfExpr(s, value),
-        declareMemb(s_comp, key, MEMB_MODVARFN(), T).
+        declareField(s_comp, key, T).
 
-    nbtCompoundKvOk(s, s_comp, [s_hint], KeyValueID(key, value)) :- {T Thint}
-        Thint == resolveMemb(s_hint, key, MEMB_MODVARFN()) | error $[unhinted key]@key,
+    nbtCompoundKvOk(s, s_comp, [s_hint], KeyValueID(key, value)) :- {T Thint name_hint}
+        (name_hint, Thint) == resolveField(s_hint, key) | error $[unhinted key]@key,
         T == typeOfExpr(withTypeInject(s, Thint), value),
-        declareMemb(s_comp, key, MEMB_MODVARFN(), T).
+        declareField(s_comp, key, T),
+        @key.ref := name_hint.
 
 rules
 

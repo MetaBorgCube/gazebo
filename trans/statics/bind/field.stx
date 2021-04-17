@@ -1,0 +1,53 @@
+module statics/bind/field
+
+imports
+
+    statics/common
+
+rules
+
+    declareField : scope * string * TYPE
+
+    declareField(s, name, T) :-
+        !field[name, T] in s,
+        queryFieldLocal(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
+
+rules
+
+    queryAllFields : scope -> list((path * (string * TYPE)))
+
+    queryAllFields(s) = p :-
+        query field
+            filter B* and true
+            min $ < B and { a, b :- a == b }
+            in s |-> p.
+
+rules
+
+    queryField : scope * string -> list((path * (string * TYPE)))
+
+    queryField(s, name) = p :-
+        query field
+            filter B* and { x :- x == name }
+            min $ < B and true
+            in s |-> p.
+
+rules
+
+    queryFieldLocal : scope * string -> list((path * (string * TYPE)))
+
+    queryFieldLocal(s, name) = p :-
+        query field
+            filter e and { x :- x == name }
+            in s |-> p.
+
+rules
+
+    matchField : list((path * (string * TYPE))) -> (string * TYPE)
+    matchField([(_, (name', T))|_]) = (name', T).
+    matchField(_) = ("$unmatched", UNK()) :- false.
+
+rules
+
+    resolveField : scope * string -> (string * TYPE)
+    resolveField(s, name) = matchField(queryField(s, name)).

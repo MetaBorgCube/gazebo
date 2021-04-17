@@ -5,6 +5,7 @@ imports
     signatures/NSID-sig
     signatures/Type-sig
     statics/common
+    statics/bind/field
     statics/bind/memb
 
 signature
@@ -100,24 +101,48 @@ rules
     typeOfType(s, TypeInterface(membs)) = COMPOUND(s_interf) :-
         new s_interf,
         declareInterfaceMembers(s, s_interf, membs).
+    typeOfType(s, TypeInterfaceCompose(bases, membs)) = COMPOUND(s_interf) :- {ss_bases}
+        ss_bases == interfaceBaseScopes(s, bases),
+        new s_interf,
+        declareInterfaceMembers(s, s_interf, membs),
+        linkBaseScopes(s_interf, ss_bases),
+        interfaceShadowOk(s_interf).
 
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].
 
-rules
+rules // type enum
 
     declareEnumKeys maps declareEnumKey(*, list(*))
     declareEnumKey : scope * string
     declareEnumKey(s, key) :-
         declareMemb(s, key, MEMB_ENUMKEY(), ENUMKEY()).
 
-rules
+rules // type interface
+
+    interfaceBaseScopes maps interfaceBaseScope(*, list(*)) = list(*)
+    interfaceBaseScope : scope * Type -> scope
+    interfaceBaseScope(s, t) = s_comp :- {T}
+        T == typeOfType(s, t),
+        s_comp == interfaceBaseScope_matchCompound(T) | error $[cannot compose with a non-interface type]@t.
+
+    interfaceBaseScope_matchCompound : TYPE -> scope
+    interfaceBaseScope_matchCompound(COMPOUND(s_comp)) = s_comp.
+    interfaceBaseScope_matchCompound(_) = new :- false.
+
+    linkBaseScopes maps linkBaseScope(*, list(*))
+    linkBaseScope : scope * scope
+    linkBaseScope(s_curr, s_base) :- s_curr -B-> s_base.
 
     declareInterfaceMembers maps declareInterfaceMember(*, *, list(*))
     declareInterfaceMember : scope * scope * InterfaceMember
     declareInterfaceMember(s, s_interf, InterfaceMember(name, t)) :- {T}
         T == typeOfType(s, t),
-        declareMemb(s_interf, name, MEMB_MODVARFN(), T).
+        declareField(s_interf, name, T).
+
+    interfaceShadowOk : scope
+    // TODO: implement shadow OK check
+    interfaceShadowOk(s).
 
 rules
 
@@ -150,13 +175,13 @@ rules
     subtypeCompound(s_comp_a, s_comp_b) :- {allmembs_b}
         // all members of 'b' must be present in 'a' with the 'a' items being a subtype of the corresponding 'b' item,
         // but 'a' may have more members
-        allmembs_b == queryAllMembLocal(s_comp_b, MEMB_MODVARFN()),
+        allmembs_b == queryAllFields(s_comp_b),
         subtypeCompound_membersOk(s_comp_a, allmembs_b).
 
     subtypeCompound_membersOk maps subtypeCompound_memberOk(*, list(*))
-    subtypeCompound_memberOk : scope * (path * ((ID * MEMB_KIND) * TYPE))
-    subtypeCompound_memberOk(s_comp_a, memb_b@(_, ((name, kind), Tb))) :- {Ta}
-        [(_, ((_, _), Ta))|_] == queryMemb(s_comp_a, name, kind),
+    subtypeCompound_memberOk : scope * (path * (string * TYPE))
+    subtypeCompound_memberOk(s_comp_a, memb_b@(_, (name, Tb))) :- {Ta}
+        (_, Ta) == resolveField(s_comp_a, name),
         subtype(Ta, Tb).
 
 rules
@@ -173,7 +198,6 @@ rules
 
     lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
 
-    //COMPOUND: intersection
     lub(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(intersectCompound(s_comp_a, s_comp_b)).
     lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
     lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
@@ -189,8 +213,8 @@ rules
     intersectCompound : scope * scope -> scope
 
     // TODO: this is a placeholder implementation
-    intersectCompound(s_comp_a, s_comp_b) = s_res :-
-        new s_res, s_res -P-> s_comp_a, s_res -P-> s_comp_b.
+    intersectCompound(s_comp_a, s_comp_b) = s_int :-
+        new s_int, s_int -B-> s_comp_a, s_int -B-> s_comp_b.
 
 rules
 
