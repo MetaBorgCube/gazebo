@@ -50,7 +50,10 @@ signature
         FUNC : list((ID * TYPE)) * TYPE -> TYPE
 
         // Misc
+        /** univeral top type, anything is a subtype of UNK */
         UNK : TYPE
+        /** universal bottom type, nothing is a subtype of BOTTOM */
+        BOTTOM : TYPE
         ENUMKEY : TYPE
 
     sorts POS_KIND
@@ -101,12 +104,13 @@ rules
     typeOfType(s, TypeInterface(membs)) = COMPOUND(s_interf) :-
         new s_interf,
         declareInterfaceMembers(s, s_interf, membs).
-    typeOfType(s, TypeInterfaceCompose(bases, membs)) = COMPOUND(s_interf) :- {ss_bases}
+    typeOfType(s, TypeInterfaceCompose(bases, membs)) = COMPOUND(s_interf) :- {ss_bases s_base_llb}
         ss_bases == interfaceBaseScopes(s, bases),
+        s_base_llb == llbCompound(ss_bases),
         new s_interf,
         declareInterfaceMembers(s, s_interf, membs),
         linkBaseScopes(s_interf, ss_bases),
-        interfaceShadowOk(s_interf).
+        interfaceShadowOk(s_interf, s_base_llb).
 
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].
@@ -140,13 +144,27 @@ rules // type interface
         T == typeOfType(s, t),
         declareField(s_interf, name, T).
 
-    interfaceShadowOk : scope
-    // TODO: implement shadow OK check
-    interfaceShadowOk(s).
+    /** curr * base llb */
+    interfaceShadowOk : scope * scope
+    interfaceShadowOk(s_curr, s_base_llb) :- {fields_curr}
+        fields_curr == queryAllLocalFields(s_curr),
+        interfaceShadowOk_fieldsOk(fields_curr, s_base_llb).
+
+    interfaceShadowOk_fieldsOk maps interfaceShadowOk_fieldOk(list(*), *)
+    interfaceShadowOk_fieldOk : (path * (string * TYPE)) * scope
+    interfaceShadowOk_fieldOk((_, (name, Tf)), s_base) :- {qres}
+        qres == queryField(s_base, name),
+        // only if 'name' is in s_base, check if Tf is a subtype, else true
+        interfaceShadowOk_fieldOk_matchQres(Tf, qres) | error $[illegal shadow because given type ([Tf]) is not a subtype of the base LLB]@name.
+
+    interfaceShadowOk_fieldOk_matchQres : TYPE * list((path * (string * TYPE)))
+    interfaceShadowOk_fieldOk_matchQres(_, []).
+    interfaceShadowOk_fieldOk_matchQres(Tf, [(_, (_, Tbase))]) :-
+        subtype(Tf, Tbase).
 
 rules
 
-    /** check if first type is a subtype of the second type */
+    /** check if first type is a subtype of the second type (or eq) */
     // TODO: check if all possibilities are defined
     subtype : TYPE * TYPE
 
@@ -207,6 +225,34 @@ rules
 
     lub(a, b) = a :-
         a == b | error $[no type commonality].
+
+rules
+
+    /** derive least lower bound */
+    llb : TYPE * TYPE -> TYPE
+
+    llb(FLOAT(), INT()) = INT().
+    llb(INT(), FLOAT()) = INT().
+
+    //llb(POS(a), POS(b)) :- llb(a, b).
+    llb(RANGE(a), RANGE(b)) = RANGE(llb(a, b)).
+
+    llb(ITER(a), ITER(b)) = ITER(llb(a, b)).
+
+    llb(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(llbCompound([s_comp_a, s_comp_b])).
+    llb(LIST(a), LIST(b)) = LIST(llb(a, b)).
+    llb(ARRAY(a), ARRAY(b)) = ARRAY(llb(a, b)).
+
+    llb(_, _) = BOTTOM().
+
+rules
+
+    llbCompound : list(scope) -> scope
+    llbCompound([]) = s_llbc_anon :- new s_llbc_anon.
+    llbCompound([s]) = s.
+    llbCompound(ss) = s_llbc :-
+        // TODO/LEFTOFF
+        /*dummy*/ss == [s_llbc|_].
 
 rules
 

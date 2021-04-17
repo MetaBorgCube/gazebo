@@ -24,6 +24,15 @@ rules
 
 rules
 
+    queryAllLocalFields : scope -> list((path * (string * TYPE)))
+
+    queryAllLocalFields(s) = p :-
+        query field
+            filter e
+            in s |-> p.
+
+rules
+
     queryField : scope * string -> list((path * (string * TYPE)))
 
     queryField(s, name) = p :-
