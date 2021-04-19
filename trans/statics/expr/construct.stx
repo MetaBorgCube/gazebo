@@ -6,6 +6,7 @@ imports
     statics/expr
     statics/expr/nbt
     statics/types
+    statics/type/bounds
     statics/bind/memb
 
 rules

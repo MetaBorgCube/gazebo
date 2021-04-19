@@ -5,6 +5,7 @@ imports
     statics/common
     statics/expr
     statics/types
+    statics/type/bounds
 
 rules
 

@@ -7,6 +7,9 @@ imports
     statics/common
     statics/bind/field
     statics/bind/memb
+    statics/type/bounds
+    statics/type/enum
+    statics/type/interface
 
 signature
 
@@ -78,7 +81,7 @@ rules
 
     typeOfType(_, TypeTag()) = TAG().
 
-    // TODO: type of resource registry, interface, distinguish between different array/list fixed types
+    // TODO: type of resource registry, distinguish between different array/list fixed types
 
     typeOfType(s, TypeRef(nsid)) = T :-
         T == resolveMembRef(s, nsid, MEMB_TYPE()).
@@ -97,170 +100,16 @@ rules
     typeOfType(s, TypeListFixedNamed(t, names)) = LIST(T) :-
         T == typeOfType(s, t).
 
-    typeOfType(s, TypeEnum(keys)) = ENUM(s_enum) :-
-        new s_enum,
-        declareEnumKeys(s_enum, keys).
+    typeOfType(s, TypeEnum(keys)) =
+        typeOfEnum(s, keys).
 
-    typeOfType(s, TypeInterface(membs)) = COMPOUND(s_interf) :-
-        new s_interf,
-        declareInterfaceMembers(s, s_interf, membs).
-    typeOfType(s, TypeInterfaceCompose(bases, membs)) = COMPOUND(s_interf) :- {ss_bases s_base_llb}
-        ss_bases == interfaceBaseScopes(s, bases),
-        s_base_llb == llbCompound(ss_bases),
-        new s_interf,
-        declareInterfaceMembers(s, s_interf, membs),
-        linkBaseScopes(s_interf, ss_bases),
-        interfaceShadowOk(s_interf, s_base_llb).
+    typeOfType(s, TypeInterface(membs)) =
+        typeOfInterface(s, membs, []).
+    typeOfType(s, TypeInterfaceCompose(bases, membs)) =
+        typeOfInterface(s, membs, bases).
 
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].
-
-rules // type enum
-
-    declareEnumKeys maps declareEnumKey(*, list(*))
-    declareEnumKey : scope * string
-    declareEnumKey(s, key) :-
-        declareMemb(s, key, MEMB_ENUMKEY(), ENUMKEY()).
-
-rules // type interface
-
-    interfaceBaseScopes maps interfaceBaseScope(*, list(*)) = list(*)
-    interfaceBaseScope : scope * Type -> scope
-    interfaceBaseScope(s, t) = s_comp :- {T}
-        T == typeOfType(s, t),
-        s_comp == interfaceBaseScope_matchCompound(T) | error $[cannot compose with a non-interface type]@t.
-
-    interfaceBaseScope_matchCompound : TYPE -> scope
-    interfaceBaseScope_matchCompound(COMPOUND(s_comp)) = s_comp.
-    interfaceBaseScope_matchCompound(_) = new :- false.
-
-    linkBaseScopes maps linkBaseScope(*, list(*))
-    linkBaseScope : scope * scope
-    linkBaseScope(s_curr, s_base) :- s_curr -B-> s_base.
-
-    declareInterfaceMembers maps declareInterfaceMember(*, *, list(*))
-    declareInterfaceMember : scope * scope * InterfaceMember
-    declareInterfaceMember(s, s_interf, InterfaceMember(name, t)) :- {T}
-        T == typeOfType(s, t),
-        declareField(s_interf, name, T).
-
-    /** curr * base llb */
-    interfaceShadowOk : scope * scope
-    interfaceShadowOk(s_curr, s_base_llb) :- {fields_curr}
-        fields_curr == queryAllLocalFields(s_curr),
-        interfaceShadowOk_fieldsOk(fields_curr, s_base_llb).
-
-    interfaceShadowOk_fieldsOk maps interfaceShadowOk_fieldOk(list(*), *)
-    interfaceShadowOk_fieldOk : (path * (string * TYPE)) * scope
-    interfaceShadowOk_fieldOk((_, (name, Tf)), s_base) :- {qres}
-        qres == queryField(s_base, name),
-        // only if 'name' is in s_base, check if Tf is a subtype, else true
-        interfaceShadowOk_fieldOk_matchQres(Tf, qres) | error $[illegal shadow because given type ([Tf]) is not a subtype of the base LLB]@name.
-
-    interfaceShadowOk_fieldOk_matchQres : TYPE * list((path * (string * TYPE)))
-    interfaceShadowOk_fieldOk_matchQres(_, []).
-    interfaceShadowOk_fieldOk_matchQres(Tf, [(_, (_, Tbase))]) :-
-        subtype(Tf, Tbase).
-
-rules
-
-    /** check if first type is a subtype of the second type (or eq) */
-    // TODO: check if all possibilities are defined
-    subtype : TYPE * TYPE
-
-    subtype(INT(), FLOAT()).
-
-    // TODO: ensure POS kinds are legal
-    subtype(POS(ka, Ta), POS(kb, Tb)) :- subtype(Ta, Tb).
-    subtype(RANGE(a), RANGE(b)) :- subtype(a, b).
-
-    subtype(ITER(a), ITER(b)) :- subtype(a, b).
-
-    subtype(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) :- subtypeCompound(s_comp_a, s_comp_b).
-    subtype(LIST(a), LIST(b)) :- subtype(a, b).
-    subtype(ARRAY(a), ARRAY(b)) :- subtype(a, b).
-
-    subtype(_, UNK()).
-    //LAMBDA
-
-    subtype(a, b) :- a == b.
-
-rules
-
-    /** check if the first compound scope is a structural subtype of the second compound scope */
-    subtypeCompound : scope * scope
-
-    subtypeCompound(s_comp_a, s_comp_b) :- {allmembs_b}
-        // all members of 'b' must be present in 'a' with the 'a' items being a subtype of the corresponding 'b' item,
-        // but 'a' may have more members
-        allmembs_b == queryAllFields(s_comp_b),
-        subtypeCompound_membersOk(s_comp_a, allmembs_b).
-
-    subtypeCompound_membersOk maps subtypeCompound_memberOk(*, list(*))
-    subtypeCompound_memberOk : scope * (path * (string * TYPE))
-    subtypeCompound_memberOk(s_comp_a, memb_b@(_, (name, Tb))) :- {Ta}
-        (_, Ta) == resolveField(s_comp_a, name),
-        subtype(Ta, Tb).
-
-rules
-
-    /** derive least upper bound */
-    // TODO: check if all possibilities are defined
-    lub : TYPE * TYPE -> TYPE
-
-    lub(FLOAT(), INT()) = FLOAT().
-    lub(INT(), FLOAT()) = FLOAT().
-
-    //lub(POS(a), POS(b)) :- lub(a, b).
-    lub(RANGE(a), RANGE(b)) = RANGE(lub(a, b)).
-
-    lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
-
-    lub(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(intersectCompound(s_comp_a, s_comp_b)).
-    lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
-    lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
-
-    lub(a, UNK()) = a.
-    lub(UNK(), b) = b.
-
-    lub(a, b) = a :-
-        a == b | error $[no type commonality].
-
-rules
-
-    /** derive least lower bound */
-    llb : TYPE * TYPE -> TYPE
-
-    llb(FLOAT(), INT()) = INT().
-    llb(INT(), FLOAT()) = INT().
-
-    //llb(POS(a), POS(b)) :- llb(a, b).
-    llb(RANGE(a), RANGE(b)) = RANGE(llb(a, b)).
-
-    llb(ITER(a), ITER(b)) = ITER(llb(a, b)).
-
-    llb(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(llbCompound([s_comp_a, s_comp_b])).
-    llb(LIST(a), LIST(b)) = LIST(llb(a, b)).
-    llb(ARRAY(a), ARRAY(b)) = ARRAY(llb(a, b)).
-
-    llb(_, _) = BOTTOM().
-
-rules
-
-    llbCompound : list(scope) -> scope
-    llbCompound([]) = s_llbc_anon :- new s_llbc_anon.
-    llbCompound([s]) = s.
-    llbCompound(ss) = s_llbc :-
-        // TODO/LEFTOFF
-        /*dummy*/ss == [s_llbc|_].
-
-rules
-
-    intersectCompound : scope * scope -> scope
-
-    // TODO: this is a placeholder implementation
-    intersectCompound(s_comp_a, s_comp_b) = s_int :-
-        new s_int, s_int -B-> s_comp_a, s_int -B-> s_comp_b.
 
 rules
 

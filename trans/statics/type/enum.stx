@@ -1,0 +1,21 @@
+module statics/type/enum
+
+imports
+
+    statics/common
+    statics/bind/memb
+
+rules
+
+    typeOfEnum : scope * list(ID) -> TYPE
+    
+    typeOfEnum(s, keys) = ENUM(s_enum) :-
+        new s_enum,
+        declareEnumKeys(s_enum, keys).
+
+rules
+
+    declareEnumKeys maps declareEnumKey(*, list(*))
+    declareEnumKey : scope * string
+    declareEnumKey(s, key) :-
+        declareMemb(s, key, MEMB_ENUMKEY(), ENUMKEY()).

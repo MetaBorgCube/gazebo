@@ -1,0 +1,68 @@
+module statics/type/interface
+
+imports
+
+    signatures/Type-sig
+    statics/common
+    statics/bind/field
+    statics/type/bounds
+    statics/types
+
+rules
+
+    /** scope * members * bases */
+    typeOfInterface : scope * list(InterfaceMember) * list(Type) -> TYPE
+
+    typeOfInterface(s, membs, bases) = COMPOUND(s_interf) :- {ss_bases s_base_llb}
+        ss_bases == baseScopes(s, bases),
+        s_base_llb == llbCompound(ss_bases),
+        new s_interf,
+        declareInterfaceMembers(s, s_interf, membs),
+        linkBaseScopes(s_interf, ss_bases),
+        shadowOk(s_interf, s_base_llb).
+
+rules
+
+    baseScopes maps baseScope(*, list(*)) = list(*)
+    baseScope : scope * Type -> scope
+    baseScope(s, t) = s_comp :- {T}
+        T == typeOfType(s, t),
+        s_comp == baseScope_matchCompound(T) | error $[cannot compose with a non-interface type]@t.
+
+    baseScope_matchCompound : TYPE -> scope
+    baseScope_matchCompound(COMPOUND(s_comp)) = s_comp.
+    baseScope_matchCompound(_) = new :- false.
+
+rules
+
+    linkBaseScopes maps linkBaseScope(*, list(*))
+    linkBaseScope : scope * scope
+    linkBaseScope(s_curr, s_base) :- s_curr -B-> s_base.
+
+rules
+
+    declareInterfaceMembers maps declareInterfaceMember(*, *, list(*))
+    declareInterfaceMember : scope * scope * InterfaceMember
+    declareInterfaceMember(s, s_interf, InterfaceMember(name, t)) :- {T}
+        T == typeOfType(s, t),
+        declareField(s_interf, name, T).
+
+rules
+
+    /** curr * base llb */
+    shadowOk : scope * scope
+    shadowOk(s_curr, s_base_llb) :- {fields_curr}
+        fields_curr == queryAllLocalFields(s_curr),
+        shadowOk_fieldsOk(fields_curr, s_base_llb).
+
+    shadowOk_fieldsOk maps shadowOk_fieldOk(list(*), *)
+    shadowOk_fieldOk : (path * (string * TYPE)) * scope
+    shadowOk_fieldOk((_, (name, Tf)), s_base) :- {qres}
+        qres == queryField(s_base, name),
+        // only if 'name' is in s_base, check if Tf is a subtype, else true
+        shadowOk_fieldOk_matchQres(Tf, qres) | error $[illegal shadow because given type ([Tf]) is not a subtype of the base LLB]@name.
+
+    shadowOk_fieldOk_matchQres : TYPE * list((path * (string * TYPE)))
+    shadowOk_fieldOk_matchQres(_, []).
+    shadowOk_fieldOk_matchQres(Tf, [(_, (_, Tbase))]) :-
+        subtype(Tf, Tbase).
