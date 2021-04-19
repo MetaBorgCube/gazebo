@@ -6,6 +6,7 @@ imports
     statics/common
     statics/bind/field
     statics/type/bounds
+    statics/type/bounds-llb-compound
     statics/types
 
 rules
@@ -16,9 +17,9 @@ rules
     typeOfInterface(s, membs, bases) = COMPOUND(s_interf) :- {ss_bases s_base_llb}
         ss_bases == baseScopes(s, bases),
         s_base_llb == llbCompound(ss_bases),
-        new s_interf,
+        new s_interf, s_interf -B-> s_base_llb,
         declareInterfaceMembers(s, s_interf, membs),
-        linkBaseScopes(s_interf, ss_bases),
+        //linkBaseScopes(s_interf, ss_bases),
         shadowOk(s_interf, s_base_llb).
 
 rules

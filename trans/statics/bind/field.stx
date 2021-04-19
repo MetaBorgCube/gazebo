@@ -12,6 +12,14 @@ rules
         !field[name, T] in s,
         queryFieldLocal(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
 
+    declareFields : scope * list((string * TYPE))
+
+    declareFields(_, []).
+
+    declareFields(s, [(name, T) | xs]) :-
+        declareField(s, name, T),
+        declareFields(s, xs).
+
 rules
 
     queryAllFields : scope -> list((path * (string * TYPE)))

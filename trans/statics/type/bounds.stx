@@ -4,6 +4,8 @@ imports
 
     statics/common
     statics/bind/field
+    statics/type/interface
+    statics/type/bounds-llb-compound
 
 rules
 
@@ -86,16 +88,13 @@ rules
     llb(LIST(a), LIST(b)) = LIST(llb(a, b)).
     llb(ARRAY(a), ARRAY(b)) = ARRAY(llb(a, b)).
 
-    llb(_, _) = BOTTOM().
+    llb(UNK(), T) = T.
+    llb(T, UNK()) = T.
+    llb(Tl, Tr) = llb_matchEq(Tl, Tr).
 
-rules
-
-    llbCompound : list(scope) -> scope
-    llbCompound([]) = s_llbc_anon :- new s_llbc_anon.
-    llbCompound([s]) = s.
-    llbCompound(ss) = s_llbc :-
-        // TODO/LEFTOFF
-        /*dummy*/ss == [s_llbc|_].
+    llb_matchEq : TYPE * TYPE -> TYPE
+    llb_matchEq(T, T) = T.
+    llb_matchEq(_, _) = BOTTOM().
 
 rules
 
