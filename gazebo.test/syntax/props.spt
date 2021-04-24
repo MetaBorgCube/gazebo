@@ -1,0 +1,26 @@
+language gazebo
+module syntax/props
+
+fixture [[
+test := $res[ [[...]] ]
+]]
+
+test prop kv [[
+facing="north"
+]] parse succeeds
+
+test prop is [[
+is "something"
+]] parse succeeds
+
+test prop cmp [[
+level <= 5
+]] parse succeeds
+
+test prop map [[
+score={a=true,b=false,c<d}
+]] parse succeeds
+
+test prop multi [[
+is "ok", level>5, type=$pig
+]] parse succeeds

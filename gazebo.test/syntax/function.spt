@@ -1,0 +1,57 @@
+language gazebo
+module syntax/function
+
+test func basic [[
+func a(a String) -> Bool { return false }
+]] parse succeeds
+
+// modifiers
+
+test func mod single [[
+user func a {}
+public func b() {}
+]] parse succeeds
+
+test func mod multi [[
+public user func a {}
+]] parse succeeds
+
+test func mod random [[
+awesome func ok {}
+]] parse fails
+
+// tags
+
+test func tag single [[
+#tick func loop {}
+]] parse succeeds
+
+test func tag multi [[
+#my:tag #tick func test(a String) {}
+]] parse succeeds
+
+// signature (params)
+
+test func sign multi name single type [[
+func test(a, b String) {}
+]] parse succeeds
+
+test func sign multi name multi type [[
+func test(a, b String, c, d, e Int, f Bool) {}
+]] parse succeeds
+
+// expression body
+
+test func expr body [[
+func test = false
+]] parse succeeds
+
+// extern
+
+test func extern plain [[
+extern func a(b, c String) -> Bool
+]]
+
+test func extern no tags [[
+#load extern func on_load()
+]] parse fails

@@ -1,0 +1,6 @@
+language gazebo
+module syntax/expr/ref
+
+test ref [[
+func test = a:b~c
+]] parse succeeds

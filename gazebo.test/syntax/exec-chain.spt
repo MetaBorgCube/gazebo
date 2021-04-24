@@ -1,0 +1,14 @@
+language gazebo
+module syntax/exec-chain
+
+test exec chain [[
+func test
+{
+    as @e
+    facing entity @s eyes =>
+    if true
+    {
+        say("hello")
+    }
+}
+]] parse succeeds

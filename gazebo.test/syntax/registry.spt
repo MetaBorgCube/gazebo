@@ -1,0 +1,46 @@
+language gazebo
+module syntax/registry
+
+// dynamic
+
+test dynamic registry ok [[
+dynamic registry $<fruits>
+]]
+
+test dynamic registry no body [[
+dynamic registry $<planets>
+{
+    register earth { protocol_id 4 }
+}
+]] parse fails
+
+// static
+
+test static registry (block) [[
+static registry $<minecraft:block>
+{
+    register minecraft:redstone_torch
+    {
+        protocol_id 1
+        block_states
+        {
+            facing String { "none", "north", "east", "south", "west" }
+            lit Bool { true, false }
+        }
+    }
+}
+]] parse succeeds
+
+test static registry (entity type) [[
+static registry $<minecraft:entity_type>
+{
+    register minecraft:pig
+    {
+        protocol_id 1
+        data interface : BaseEntity
+        {
+            Saddle Bool
+        }
+    }
+}
+]] parse succeeds

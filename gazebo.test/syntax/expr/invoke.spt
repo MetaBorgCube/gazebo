@@ -1,0 +1,36 @@
+language gazebo
+module syntax/expr/invoke
+
+fixture [[
+const ivk := [[...]]
+]]
+
+test invoke paren res [[
+(a/b)(c)
+]] parse succeeds
+
+test invoke paren chained prio [[
+a(b)(c)(d)
+]] parse to [[
+const ivk := ((a(b))(c))(d)
+]]
+
+test invoke none [[
+a()
+]] parse succeeds
+
+test invoke args [[
+test(1, true, "other")
+]] parse succeeds
+
+test invoke kwargs [[
+test(a=true, something="test")
+]] parse succeeds
+
+test invoke args-kwargs correct [[
+test(1, 2, c=5, d="ok")
+]] parse succeeds
+
+test invoke args-kwargs no kwargs before args [[
+some_func(a="ok", 45)
+]] parse fails

@@ -1,0 +1,10 @@
+language gazebo
+module syntax/expr/lambda
+
+test lambda parameterized [[
+lam := \a, b => a + b\
+]] parse succeeds
+
+test lambda expr only [[
+lam := \a + b\
+]] parse succeeds

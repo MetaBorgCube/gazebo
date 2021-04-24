@@ -1,0 +1,14 @@
+language gazebo
+module syntax/expr/range
+
+test range full [[
+a := 1..4
+]] parse succeeds
+
+test range lower [[
+a := ..3
+]] parse fails
+
+test range upper [[
+a := 8..
+]] parse fails

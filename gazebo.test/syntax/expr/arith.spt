@@ -1,0 +1,74 @@
+language gazebo
+module syntax/expr/invoke
+
+fixture [[
+arith := [[...]]
+]]
+
+// mul
+
+test mul [[
+1 * 2
+]] parse succeeds
+
+test mul precedence [[
+1 * 2 * 3
+]] parse to [[
+arith := (1 * 2) * 3
+]]
+
+// div
+
+test div [[
+1 / 2
+]] parse succeeds
+
+test div precedence [[
+1 / 2 / 3
+]] parse to [[
+arith := (1 / 2) / 3
+]]
+
+// mod
+
+test mod [[
+1 % 2
+]] parse succeeds
+
+test mod precedence [[
+1 % 2 % 3
+]] parse to [[
+arith := (1 % 2) % 3
+]]
+
+// add
+
+test add [[
+1 + 2
+]] parse succeeds
+
+test add precedence [[
+1 + 2 + 3
+]] parse to [[
+arith := (1 + 2) + 3
+]]
+
+// sub
+
+test sub [[
+1 - 2
+]] parse succeeds
+
+test sub precedence [[
+1 - 2 - 3
+]] parse to [[
+arith := (1 - 2) - 3
+]]
+
+// general precedence
+
+test arith precedence [[
+1 + 3 * 5 % 9 - 6
+]] parse to [[
+arith := (1 + ((3 * 5) % 9)) - 6
+]]

@@ -1,0 +1,13 @@
+language gazebo
+module syntax/misc-common
+
+// comments
+
+test comment line [[
+use a // as 123 {
+]] parse succeeds
+
+test comment c-style [[
+/* test} /*
+*/
+]] parse succeeds

@@ -1,0 +1,14 @@
+language gazebo
+module syntax/expr/tag
+
+test tag plain [[
+#ok func test {}
+]] parse succeeds
+
+test tag with namespace [[
+#minecraft:tick func loop {}
+]] parse succeeds
+
+test tag invoke [[
+func test => #my:tag()
+]] parse succeeds

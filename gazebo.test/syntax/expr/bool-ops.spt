@@ -1,0 +1,65 @@
+language gazebo
+module syntax/expr/bool-ops
+
+fixture [[
+func test => if [[...]] => say("yes")
+]]
+
+// and/or
+
+test and [[
+1 and "ok" and something_else
+]] parse succeeds
+
+test or [[
+true or false or 4
+]] parse succeeds
+
+test and/or mixed [[
+a and b and c or d or e and f
+]] parse to [[
+func test => if (a and b and c) or d or (e and f) => say("yes")
+]]
+
+// compare
+
+test cmp non-assoc [[
+1 < a < 10
+]] parse fails
+
+test cmp gt [[
+2 > 1
+]] parse succeeds
+
+test cmp gte [[
+me >= you
+]] parse succeeds
+
+test cmp lt [[
+5 < 6
+]] parse succeeds
+
+test cmp lte [[
+water <= h2o
+]] parse succeeds
+
+test cmp equal [[
+8 == 8
+]] parse succeeds
+
+test cmp not equal [[
+"ok" != "ko"
+]] parse succeeds
+
+test cmp equiv [[
+[] eq []
+]] parse succeeds
+
+test cmp is [[
+@e is @s
+]] parse succeeds
+
+test cmp matches [[
+4 matches 3..5
+]] parse succeeds
+

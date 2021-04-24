@@ -1,0 +1,6 @@
+language gazebo
+module syntax/alias
+
+test alias [[
+alias @near = @e[distance<5]
+]] parse succeeds

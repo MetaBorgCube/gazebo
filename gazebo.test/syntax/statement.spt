@@ -1,0 +1,77 @@
+language gazebo
+module syntax/statement
+
+fixture [[
+func test
+{
+    [[...]]
+}
+]]
+
+test noop [[
+;;;;
+]] parse succeeds
+
+test decl [[
+a := true
+mut b := "yes"
+const c := 45
+]] parse succeeds
+
+test for infinite [[
+for
+{
+    say("loop")
+}
+]] parse succeeds
+
+test for while [[
+for condition()
+{
+    say("still true")
+}
+]] parse succeeds
+
+test for in [[
+for x, y <- volume()
+{
+    a(x, y)
+}
+]] parse succeeds
+
+test if else [[
+if 1 > 5
+{
+    say("huh")
+}
+else if 5 > 1
+{
+    say("correct")
+}
+else
+{
+    say("bad")
+}
+]] parse succeeds
+
+test match [[
+match "str"
+{
+    "a" => say("AAA")
+    "str" => say("yes")
+    _ => say("?")
+}
+]] parse succeeds
+
+test return [[
+return "apple"
+]] parse succeeds
+
+test assign [[
+a = b
+a += 1
+a -= 2
+a *= 3
+a /= 5
+a %= 6
+]] parse succeeds

@@ -1,0 +1,22 @@
+language gazebo
+module syntax/use
+
+test plain [[
+    use a:b
+]] parse succeeds
+
+test as ok [[
+    use a:b as c
+]] parse succeeds
+
+test as nsid [[
+    use a:b as c:d
+]] parse fails
+
+test from [[
+    from some:where use a, b, c as d
+]] parse succeeds
+
+test from nsid part [[
+    from a:b use c as d:e
+]] parse fails

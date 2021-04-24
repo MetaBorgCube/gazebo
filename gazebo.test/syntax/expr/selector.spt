@@ -1,0 +1,14 @@
+language gazebo
+module syntax/expr/selector
+
+fixture [[
+func test => as [[...]] => dummy()
+]]
+
+test selector without props [[
+@e
+]] parse succeeds
+
+test selector with props [[
+@a[level>5]
+]] parse succeeds

@@ -1,0 +1,74 @@
+language gazebo
+module syntax/type
+
+fixture [[
+type Test [[...]]
+]]
+
+test type String [[
+String
+]] parse to TypeString()
+
+test type Bool [[
+Bool
+]] parse to TypeBool()
+
+test type Int [[
+Int
+]] parse to TypeInt()
+
+test type Float [[
+Float
+]] parse to TypeFloat()
+
+test type ref [[
+RefType
+]] parse to TypeRef(NSIDRel(NSIDName(["RefType"])))
+
+test type resource registry [[
+$<entity_type>
+]] parse to TypeResourceRegistry(NSIDRel(NSIDName(["entity_type"])))
+
+test type array dynamic [[
+[String;]
+]] parse succeeds
+
+test type array fixed anonymous [[
+[Float; 5]
+]] parse succeeds
+
+test type array fixed named [[
+[Int; x, y, z]
+]] parse succeeds
+
+test type list dynamic [[
+[String]
+]] parse succeeds
+
+test type list fixed anonymous [[
+[Float: 5]
+]] parse succeeds
+
+test type list fixed named [[
+[Int: x, y, z]
+]] parse succeeds
+
+test type enum [[
+enum {A, B}
+]] parse to TypeEnum(["A", "B"])
+
+test type interface [[
+interface
+{
+    a Bool
+    b String
+    c interface {}
+}
+]] parse succeeds
+
+test type interface compose [[
+interface : Base1, Base2
+{
+    ovr [Int;]
+}
+]] parse succeeds

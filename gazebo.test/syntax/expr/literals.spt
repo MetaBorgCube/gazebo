@@ -1,0 +1,63 @@
+language gazebo
+module syntax/expr/literal
+
+fixture [[
+const lit := [[...]]
+]]
+
+// string tests
+
+test string empty [[
+""
+]] parse succeeds
+
+test string escape " [[
+"\""
+]] parse succeeds
+
+test string escape \ [[
+"\\"
+]] parse succeeds
+
+test string no newline [[
+"a
+b"
+]] parse fails
+
+// boolean tests
+
+test bool true [[
+true
+]] parse succeeds
+
+test bool false [[
+false
+]] parse succeeds
+
+// integer
+
+test int basic [[
+123
+]] parse succeeds
+
+test int negative [[
+-4
+]] parse succeeds
+
+test int with leading zeroes [[
+0008
+]] parse succeeds
+
+// floating point numbers
+
+test float plain [[
+1.0
+]] parse succeeds
+
+test float start with dot [[
+.3
+]] parse succeeds
+
+test float suffix f [[
+5.6f
+]] parse succeeds

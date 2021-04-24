@@ -1,0 +1,17 @@
+language gazebo
+module syntax/expr/construct
+
+fixture [[
+const res := [[...]]
+]]
+
+test construct explicit enum [[
+YesNo::Yes
+]] parse succeeds
+
+test construct explicit nbt with nested infer enum [[
+some_interf::{
+    a: ::Ok,
+    b: "sasdf"
+}
+]] parse succeeds

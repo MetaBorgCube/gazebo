@@ -1,0 +1,30 @@
+language gazebo
+module syntax/expr/resource
+
+fixture [[
+const res := test([[...]])
+]]
+
+test resource bare anonymous [[
+$hello
+]] parse succeeds
+
+test resource bare explicit [[
+$<a:b>c:d~e
+]] parse succeeds
+
+test resource props empty [[
+$a[]
+]] parse succeeds
+
+test resource props some [[
+$a[facing="north"]
+]] parse succeeds
+
+test resource nbt compound [[
+$<item>repeater{BlockStateTag:{powered:true}}
+]] parse succeeds
+
+test resource full [[
+$<dummy>thing[a={ok=false}]{yes:true}
+]] parse succeeds

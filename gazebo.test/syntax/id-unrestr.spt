@@ -1,0 +1,107 @@
+language gazebo
+module syntax/id-unrestr
+
+fixture [[
+static registry $<test:test>
+{
+    register ab:cd
+    {
+        block_states
+        {
+            [[...]] String {"a"}
+        }
+    }
+}
+]]
+
+test accept "as" [[
+as
+]] parse succeeds
+
+test accept "at" [[
+at
+]] parse succeeds
+
+test accept "in" [[
+in
+]] parse succeeds
+
+test accept "facing" [[
+facing
+]] parse succeeds
+
+test accept "rotated" [[
+rotated
+]] parse succeeds
+
+test accept "eyes" [[
+eyes
+]] parse succeeds
+
+test accept "feet" [[
+feet
+]] parse succeeds
+
+test accept "eq" [[
+eq
+]] parse succeeds
+
+test accept "is" [[
+is
+]] parse succeeds
+
+test accept "matches" [[
+matches
+]] parse succeeds
+
+test accept "true" [[
+true
+]] parse succeeds
+
+test accept "false" [[
+false
+]] parse succeeds
+
+test accept "mut" [[
+mut
+]] parse succeeds
+
+test accept "const" [[
+const
+]] parse succeeds
+
+test accept "if" [[
+if
+]] parse succeeds
+
+test accept "else" [[
+else
+]] parse succeeds
+
+test accept "match" [[
+match
+]] parse succeeds
+
+test accept "return" [[
+return
+]] parse succeeds
+
+test accept "String" [[
+String
+]] parse succeeds
+
+test accept "Bool" [[
+Bool
+]] parse succeeds
+
+test accept "Int" [[
+Int
+]] parse succeeds
+
+test accept "Float" [[
+Float
+]] parse succeeds
+
+test accept "enum" [[
+enum
+]] parse succeeds

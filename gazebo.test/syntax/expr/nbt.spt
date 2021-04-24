@@ -1,0 +1,60 @@
+language gazebo
+module syntax/expr/nbt
+
+fixture [[
+const nbt := [[...]]
+]]
+
+// compound
+
+test nbt compound empty [[
+{}
+]] parse succeeds
+
+test nbt compound kv id [[
+{
+    a: "ok",
+    b: false
+}
+]] parse succeeds
+
+test nbt compound kv string [[
+{
+    "a": Yes
+}
+]] parse succeeds
+
+test nbt compound kv mixed [[
+{
+    id: true,
+    "id": false
+}
+]] parse succeeds
+
+// array
+
+test nbt array anonymous empty [[
+[;]
+]] parse succeeds
+
+test nbt array anonymous some [[
+[;1, 2]
+]] parse succeeds
+
+test nbt array explicit empty [[
+[String;]
+]] parse succeeds
+
+test nbt array explicit some [[
+[Bool; true]
+]] parse succeeds
+
+// list
+
+test nbt list empty [[
+[]
+]] parse succeeds
+
+test nbt list some [[
+[1, true, "test"]
+]] parse succeeds

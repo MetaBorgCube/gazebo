@@ -1,0 +1,22 @@
+language gazebo
+module syntax/expr/find
+
+fixture [[
+const find := src[[...]]
+]]
+
+test find index [[
+[1]
+]] parse succeeds
+
+test find index non-int [[
+["garbage" == 123]
+]] parse succeeds
+
+test find path id [[
+.k.e.y.something
+]] parse succeeds
+
+test find path string [[
+."ke y"
+]] parse succeeds

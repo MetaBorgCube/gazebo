@@ -1,0 +1,22 @@
+language gazebo
+module syntax/expr/vec
+
+fixture [[
+const vec := [[...]]
+]]
+
+test vec abs [[
+`(1 2 3)
+]] parse succeeds
+
+test vec rel [[
+`(~-3 ~ 2)
+]] parse succeeds
+
+test vec loc [[
+`(4 ^ ^2)
+]] parse succeeds
+
+test vec mixed [[
+`(^4 ~3 -5)
+]] parse succeeds

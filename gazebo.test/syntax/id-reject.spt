@@ -1,0 +1,101 @@
+language gazebo
+module syntax/id-reject
+
+fixture [[
+func test
+{
+    a.[[...]] = "dummy"
+}
+]]
+
+test reject "as" [[
+as
+]] parse fails
+
+test reject "at" [[
+at
+]] parse fails
+
+test reject "in" [[
+in
+]] parse fails
+
+test reject "facing" [[
+facing
+]] parse fails
+
+test reject "rotated" [[
+rotated
+]] parse fails
+
+test reject "eyes" [[
+eyes
+]] parse fails
+
+test reject "feet" [[
+feet
+]] parse fails
+
+test reject "eq" [[
+eq
+]] parse fails
+
+test reject "is" [[
+is
+]] parse fails
+
+test reject "matches" [[
+matches
+]] parse fails
+
+test reject "true" [[
+true
+]] parse fails
+
+test reject "false" [[
+false
+]] parse fails
+
+test reject "mut" [[
+mut
+]] parse fails
+
+test reject "const" [[
+const
+]] parse fails
+
+test reject "if" [[
+if
+]] parse fails
+
+test reject "else" [[
+else
+]] parse fails
+
+test reject "match" [[
+match
+]] parse fails
+
+test reject "return" [[
+return
+]] parse fails
+
+test reject "String" [[
+String
+]] parse fails
+
+test reject "Bool" [[
+Bool
+]] parse fails
+
+test reject "Int" [[
+Int
+]] parse fails
+
+test reject "Float" [[
+Float
+]] parse fails
+
+test reject "enum" [[
+enum
+]] parse fails

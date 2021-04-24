@@ -1,0 +1,61 @@
+language gazebo
+module syntax/exec
+
+fixture [[
+func test
+{
+    [[...]] {}
+}
+]]
+
+test exec align [[
+align "xyz"
+]] parse succeeds
+
+test exec anchored feet [[
+anchored feet
+]] parse succeeds
+
+test exec anchored eyes [[
+anchored eyes
+]] parse succeeds
+
+test exec as [[
+as @r
+]] parse succeeds
+
+test exec at [[
+at `(0 0 0)
+]] parse succeeds
+
+test exec facing [[
+facing `(100 100 100)
+]] parse succeeds
+
+test exec facing entity [[
+facing entity @e[distance>=.1,limit=1] eyes
+]] parse succeeds
+
+test exec in [[
+in $the_end
+]] parse succeeds
+
+test exec positioned [[
+positioned `(0 1 2)
+]] parse succeeds
+
+test exec positioned as [[
+positioned as @s
+]] parse succeeds
+
+test exec rotated abs [[
+rotated 45
+]] parse succeeds
+
+test exec rotated rel [[
+rotated ~2.5
+]] parse succeeds
+
+test exec rotated as [[
+rotated as @r
+]] parse succeeds

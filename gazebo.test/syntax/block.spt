@@ -1,0 +1,14 @@
+language gazebo
+module syntax/block
+
+fixture [[
+func test [[...]]
+]]
+
+test single stmt [[
+=> say("yes")
+]] parse succeeds
+
+test curly braces block with noop [[
+{;}
+]] parse succeeds
