@@ -120,6 +120,10 @@ context-free syntax
         <Expr>
         <Block>
     >
+    Case.CaseDefault = <
+        _
+        <Block>
+    >
 
 lexical syntax
 
@@ -152,6 +156,3 @@ context-free syntax
     Assign.AssignMul = <<Expr> *= <Expr>>
     Assign.AssignDiv = <<Expr> /= <Expr>>
     Assign.AssignMod = <<Expr> %= <Expr>>
-
-
-

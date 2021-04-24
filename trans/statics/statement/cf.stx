@@ -92,6 +92,10 @@ rules // match
         subtype(Tcase, Tmatch) | error $[case type is not applicable]@e,
         new s_case, s_case -P-> s,
         try { false } | note $[shadow on ref match]@e,
+        blockOk (s_case, body).
+
+    matchCaseOk(s, _, CaseDefault(body)) :- {s_case}
+        new s_case, s_case -P-> s,
         blockOk(s_case, body).
 
 rules // return
