@@ -51,3 +51,7 @@ context-free syntax // meta
 context-free syntax // meta specifics
 
     RmeBlockState.RmeBlockState = <<ID_UNRESTR> <Type> { <{Literal ", "}+> }>
+
+template options
+
+    keyword -/- [A-Za-z0-9]

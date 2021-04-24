@@ -156,3 +156,7 @@ context-free syntax
     Assign.AssignMul = <<Expr> *= <Expr>>
     Assign.AssignDiv = <<Expr> /= <Expr>>
     Assign.AssignMod = <<Expr> %= <Expr>>
+
+template options
+
+    keyword -/- [A-Za-z0-9]

@@ -46,3 +46,7 @@ context-free syntax
     Tli = Decl
     Tli = Registry
     Tli = TypeDecl
+
+template options
+
+    keyword -/- [A-Za-z0-9]

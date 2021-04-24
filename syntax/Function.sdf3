@@ -38,3 +38,7 @@ context-free syntax
     >
     Fn.FnExpr = <<FnSpec> = <Expr>>
     Fn.FnExt = <extern func <ID><Sign>>
+
+template options
+
+    keyword -/- [A-Za-z0-9]

@@ -21,3 +21,7 @@ lexical syntax
     // reject true and false as identifiers
     ID = "true" {reject}
     ID = "false" {reject}
+
+template options
+
+    keyword -/- [A-Za-z0-9]

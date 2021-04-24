@@ -194,3 +194,7 @@ context-free priorities
         left:
         Expr.Or
     }
+
+template options
+
+    keyword -/- [A-Za-z0-9]
