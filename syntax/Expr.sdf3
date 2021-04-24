@@ -51,8 +51,9 @@ context-free syntax
     Find.FindPathID = <<Expr-I>.<ID>>
     Find.FindPathString = <<Expr-I>.<STRING>>
 
-    // prevent any selector (e.g. @a[level>4]) to be interpreted as an index find
+    // prevent any selector or resource (e.g. @a[level>4], or $res[k<4]) to be interpreted as an index find
     Find = <<Selector>[<Expr-I>]> {reject}
+    Find = <<Resource>[<Expr-I>]> {reject}
 
 /**
  * Invoke
@@ -89,8 +90,8 @@ context-free syntax
 context-free sorts Compare
 context-free syntax
 
-    Expr.And = <<Expr-I> and <Expr-I>> {non-assoc}
-    Expr.Or = <<Expr-I> or <Expr-I>> {non-assoc}
+    Expr.And = <<Expr-I> and <Expr-I>> {assoc}
+    Expr.Or = <<Expr-I> or <Expr-I>> {assoc}
 
     Expr.Not = <not <Expr-I>>
 
@@ -140,7 +141,7 @@ context-free sorts Lambda
 context-free syntax
 
     Expr = Lambda
-    Lambda.LambdaParameterizedExpr = [\[{ID ", "}+] -> [Expr]\]
+    Lambda.LambdaParameterizedExpr = [\[{ID ", "}+] => [Expr]\]
     Lambda.LambdaExprOnly = [\[Expr]\]
 
 /**

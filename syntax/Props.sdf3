@@ -14,9 +14,9 @@ context-free sorts
 context-free syntax
 
     Props.Props = <[<{Prop ", "}*>]>
-    Prop.KvProp = <<ID> = <Expr>>
+    Prop.KvProp = <<ID_UNRESTR> = <Expr>>
     Prop.IsProp = <is <Expr>>
-    Prop.CmpProp = <<ID> <Compare> <Expr>>
-    Prop.MapProp = <<ID> = {<{MapProp ", "}*>}>
-    MapProp.KvMapProp = <<ID> = <Expr>>
-    MapProp.CmpMapProp = <<ID> <Compare> <Expr>>
+    Prop.CmpProp = <<ID_UNRESTR> <Compare> <Expr>>
+    Prop.MapProp = <<ID_UNRESTR> = {<{MapProp ", "}*>}>
+    MapProp.KvMapProp = <<ID_UNRESTR> = <Expr>>
+    MapProp.CmpMapProp = <<ID_UNRESTR> <Compare> <Expr>>
