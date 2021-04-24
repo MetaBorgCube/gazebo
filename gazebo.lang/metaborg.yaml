@@ -1,5 +1,5 @@
 ---
-id: nl.jochembroekhoff:gazebo:0.1.0-SNAPSHOT
+id: nl.jochembroekhoff:gazebo.lang:0.1.0-SNAPSHOT
 name: gazebo
 dependencies:
   compile:
