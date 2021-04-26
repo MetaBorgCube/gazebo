@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/expr
+    statics/type/bounds
 
 rules
 
@@ -23,17 +24,10 @@ rules
     typeOfArith_i(s, l, r) = T :- {Tl Tr}
         Tl == typeOfExpr(s, l),
         Tr == typeOfExpr(s, r),
-        T == typeOfArith_numCompat(s, Tl, Tr).
+        typeOfArith_numeric(T@lub(Tl, Tr)) | error $[arithmetic operation is not defined between [Tl] and [Tr]].
 
 rules
 
-    typeOfArith_numCompat : scope * TYPE * TYPE -> TYPE
-
-    typeOfArith_numCompat(s, INT(), INT()) = INT().
-
-    typeOfArith_numCompat(s, FLOAT(), FLOAT()) = FLOAT().
-
-    // TODO: support coercion operations (?) (with warning)
-
-    typeOfArith_numCompat(s, l, r) = UNK() :-
-        false | error $[arithmetic operation is not defined between [l] and [r]].
+    typeOfArith_numeric : TYPE
+    typeOfArith_numeric(INT()).
+    typeOfArith_numeric(FLOAT()).

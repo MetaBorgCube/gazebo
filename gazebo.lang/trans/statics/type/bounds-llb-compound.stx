@@ -42,7 +42,7 @@ rules
     unionEnv(El@[(name, Tl)|El'], Er) = [(name/*preserves ref order*/, Tllb) | unionEnv(El', Er')] :- {Tr}
         Tr == unionEnv_lookup(name, Er),
         Tllb == llb(Tl, Tr),
-        try { Tllb != BOTTOM() } | error $[at least two base interfaces have conflicting fields (compound union produces unassignable type)],
+        try { Tllb != BOTTOM() } | error $[at least two base interfaces have a conflict on field [name] (compound union produces unassignable type)],
         Er' == unionEnv_del(name, Er).
 
     unionEnv_lookup : string * list((string * TYPE)) -> TYPE
