@@ -1,0 +1,35 @@
+module statics/bind/regmeta
+
+imports
+
+    statics/common
+
+rules
+
+    declareRegmeta : scope * string * scope
+
+    declareRegmeta(s, key, s_meta) :-
+        // TODO: check duplicate
+        !regmeta[key, s_meta] in s.
+
+rules
+
+    queryRegmeta : scope * string -> list((path * (string * scope)))
+
+    queryRegmeta(s, name) = p :-
+        query regmeta
+            filter e and { x :- x == name }
+            in s |-> p.
+
+rules
+
+    resolveRegmeta : scope * string -> scope
+
+    resolveRegmeta(s, name) = resolveRegmeta_matchRes(p) :-
+        p == queryRegmeta(s, name).
+
+    resolveRegmeta_matchRes : list((path * (string * scope))) -> scope
+    resolveRegmeta_matchRes([(_, (_, s_meta))]) = s_meta.
+    resolveRegmeta_matchRes(_) = s_meta_unk :-
+        new s_meta_unk,
+        false.

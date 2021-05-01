@@ -5,6 +5,10 @@ imports
     statics/common
     statics/bind/registry
     statics/bind/registration
+    statics/bind/regmeta
+    statics/bind/bs
+    statics/expr
+    statics/type/bounds
 
 rules // tag
 
@@ -25,10 +29,11 @@ rules // resource
     typeOfResource(s, ResourceNBT(ident, payl)) =
         typeOfResource(s, ResourceFull(ident, Props([]), payl)).
 
-    typeOfResource(s, ResourceFull(ident, props, payl)) = T :- {id_registry s_registry id_registration s_registration}
+    typeOfResource(s, ResourceFull(ident, Props(props), payl)) = T :- {id_registry s_registry id_registration s_registration}
         inferRegistry(s, ident) == ((id_registry, s_registry), (id_registration, s_registration)),
         T == RESOURCE(id_registry),
-        try { false } | note $[todo: check props and payl]@ident.
+        resourcePropsOk(s, s_registration, props),
+        resourcePaylOk(s, s_registration, payl).
 
 rules
 
@@ -46,3 +51,22 @@ rules
         res@resolveRegistryAndRegistrationFromAllRegistries(s, allRegistries(s), id_registration) :- {registration}
         res == ((_, _), (registration, _)),
         @id_registration.ref := registration.
+
+rules
+
+    resourcePropsOk maps resourcePropOk(*, *, list(*))
+    resourcePropOk : scope * scope * Prop
+    resourcePropOk(s, s_reg, KvProp(k, v)) :- {s_bss k' Tbs Te}
+        // TODO: disallow repeat keys
+        s_bss == resolveRegmeta(s_reg, "block_states") | error $[resource does not define any block states],
+        (k', Tbs) == resolveBlockState(s_bss, k) | error $[undefined block state for this resource]@k,
+        @k.ref := k',
+        Te == typeOfExpr(withTypeInject(s, Tbs), v),
+        subtype(Te, Tbs) | error $[value not assignable to blocks state with value type [Tbs]]@v.
+    resourcePropOk(_, _, prop) :-
+        false | error $[property type not supported]@prop.
+
+rules
+
+    resourcePaylOk : scope * scope * NBTCompound
+    resourcePaylOk(_, _, NBTCompound([])).

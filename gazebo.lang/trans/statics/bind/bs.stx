@@ -1,0 +1,34 @@
+module statics/bind/bs
+
+imports
+
+    statics/common
+
+rules
+
+    declareBlockState : scope * string * TYPE
+
+    declareBlockState(s_bss, name, T) :-
+        // TODO: check duplicate
+        !bs[name, T] in s_bss.
+
+rules
+
+    queryBlockState : scope * string -> list((path * (string * TYPE)))
+
+    queryBlockState(s, name) = p :-
+        query bs
+            filter e and { x :- x == name }
+            in s |-> p.
+
+rules
+
+    resolveBlockState : scope * string -> (string * TYPE)
+
+    resolveBlockState(s, name) = resolveBlockState_matchRes(p) :-
+        p == queryBlockState(s, name).
+
+    resolveBlockState_matchRes : list((path * (string * TYPE))) -> (string * TYPE)
+    resolveBlockState_matchRes([(_, res)]) = res.
+    resolveBlockState_matchRes(_) = ("$unresolved", UNK()) :-
+        false.
