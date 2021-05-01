@@ -35,8 +35,8 @@ rules
         new s_sel_p, s_sel_p -A-> s_sel_a,
         declareAlias(s_root, "p", s_sel_p),
         // [sort="nearest",limit=1]
-        declareProp(s_sel_a, "sort", PROP_FINAL(STRING())),
-        declareProp(s_sel_a, "limit", PROP_FINAL(INT())),
+        declareProp(s_sel_p, "sort", PROP_FINAL(STRING())),
+        declareProp(s_sel_p, "limit", PROP_FINAL(INT())),
 
         // @r: random players
         new s_sel_r, s_sel_r -A-> s_sel_a,
