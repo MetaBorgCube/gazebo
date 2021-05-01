@@ -18,7 +18,7 @@ rules
 
     queryMod(s, name) = p :-
         query mod
-            filter P* M and { x :- x == name }
+            filter e | (P* M) and { x :- x == name }
             min and false
             in s |-> p.
 
