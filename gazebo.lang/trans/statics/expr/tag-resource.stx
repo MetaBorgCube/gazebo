@@ -37,8 +37,12 @@ rules
     inferRegistry(s, TRIdentExplicit(id_registry, id_registration)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
         resolveRegistryRel(s, id_registry) == (id_registry_full, s_registry)
         | error $[registry not found]@id_registry,
+        @id_registry.ref := id_registry_full,
         resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
-        | error $[registration not found in registry]@id_registration.
+        | error $[registration not found in registry]@id_registration,
+        @id_registration.ref := id_registration_full.
 
     inferRegistry(s, TRIdentAnonymous(id_registration)) =
-        resolveRegistryAndRegistrationFromAllRegistries(s, allRegistries(s), id_registration).
+        res@resolveRegistryAndRegistrationFromAllRegistries(s, allRegistries(s), id_registration) :- {registration}
+        res == ((_, _), (registration, _)),
+        @id_registration.ref := registration.
