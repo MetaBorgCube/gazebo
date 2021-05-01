@@ -9,8 +9,8 @@ rules
     declareRegmeta : scope * string * scope
 
     declareRegmeta(s, key, s_meta) :-
-        // TODO: check duplicate
-        !regmeta[key, s_meta] in s.
+        !regmeta[key, s_meta] in s,
+        queryRegmeta(s, key) == [_] | error $[duplicate definition]@key.
 
 rules
 

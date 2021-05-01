@@ -9,8 +9,8 @@ rules
     declareBlockState : scope * string * TYPE
 
     declareBlockState(s_bss, name, T) :-
-        // TODO: check duplicate
-        !bs[name, T] in s_bss.
+        !bs[name, T] in s_bss,
+        queryBlockState(s_bss, name) == [_] | error $[duplicate definition]@name.
 
 rules
 
