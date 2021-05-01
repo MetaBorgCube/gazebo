@@ -8,6 +8,7 @@ imports
     statics/bind/regmeta
     statics/bind/bs
     statics/expr
+    statics/expr/nbt
     statics/type/bounds
 
 rules // tag
@@ -70,3 +71,7 @@ rules
 
     resourcePaylOk : scope * scope * NBTCompound
     resourcePaylOk(_, _, NBTCompound([])).
+    resourcePaylOk(s, s_reg, nbt) :- {s_data Tdata Tnbt}
+        s_data == resolveRegmeta(s_reg, "data") | error $[resource does not define any data type],
+        Tnbt == typeOfNBTCompound(s, nbt, Tdata@COMPOUND(s_data)),
+        subtype(Tnbt, Tdata) | error $[payload not compatible with the defined data schema for this resource]@nbt.

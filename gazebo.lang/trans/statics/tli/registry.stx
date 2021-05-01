@@ -43,9 +43,9 @@ rules
         blockStatesOk(s, s_bss, bss),
         declareRegmeta(s, "block_states", s_bss).
 
-    registryMetaOk(s, RmeData(t)) :-
-        // TODO
-        try { false } | note $[todo].
+    registryMetaOk(s, RmeData(t)) :- {s_data}
+        COMPOUND(s_data) == typeOfType(s, t) | error $[data type must be an interface]@t,
+        declareRegmeta(s, "data", s_data).
 
     registryMetaOk(s, RmeRegistration(id, RegistryMeta(meta))) :- {s_reg}
         id == NSID(_, _) | error $[registration name must include a namespace]@id,
