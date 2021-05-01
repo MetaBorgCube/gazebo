@@ -6,6 +6,7 @@ imports
     statics/bind/field
     statics/type/interface
     statics/type/bounds
+    statics/type/bounds-typeEnv
 
 rules
 
@@ -14,10 +15,7 @@ rules
     llbCompound([s]) = s.
     llbCompound(ss) = s_llbc :- {shadowEnv}
         new s_llbc,
-        /* base scopes can be safely linked without having to worry about duplicate names at the same level,
-           because s_llbc will shadow everything with the corresponding LLB,
-           so this linking is basically only for reference purposes */
-        linkBaseScopes(s_llbc, ss),
+        linkOriginScopes(s_llbc, ss),
         shadowEnv == llbCompoundUnion([], ss),
         declareFields(s_llbc, shadowEnv).
 
@@ -26,12 +24,8 @@ rules
     llbCompoundUnion : list((string * TYPE)) * list(scope) -> list((string * TYPE))
     llbCompoundUnion(E, []) = E.
     llbCompoundUnion(E, [s_curr|sxs]) = llbCompoundUnion(E', sxs) :- {Ecurr}
-        Ecurr == extractEnv(queryAllFields(s_curr)),
+        Ecurr == extractTypeEnv(queryAllFields(s_curr)),
         E' == unionEnv(E, Ecurr).
-
-    extractEnv maps extractEnvEntry(list(*)) = list(*)
-    extractEnvEntry : (path * (string * TYPE)) -> (string * TYPE)
-    extractEnvEntry((_, entry)) = entry.
 
 rules
 
@@ -40,17 +34,7 @@ rules
     unionEnv(El, []) = El.
     unionEnv([], Er) = Er.
     unionEnv(El@[(name, Tl)|El'], Er) = [(name/*preserves ref order*/, Tllb) | unionEnv(El', Er')] :- {Tr}
-        Tr == unionEnv_lookup(name, Er),
+        Tr == typeEnv_lookup(name, Er),
         Tllb == llb(Tl, Tr),
         try { Tllb != BOTTOM() } | error $[at least two base interfaces have a conflict on field [name] (compound union produces unassignable type)],
-        Er' == unionEnv_del(name, Er).
-
-    unionEnv_lookup : string * list((string * TYPE)) -> TYPE
-    unionEnv_lookup(_, []) = UNK().
-    unionEnv_lookup(name, [(name, T)|_]) = T.
-    unionEnv_lookup(name, [_|xs]) = unionEnv_lookup(name, xs).
-
-    unionEnv_del : string * list((string * TYPE)) -> list((string * TYPE))
-    unionEnv_del(_, []) = [].
-    unionEnv_del(name, [(name, _)|xs]) = unionEnv_del(name, xs).
-    unionEnv_del(name, [x|xs]) = [x|unionEnv_del(name, xs)].
+        Er' == typeEnv_del(name, Er).

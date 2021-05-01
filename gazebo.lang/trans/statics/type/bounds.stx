@@ -5,6 +5,7 @@ imports
     statics/common
     statics/bind/field
     statics/type/interface
+    statics/type/bounds-lub-compound
     statics/type/bounds-llb-compound
 
 rules
@@ -61,7 +62,7 @@ rules
 
     lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
 
-    lub(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(intersectCompound(s_comp_a, s_comp_b)).
+    lub(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(lubCompound([s_comp_a, s_comp_b])).
     lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
     lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
 
@@ -95,11 +96,3 @@ rules
     llb_matchEq : TYPE * TYPE -> TYPE
     llb_matchEq(T, T) = T.
     llb_matchEq(_, _) = BOTTOM().
-
-rules
-
-    intersectCompound : scope * scope -> scope
-
-    // TODO: this is a placeholder implementation
-    intersectCompound(s_comp_a, s_comp_b) = s_int :-
-        new s_int, s_int -B-> s_comp_a, s_int -B-> s_comp_b.

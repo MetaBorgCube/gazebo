@@ -1,0 +1,49 @@
+module statics/type/bounds-lub-compound
+
+imports
+
+    statics/common
+    statics/bind/field
+    statics/type/interface
+    statics/type/bounds
+    statics/type/bounds-typeEnv
+
+rules
+
+    lubCompound : list(scope) -> scope
+    lubCompound([]) = s_lubc_anon :- new s_lubc_anon.
+    lubCompound([s]) = s.
+    lubCompound(ss) = s_lubc :- {isectEnv}
+        new s_lubc,
+        linkOriginScopes(s_lubc, ss),
+        isectEnv == lubCompoundIntersection(ss),
+        try { isectEnv != [] } | warning $[empty compound intersection],
+        declareFields(s_lubc, isectEnv).
+
+rules
+
+    lubCompoundIntersection : list(scope) -> list((string * TYPE))
+    lubCompoundIntersection([]) = [].
+    lubCompoundIntersection([s_start|sxs]) = lubCompoundIntersection_tail(E, sxs) :-
+        E == extractTypeEnv(queryAllFields(s_start)).
+
+    lubCompoundIntersection_tail : list((string * TYPE)) * list(scope) -> list((string * TYPE))
+    lubCompoundIntersection_tail(E, []) = E.
+    lubCompoundIntersection_tail(E, [s_curr|sxs]) = lubCompoundIntersection_tail(E', sxs) :- {Ecurr}
+        Ecurr == extractTypeEnv(queryAllFields(s_curr)),
+        E' == intersectEnv(E, Ecurr).
+
+rules
+
+    intersectEnv : list((string * TYPE)) * list((string * TYPE)) -> list((string * TYPE))
+    intersectEnv(El, []) = [].
+    intersectEnv([], Er) = [].
+    intersectEnv(El@[(name, Tl)|El'], Er) = intersectEnv_res(Tr, (name/*preserves ref order*/, Tlub), intersectEnv(El', Er')) :-
+        Tr == typeEnv_lookup(name, Er),
+        Tlub == lub(Tl, Tr),
+        Er' == typeEnv_del(name, Er).
+
+    intersectEnv_res : TYPE * (string * TYPE) * list((string * TYPE)) -> list((string * TYPE))
+    intersectEnv_res(UNK(), (n, t), E) = E.
+    intersectEnv_res(_, (n, UNK()), E) = E.
+    intersectEnv_res(_, (name, T), E) = [(name, T) | E].

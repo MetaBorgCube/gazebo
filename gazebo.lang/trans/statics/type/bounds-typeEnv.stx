@@ -1,0 +1,25 @@
+module statics/type/bounds-typeEnv
+
+imports
+
+    statics/common
+
+rules
+
+    extractTypeEnv maps extractTypeEnvEntry(list(*)) = list(*)
+    extractTypeEnvEntry : (path * (string * TYPE)) -> (string * TYPE)
+    extractTypeEnvEntry((_, entry)) = entry.
+
+rules
+
+    typeEnv_lookup : string * list((string * TYPE)) -> TYPE
+    typeEnv_lookup(_, []) = UNK().
+    typeEnv_lookup(name, [(name, T)|_]) = T.
+    typeEnv_lookup(name, [_|xs]) = typeEnv_lookup(name, xs).
+
+rules
+
+    typeEnv_del : string * list((string * TYPE)) -> list((string * TYPE))
+    typeEnv_del(_, []) = [].
+    typeEnv_del(name, [(name, _)|xs]) = typeEnv_del(name, xs).
+    typeEnv_del(name, [x|xs]) = [x|typeEnv_del(name, xs)].

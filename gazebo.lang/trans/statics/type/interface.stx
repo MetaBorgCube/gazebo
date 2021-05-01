@@ -19,7 +19,6 @@ rules
         s_base_llb == llbCompound(ss_bases),
         new s_interf, s_interf -B-> s_base_llb,
         declareInterfaceMembers(s, s_interf, membs),
-        //linkBaseScopes(s_interf, ss_bases),
         shadowOk(s_interf, s_base_llb).
 
 rules
@@ -36,9 +35,9 @@ rules
 
 rules
 
-    linkBaseScopes maps linkBaseScope(*, list(*))
-    linkBaseScope : scope * scope
-    linkBaseScope(s_curr, s_base) :- s_curr -B-> s_base.
+    linkOriginScopes maps linkOriginScope(*, list(*))
+    linkOriginScope : scope * scope
+    linkOriginScope(s_curr, s_base) :- s_curr -O-> s_base.
 
 rules
 

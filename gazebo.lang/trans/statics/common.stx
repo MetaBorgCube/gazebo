@@ -15,6 +15,7 @@ signature
             I // star import (use)
             A // alias-of (for selectors)
             B // base (interfaces)
+            O // origin (interfaces)
 
     sorts
 
