@@ -1,0 +1,56 @@
+language gazebo
+module statics/random/arith
+
+fixture [[
+mut intvar := 0
+mut floatvar := 0.0
+func arith_test { [[...]] }
+]]
+
+/*ok*/
+
+test arith ok: int=int+int [[
+intvar = 1 + 123
+]] analysis succeeds
+
+test arith ok: int=int/int [[
+intvar = 4 / 0
+]] analysis succeeds
+
+test arith ok: float=int+float [[
+floatvar = 1 + 2.0
+]] analysis succeeds
+
+test arith ok: float=float+int [[
+floatvar = 2.0 + 1
+]] analysis succeeds
+
+test arith ok: float=float*float [[
+floatvar = 4.0 * 5.0
+]] analysis succeeds
+
+test arith ok: float=int%int [[
+floatvar = 1 % 4
+]] analysis succeeds
+
+/*err*/
+
+test arith err: int=float+int [[
+intvar = 0.4 + 5
+]] parse succeeds
+   analysis fails
+
+test arith err: int=int+float [[
+intvar = 5 + 0.2
+]] parse succeeds
+   analysis fails
+
+test arith err: int=int+string [[
+intvar = 1 + "ok"
+]] parse succeeds
+   analysis fails
+
+test arith err: string/string [[
+res := "a" / "b"
+]] parse succeeds
+   analysis fails

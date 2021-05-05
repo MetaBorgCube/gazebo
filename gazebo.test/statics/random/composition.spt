@@ -1,0 +1,107 @@
+language gazebo
+module statics/random/composition
+
+test unable to assign list of supertype because of subtype by constructed interface override [[
+type A interface {a [Float]}
+type B interface : A {a [Int]}
+func test_err
+{
+    mut inst := B::{a: [123]}
+    inst.a = [1.0]
+    inst.a[0] = 1.0
+}
+]] parse succeeds
+   analysis fails
+
+test assign derived interface to base interface 1 [[
+type A interface {a [Float]}
+type B interface : A {a [Int]}
+func test_assign
+{
+    mut a := A::{a: ::[]}
+    b := B::{a: ::[123]}
+    a = b // sounds operation?
+    // assert: a.a[0]==123.0
+}
+]] analysis succeeds
+
+test assign derived interface to base interface 2 [[
+type AssignA interface {f Float}
+type AssignB interface : AssignA {f Int}
+func assign
+{
+    mut a := AssignA::{f: 1.0}
+    b := AssignB::{f: 3}
+    a = b
+}
+]] analysis succeeds
+
+test base interface member bottom clash [[
+type LLBErrBaseA interface {a Int}
+type LLBErrBaseB interface {a String b String}
+// a:Int clashes with a:String, producing BOTTOM() type
+type LLBErrComposed interface : LLBErrBaseA, LLBErrBaseB {}
+func use_composed_llb_err
+{
+    a := LLBErrComposed::{
+        a: "ok",
+        b: "peer"
+    }
+}
+]] parse succeeds
+   analysis fails
+
+test interface override ok because subtype [[
+type IfaceShadowErrBaseA interface {a Float}
+type IfaceShadowErrBaseB interface : IfaceShadowErrBaseA {a Int}
+]] analysis succeeds
+
+test interface shadow err because unrelated types [[
+type IfaceShadowErrBaseA interface {a Float}
+type IfaceShadowErrBaseB interface : IfaceShadowErrBaseA {a Int}
+// err: String<!:Int
+type IfaceShadowErrDerived interface : IfaceShadowErrBaseB {a String}
+]] parse succeeds
+   analysis fails
+
+test llb composed override ok [[
+type LLBBaseA interface {a Int b Float}
+type LLBBaseB interface {a Float b Int}
+type LLBComposedOk interface : LLBBaseA, LLBBaseB {a Int}
+]] analysis succeeds
+
+test llb composed override err [[
+type LLBBaseA interface {a Int b Float}
+type LLBBaseB interface {a Float b Int}
+type LLBComposedErr interface : LLBBaseA, LLBBaseB {a Float}
+]] parse succeeds
+   analysis fails
+
+test multi base correct reference [[
+type Test1 interface {a Float}
+type Test2 interface : Test1 {[[a]] Int}
+type Test3 interface : Test2 {a Int}
+type Test4 interface : Test2, Test3 {}
+func use4
+{
+    a := Test4::{a: 123}
+    b := a.[[a]]
+}
+]] analysis succeeds
+   resolve #2 to #1
+
+test llb chain propagate [[
+type Base interface {}
+type Compose1 interface : Base { a [Float] b Int }
+type Compose2 interface : Compose1 { a [Int] c Bool }
+func use_compose
+{
+    mut a := Compose2::{
+        a: [123],
+        b: 56,
+        c: false
+    }
+    a.a[0] = [[5.0]]
+}
+]] parse succeeds
+   1 error at #1

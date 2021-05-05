@@ -1,0 +1,61 @@
+language gazebo
+module statics/random/registries/register-static
+
+test static registry minecraft:block with real data [[
+static registry $<minecraft:block>
+{
+    protocol_id 4
+    register minecraft:repeater
+    {
+        protocol_id 50
+        block_states
+        {
+            delay Int { 1, 2, 3, 4 }
+            facing String { "north", "south", "west" }
+            locked Bool { true, false }
+            powered Bool { true, false }
+        }
+    }
+}
+]] analysis succeeds
+
+test static registry minecraft:entity_type with real data [[
+static registry $<minecraft:entity_type>
+{
+    protocol_id 6
+    register minecraft:pig
+    {
+        protocol_id 62
+        data interface
+        {
+            Saddle Bool
+        }
+    }
+}
+]] analysis succeeds
+
+test static registry invalid data type [[
+static registry $<gzb:test>
+{
+    register gzb:test_item
+    {
+        data String
+    }
+}
+]] parse succeeds
+   analysis fails
+
+test static registry double block state [[
+static registry $<gzb:test>
+{
+    register gzb:test_item
+    {
+        block_states
+        {
+            a Int { 1, 2 }
+            a Int { 3, 4 }
+        }
+    }
+}
+]] analysis fails
+   parse succeeds

@@ -1,0 +1,95 @@
+language gazebo
+module statics/construct
+
+test construct complex interface with nested enum constructor [[
+type YesNo enum { Yes, No }
+type Entity interface
+{
+    Ok Bool
+    Blah [String]
+    Motion [Float; dX, dY, dZ]
+    Maybe YesNo
+}
+const instance := Entity::{
+    Ok: true,
+    Blah: ["Hello", "test"],
+    Motion: [;0f, 0f, 0],
+    Maybe: ::No
+}
+]] analysis succeeds
+
+test assign empty list ok because of constructor usage [[
+func test
+{
+    mut l := ["a"]
+    l = ::[]
+}
+]] analysis succeeds
+
+test assign empty list fail [[
+func test
+{
+    mut l := ["a"]
+    l = []
+}
+]] parse succeeds
+   analysis fails
+
+test construct unhinted key [[
+type Test interface
+{
+    a Int
+}
+const instance := Test::{
+    a: 123,
+    [[b]]: "text"
+}
+]] parse succeeds
+   1 errors at #1
+   error like "unhinted key"
+
+test inline enum [[
+const value := enum{A,B}::A
+]] analysis succeeds
+
+test nbt types array ok [[
+func test
+{
+    array_dyn := [Int;]::[; 1, 2]
+    array_fix_anon_ok := [Float; 2]::[; 5, 6]
+    array_fix_anon_err := [Int; 3]::[; 5, 6, 7, 8]
+    array_fix_named := [Int; a, b]::[; 1, 2]
+}
+]] analysis succeeds
+
+test nbt types list ok [[
+func test
+{
+    list_dyn := [Int]::[1, 2]
+    list_fix_anon_ok := [Float: 2]::[5, 6]
+    list_fix_anon_err := [Int: 3]::[5, 6, 7, 8]
+    list_fix_named := [Int: a, b]::[1, 2]
+}
+]] analysis succeeds
+
+test nbt types array/list incompat [[
+func test
+{
+    array_dyn_incompat := [Int;]::[Float;]
+    list_dyn_incompat := [Int]::[1.0]
+}
+]] parse succeeds
+   analysis fails
+
+test list hint enum and compound [[
+type YesNo enum { Yes, No }
+func test
+{
+    enum_list_hint := [YesNo]::[::Yes]
+    compound_list_hint := [interface{a YesNo}]::[::{a: ::No}]
+}
+]] analysis succeeds
+
+
+
+

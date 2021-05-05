@@ -1,0 +1,34 @@
+language gazebo
+module statics/random/registries/block-states
+
+fixture [[
+static registry $<minecraft:block>
+{
+    register minecraft:repeater
+    {
+        block_states
+        {
+            delay Int { 1, 2, 3, 4 }
+            facing String { "north", "south", "west" }
+            locked Bool { true, false }
+            powered Bool { true, false }
+        }
+    }
+}
+
+func test { [[...]] }
+]]
+
+test block states basics ok [[
+const rep := $repeater[delay=4, facing="south", locked=true, powered=false]
+]] analysis succeeds
+
+test block states invalid prop expr type [[
+const rep := $repeater[delay="1"]
+]] parse succeeds
+   analysis fails
+
+test block states non-existing block state [[
+const rep := $repeater[test=90]
+]] parse succeeds
+   analysis fails

@@ -1,0 +1,36 @@
+language gazebo
+module statics/random/registries/infer-registrations
+
+fixture [[
+static registry $<minecraft:entity_type> {
+    register minecraft:pig
+    {
+        data interface
+        {
+            Saddle Bool
+        }
+    }
+}
+
+func test { [[...]] }
+]]
+
+test infer full [[
+const full := $<minecraft:entity_type>minecraft:pig
+]] analysis succeeds
+
+test infer shorter [[
+const shorter := $<minecraft:entity_type>pig
+]] analysis succeeds
+
+test infer basic 1 [[
+const basic1 := $<entity_type>minecraft:pig
+]] analysis succeeds
+
+test infer basic 2 [[
+const basic2 := $<entity_type>pig
+]] analysis succeeds
+
+test infer basic 1 [[
+const shortest := $pig
+]] analysis succeeds

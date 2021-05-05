@@ -1,0 +1,39 @@
+language gazebo
+module statics/random/registries/data-payload
+
+fixture [[
+static registry $<minecraft:entity_type> {
+    register minecraft:pig
+    {
+        data interface
+        {
+            Saddle Bool
+        }
+    }
+    register minecraft:dummy
+    {
+        protocol_id 0
+    }
+}
+
+func test { [[...]] }
+]]
+
+test data payload ok [[
+const pig_ok := $pig{Saddle: true}
+]] analysis succeeds
+
+test data payload invalid value type [[
+const pig_err1 := $pig{Saddle: "test"}
+]] parse succeeds
+   analysis fails
+
+test data payload invalid key [[
+const pig_err1 := $pig{a: 123}
+]] parse succeeds
+   analysis fails
+
+test data payload no data defined [[
+const err_no_data := $dummy{a: true}
+]] parse succeeds
+   analysis fails

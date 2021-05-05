@@ -1,0 +1,11 @@
+language gazebo
+module statics/tag
+
+test invoke tag without args [[
+func test => #test_tag()
+]] analysis succeeds
+
+test invoke tag without args [[
+func test => #test_tag("arg")
+]] parse succeeds
+   analysis fails
