@@ -41,8 +41,8 @@ context-free syntax
 
     Statement = Decl
     Decl.Decl = <<DeclModifier*> <ID> := <Expr>>
-    DeclModifier.ModMut = <mut>
-    DeclModifier.ModConst = <const>
+    DeclModifier.DmodMut = <mut>
+    DeclModifier.DmodConst = <const>
 
 lexical syntax
 

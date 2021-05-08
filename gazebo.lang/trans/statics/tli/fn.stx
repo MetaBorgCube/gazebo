@@ -61,8 +61,13 @@ rules
     typeOfSign_params(s, Params(params)) = flattenIdTypeList(typeOfParams(s, params)).
 
     typeOfParams maps typeOfParam(*, list(*)) = list(*)
-    typeOfParam : scope * Param -> list((ID * TYPE))
-    typeOfParam(s, Param(names, type)) = zipParamType(names, typeOfType(s, type)).
+    typeOfParam : scope * ParamGroup -> list((ID * TYPE))
+    typeOfParam(s, ParamGroup(params, type)) = zipParamType(names, typeOfType(s, type)) :-
+        names == extractParamNames(params).
+
+    extractParamNames maps extractParamName(list(*)) = list(*)
+    extractParamName : Param -> ID
+    extractParamName(Param(_, name)) = name.
 
     zipParamType : list(ID) * TYPE -> list((ID * TYPE))
     zipParamType([], _) = [].

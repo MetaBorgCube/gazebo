@@ -15,6 +15,8 @@ context-free sorts
     Sign
     FnSpec
     Params
+    ParamGroup
+    ParamModifier
     Param
     RetSpec
 
@@ -24,8 +26,10 @@ context-free syntax
     FnMod.ModPublic = <public>
 
     Sign.Sign = <<Params?> <RetSpec?>>
-    Params.Params = <(<{Param ", "}*>)>
-    Param.Param = <<{ID ", "}+> <Type>>
+    Params.Params = <(<{ParamGroup ", "}*>)>
+    ParamGroup.ParamGroup = <<{Param ", "}+> <Type>>
+    ParamModifier.PmodConst = <const>
+    Param.Param = <<ParamModifier*> <ID>>
     RetSpec.RetSpec = [-> [Type]]
 
     FnSpec.FnSpec = <
