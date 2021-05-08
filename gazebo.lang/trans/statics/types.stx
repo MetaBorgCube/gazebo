@@ -7,6 +7,7 @@ imports
     statics/common
     statics/bind/field
     statics/bind/memb
+    statics/bind/registry
     statics/type/bounds
     statics/type/enum
     statics/type/interface
@@ -81,10 +82,15 @@ rules
 
     typeOfType(_, TypeTag()) = TAG().
 
-    // TODO: type of resource registry, distinguish between different array/list fixed types
+    // TODO: distinguish between different array/list fixed types
 
     typeOfType(s, TypeRef(nsid)) = T :-
         T == resolveMembRef(s, nsid, MEMB_TYPE()).
+
+    typeOfType(s, TypeResourceRegistry(id_registry)) = RESOURCE(id_registry_full) :-
+        resolveRegistryRel(s, id_registry) == (id_registry_full, _)
+        | error $[registry not found]@id_registry,
+        @id_registry.ref := id_registry_full.
 
     typeOfType(s, TypeArrayDynamic(t)) = ARRAY(T) :-
         T == typeOfType(s, t).
