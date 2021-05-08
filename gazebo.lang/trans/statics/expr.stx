@@ -28,6 +28,9 @@ rules
 rules // NBT
 
     typeOfExprImpl(s, NBT2Expr(nbt)) = T :-
+        // explicitly disacard any possibility of a type hint,
+        // because NBT can only be used with a hint if explicitly requested to do so,
+        // using the constructor syntax
         typeOfNBT(s, nbt, UNK()) == T.
 
 rules // selector
