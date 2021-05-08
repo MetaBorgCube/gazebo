@@ -13,6 +13,8 @@ context-free sorts
     Exec
     ExecFrag
     ExecAnchor
+    Rotation
+    RotationElement
 
 lexical syntax
 
@@ -44,14 +46,17 @@ context-free syntax
     ExecFrag.ExecIn = <in <Expr>>
     ExecFrag.ExecPositionedPos = <positioned <Expr>>
     ExecFrag.ExecPositionedAs = <positioned as <Expr>>
-    ExecFrag.ExecRotatedAbs = <rotated <Expr>>
-    ExecFrag.ExecRotatedRel = <rotated ~<Expr>>
+    ExecFrag.ExecRotated = <rotated <Rotation>>
     ExecFrag.ExecRotatedAs = <rotated as <Expr>>
 
     // execute <store|if|unless|run> are implicitly made available through other language constructs
 
     ExecAnchor.AnchorEyes = <eyes>
     ExecAnchor.AnchorFeet = <feet>
+
+    Rotation.Rotation = <<RotationElement> <RotationElement>>
+    RotationElement.RotAbs = <<Expr>>
+    RotationElement.RotRel = <~<Expr>>
 
 context-free priorities
 

@@ -53,16 +53,29 @@ rules // fragments
     execFragOk(s, ExecPositionedAs(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
-    execFragOk(s, ExecRotatedAbs(r)) :- {T}
-        typeOfExpr(s, r) == T,
-        typeNumeric(T) | error $[expected numeric value, but instead [T]]@r.
-
-    execFragOk(s, ExecRotatedRel(r)) :- {T}
-        typeOfExpr(s, r) == T,
-        typeNumeric(T) | error $[expected numeric value, but instead [T]]@r.
+    execFragOk(s, ExecRotated(rot)) :-
+        rotationOk(s, rot).
 
     execFragOk(s, ExecRotatedAs(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
+
+rules
+
+    rotationOk : scope * Rotation
+    rotationOk(s, Rotation(yaw, pitch)) :-
+        rotationElementOk(s, yaw),
+        rotationElementOk(s, pitch).
+
+    rotationElementOk : scope * RotationElement
+    rotationElementOk(s, RotAbs(e)) :-
+        rotationElementOk_(s, e).
+    rotationElementOk(s, RotRel(e)) :-
+        rotationElementOk_(s, e).
+
+    rotationElementOk_ : scope * Expr
+    rotationElementOk_(s, e) :- {T}
+        typeOfExpr(s, e) == T,
+        typeNumeric(T) | error $[expected numeric value, but instead got [T]]@e.
 
 rules
 

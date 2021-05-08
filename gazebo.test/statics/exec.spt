@@ -49,12 +49,10 @@ test positioned as [[
 positioned as @a
 ]] analysis succeeds
 
-test rotated abs [[
-rotated 45.0
-]] analysis succeeds
-
-test rotated rel [[
-rotated ~-5.0
+test rotated mixed [[
+rotated ~-5.0 0
+rotated 1 1
+rotated 9.5 ~4
 ]] analysis succeeds
 
 test rotated as [[
