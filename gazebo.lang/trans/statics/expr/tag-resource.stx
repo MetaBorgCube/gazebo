@@ -7,6 +7,7 @@ imports
     statics/bind/registration
     statics/bind/regmeta
     statics/bind/bs
+    statics/bind/tinj
     statics/expr
     statics/expr/nbt
     statics/type/bounds
@@ -49,9 +50,26 @@ rules
         @id_registration.ref := id_registration_full.
 
     inferRegistry(s, TRIdentAnonymous(id_registration)) =
+        inferRegistryAnon(s, resolveTinj(s, UNK()), id_registration).
+
+rules
+
+    inferRegistryAnon : scope * TYPE * NSID -> ((NSID * scope) * (NSID * scope))
+
+    inferRegistryAnon(s, Thint@RESOURCE(id_registry_hint), id_registration) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
+        // no error checking on registry resolve, because type is provided as hint, so can be assumed to be valid
+        resolveRegistryRel(s, id_registry_hint) == (id_registry_full, s_registry),
+        resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
+        | error $[registration not found in registry]@id_registration,
+        @id_registration.ref := id_registration_full.
+
+    inferRegistryAnon(s, UNK(), id_registration) =
         res@resolveRegistryAndRegistrationFromAllRegistries(s, allRegistries(s), id_registration) :- {registration}
         res == ((_, _), (registration, _)),
         @id_registration.ref := registration.
+
+    inferRegistryAnon(_, _, id_registration) = _ :-
+        false | error $[not valid in the current context].
 
 rules
 

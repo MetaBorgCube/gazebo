@@ -8,6 +8,7 @@ imports
     statics/types
     statics/type/bounds
     statics/bind/memb
+    statics/bind/tinj
 
 rules
 
@@ -20,16 +21,6 @@ rules
     typeOfConstruct(s, constr@ConstructInfer(item)) = T :-
         queryTinj(s) == [(_, T)] | error $[no construct context available here]@constr,
         constructOk(s, T, item).
-
-rules
-
-    queryTinj : scope -> list((path * TYPE))
-
-    queryTinj(s) = p :-
-        query tinj
-            filter e and true
-            min and false
-            in s |-> p.
 
 rules
 

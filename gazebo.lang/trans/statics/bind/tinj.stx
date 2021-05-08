@@ -1,0 +1,30 @@
+module statics/bind/tinj
+
+imports
+
+    statics/common
+
+rules
+
+    queryTinj : scope -> list((path * TYPE))
+
+    queryTinj(s) = p :-
+        query tinj
+            filter e and true
+            min and false
+            in s |-> p.
+
+rules
+
+    resolveTinj : scope * TYPE -> TYPE
+
+    resolveTinj(s, default) = matchTinjQres(p, default) :-
+        p == queryTinj(s).
+
+rules
+
+    matchTinjQres : list((path * TYPE)) * TYPE -> TYPE
+
+    matchTinjQres([(_, T)], _) = T.
+
+    matchTinjQres(_, default) = default.
