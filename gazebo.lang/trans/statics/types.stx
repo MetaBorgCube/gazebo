@@ -123,6 +123,14 @@ rules
 
 rules
 
+    typeNumeric : TYPE
+
+    typeNumeric(INT()).
+    typeNumeric(FLOAT()).
+    typeNumeric(_) :- false.
+
+rules
+
     /** resolves to UNK if type is not iterable */
     typeUnwrapIter : TYPE -> TYPE
     typeUnwrapIter(ITER(T)) = T.

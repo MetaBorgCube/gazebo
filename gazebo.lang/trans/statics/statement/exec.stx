@@ -5,6 +5,7 @@ imports
     statics/common
     statics/statement/block
     statics/expr
+    statics/types
 
 rules // entry point
 
@@ -24,8 +25,7 @@ rules // fragments
     execFragOk : scope * ExecFrag
 
     execFragOk(s, ExecAlign(e)) :- {T}
-        typeOfExpr(s, e) == T,
-        try { false } | note $[todo: assert ^ct string]@e.
+        typeOfExpr(s, e) == STRING() | error $[expected string]@e.
 
     execFragOk(s, ExecAnchored(a)).
 
@@ -37,29 +37,35 @@ rules // fragments
 
     execFragOk(s, ExecFacingPos(p)) :- {T}
         typeOfExpr(s, p) == T,
-        try { false } | note $[todo: assert ^ct pos]@p.
+        matchExecPosType(T) | error $[expected position, instead got [T]]@p.
 
     execFragOk(s, ExecFacingEntity(t, a)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
-    execFragOk(s, ExecIn(dim)) :- {T}
-        typeOfExpr(s, dim) == T,
-        try { false } | note $[todo: assert ^ct and dim registry]@dim.
+    execFragOk(s, ExecIn(dim)) :- {T Tdim}
+        Tdim == RESOURCE(nsid("minecraft", ["dimension"])),
+        typeOfExpr(withTypeInject(s, Tdim), dim) == Tdim | error $[not a dimension]@dim.
 
     execFragOk(s, ExecPositionedPos(p)) :- {T}
         typeOfExpr(s, p) == T,
-        try { false } | note $[todo: assert ^ct pos]@p.
+        matchExecPosType(T) | error $[expected position, instead got [T]]@p.
 
     execFragOk(s, ExecPositionedAs(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
     execFragOk(s, ExecRotatedAbs(r)) :- {T}
         typeOfExpr(s, r) == T,
-        try { false } | note $[todo: assert ^ct double]@r.
+        typeNumeric(T) | error $[expected numeric value, but instead [T]]@r.
 
     execFragOk(s, ExecRotatedRel(r)) :- {T}
         typeOfExpr(s, r) == T,
-        try { false } | note $[todo: assert ^ct double]@r.
+        typeNumeric(T) | error $[expected numeric value, but instead [T]]@r.
 
     execFragOk(s, ExecRotatedAs(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
+
+rules
+
+    matchExecPosType : TYPE
+    matchExecPosType(POS(_, T)) :- typeNumeric(T).
+    matchExecPosType(_) :- false.
