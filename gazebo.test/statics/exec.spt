@@ -1,0 +1,62 @@
+language gazebo
+module statics/exec
+
+fixture [[
+static registry $<minecraft:dimension>
+{
+    register minecraft:the_end { protocol_id 2 }
+}
+func test
+{
+    [[...]] { }
+}
+]]
+
+test exec align [[
+align "xyz"
+]] analysis succeeds
+
+test exec anchored [[
+anchored eyes
+anchored feet
+]] analysis succeeds
+
+test exec as [[
+as @s
+]] analysis succeeds
+
+test exec at [[
+at @r
+]] analysis succeeds
+
+test exec facing pos [[
+facing `(0 0 0)
+]] analysis succeeds
+
+test exec facing entity [[
+facing @r
+]] analysis succeeds
+
+test exec in [[
+in $the_end
+]] analysis succeeds
+
+test positioned pos [[
+positioned `(0 ^1 ^0.4)
+]] analysis succeeds
+
+test positioned as [[
+positioned as @a
+]] analysis succeeds
+
+test rotated abs [[
+rotated 45.0
+]] analysis succeeds
+
+test rotated rel [[
+rotated ~-5.0
+]] analysis succeeds
+
+test rotated as [[
+rotated as @a
+]] analysis succeeds
