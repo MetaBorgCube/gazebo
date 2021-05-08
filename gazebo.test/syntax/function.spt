@@ -40,6 +40,10 @@ test func sign multi name multi type [[
 func test(a, b String, c, d, e Int, f Bool) {}
 ]] parse succeeds
 
+test func sign modifiers [[
+func test(a, const b Int, const c String) {}
+]] parse succeeds
+
 // expression body
 
 test func expr body [[
