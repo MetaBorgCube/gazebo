@@ -160,25 +160,32 @@ def write_compound(ctx: WriteContext, idx, compound: Any):
 
 
 def write_enum(ctx: WriteContext, idx, enum: Any):
-    path = ctx.compound_paths[idx]
+    path = ctx.enum_paths[idx]
     file = filename(path[:-1])
     name = path[-1]
 
     enum_content_type = next(enum["et"].keys().__iter__())
+    if enum_content_type not in {"Byte", "Int", "String"}:
+        raise ValueError("unrecognized enum value type")
+
     enum_entries = []
     for enum_entry_name, enum_entry_conf in enum["et"][enum_content_type].items():
-        # TODO: support enum value based on content type
-        enum_entries.append(f"""
-        /**{enum_entry_conf["description"]} */
-        {enum_entry_name}""")
+        enum_entries.append((enum_entry_name, enum_entry_conf["description"], enum_entry_conf["value"]))
+    enum_entries.sort(key=lambda tup: tup[2])
 
-    enum_entries = ",\n       ".join(enum_entries)
+    enum_entries_out = []
+    for enum_entry_name, enum_entry_description, enum_entry_value in enum_entries:
+        enum_entries_out.append(f"""
+        /**{enum_entry_description} */
+        {enum_entry_name}({json.dumps(enum_entry_value)})""")
+
+    enum_entries_out = ",\n       ".join(enum_entries_out)
 
     content = f"""
     /**{enum["description"]} */
-    type {name} enum
+    type {name} enum {enum_content_type}
     {{
-        {enum_entries}
+        {enum_entries_out}
     }}"""
 
     ctx.outputs[file] += content
