@@ -41,3 +41,7 @@ language:
 exports:
 - language: ATerm
   directory: src-gen/statix
+runtime:
+  statix:
+    message-trace-length: 5
+    message-term-depth: 3
