@@ -100,7 +100,7 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
     if typename == "Compound":
         return nsid(ctx.compound_paths[config])
     if typename == "Enum":
-        return "enum{TODO}"
+        return nsid(ctx.enum_paths[config])
     if typename == "Id":
         return f"$<{config}>"
     if typename == "Index":
@@ -144,8 +144,7 @@ def write_compound(ctx: WriteContext, idx, compound: Any):
         field_type = map_type(ctx, field_meta["nbttype"])
         field = f"""
         /**{field_meta["description"]} */
-        {field_name} {field_type}
-        """
+        {field_name} {field_type}"""
         fields.append(field)
 
     fields = "\n    ".join(fields)
@@ -155,15 +154,34 @@ def write_compound(ctx: WriteContext, idx, compound: Any):
     type {name} interface{supers}
     {{
         {fields}
-    }}
-    """
+    }}"""
 
     ctx.outputs[file] += content
 
 
 def write_enum(ctx: WriteContext, idx, enum: Any):
-    # TODO
-    pass
+    path = ctx.compound_paths[idx]
+    file = filename(path[:-1])
+    name = path[-1]
+
+    enum_content_type = next(enum["et"].keys().__iter__())
+    enum_entries = []
+    for enum_entry_name, enum_entry_conf in enum["et"][enum_content_type].items():
+        # TODO: support enum value based on content type
+        enum_entries.append(f"""
+        /**{enum_entry_conf["description"]} */
+        {enum_entry_name}""")
+
+    enum_entries = ",\n       ".join(enum_entries)
+
+    content = f"""
+    /**{enum["description"]} */
+    type {name} enum
+    {{
+        {enum_entries}
+    }}"""
+
+    ctx.outputs[file] += content
 
 
 def _type_block_states(states: list[str]) -> tuple[str, list[str]]:
@@ -297,6 +315,7 @@ def main():
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w") as f:
             f.write(content)
+            f.write("\n")
 
 
 if __name__ == "__main__":
