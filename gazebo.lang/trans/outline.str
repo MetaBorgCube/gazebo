@@ -3,6 +3,8 @@ module outline
 imports
   
   signatures/gazebo-sig
+  signatures/Function-sig
+  signatures/Type-sig
   libspoofax/editor/outline
 
 rules
@@ -12,4 +14,9 @@ rules
     where
       outline := <simple-label-outline(to-outline-label)> ast
   
-  to-outline-label = fail
+  to-outline-label: FnBlock(FnSpec(_, _, name, _), _) -> name
+  to-outline-label: FnExpr(FnSpec(_, _, name, _), _) -> name
+  to-outline-label: FnExt(name, _) -> name
+  to-outline-label: TypeDecl(name, _) -> name
+  to-outline-label: InterfaceMember(name, _) -> name
+  to-outline-label: EnumTypedMemb(name, _) -> name
