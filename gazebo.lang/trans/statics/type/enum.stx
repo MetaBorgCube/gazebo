@@ -4,14 +4,31 @@ imports
 
     statics/common
     statics/bind/memb
+    statics/expr
+    statics/types
+    statics/type/bounds
 
 rules
 
-    typeOfEnum : scope * list(ID) -> TYPE
-    
-    typeOfEnum(s, keys) = ENUM(s_enum) :-
+    typeOfEnum : scope * Type -> TYPE
+
+    typeOfEnum(s, TypeEnumTyped(t, membs)) = ENUM(s_enum_t) :- {T}
+        T == typeOfType(s, t),
+        new s_enum_t,
+        enumTypedMembsOk(s, s_enum_t, T, membs).
+
+    typeOfEnum(s, TypeEnumUntyped(membs)) = ENUM(s_enum) :-
         new s_enum,
-        declareEnumKeys(s_enum, keys).
+        declareEnumKeys(s_enum, membs).
+
+rules
+
+    enumTypedMembsOk maps enumTypedMembOk(*, *, *, list(*))
+    enumTypedMembOk : scope * scope * TYPE * EnumTypedMemb
+    enumTypedMembOk(s, s_enum_t, Tenum, EnumTypedMemb(name, e)) :- {Tmemb}
+        Tmemb == typeOfExpr(withTypeInject(s, Tenum), e),
+        subtype(Tmemb, Tenum) | error $[type of value is not a subtype of the enum type ([Tenum])]@e,
+        declareEnumKey(s_enum_t, name).
 
 rules
 

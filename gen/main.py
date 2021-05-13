@@ -177,7 +177,7 @@ def write_enum(ctx: WriteContext, idx, enum: Any):
     for enum_entry_name, enum_entry_description, enum_entry_value in enum_entries:
         enum_entries_out.append(f"""
         /**{enum_entry_description} */
-        {enum_entry_name}({json.dumps(enum_entry_value)})""")
+        {enum_entry_name} = {json.dumps(enum_entry_value)}""")
 
     enum_entries_out = ",\n       ".join(enum_entries_out)
 

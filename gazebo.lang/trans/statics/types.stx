@@ -106,8 +106,10 @@ rules
     typeOfType(s, TypeListFixedNamed(t, names)) = LIST(T) :-
         T == typeOfType(s, t).
 
-    typeOfType(s, TypeEnum(keys)) =
-        typeOfEnum(s, keys).
+    typeOfType(s, T@TypeEnumUntyped(_)) =
+        typeOfEnum(s, T).
+    typeOfType(s, T@TypeEnumTyped(_, _)) =
+        typeOfEnum(s, T).
 
     typeOfType(s, TypeInterface(membs)) =
         typeOfInterface(s, membs, []).

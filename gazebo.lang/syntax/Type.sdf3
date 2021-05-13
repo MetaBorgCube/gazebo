@@ -4,10 +4,12 @@ imports
 
     Common
     NSID
+    Expr
 
 context-free sorts
 
     Type
+    EnumTypedMemb
     InterfaceMember
 
 context-free syntax
@@ -27,10 +29,16 @@ context-free syntax
     Type.TypeListDynamic = <[<Type>]>
     Type.TypeListFixedAnonymous = <[<Type>: <INT>]>
     Type.TypeListFixedNamed = <[<Type>: <{ID ", "}+>]>
-    Type.TypeEnum = <
+    Type.TypeEnumUntyped = <
         enum
         {
             <{ID ",\n"}*>
+        }
+    >
+    Type.TypeEnumTyped = <
+        enum <Type>
+        {
+            <{EnumTypedMemb ",\n"}*>
         }
     >
     Type.TypeInterface = <
@@ -45,6 +53,8 @@ context-free syntax
             <{InterfaceMember "\n"}*>
         }
     >
+
+    EnumTypedMemb.EnumTypedMemb = <<ID> = <Expr>>
 
     InterfaceMember.InterfaceMember = <<ID> <Type>>
 
