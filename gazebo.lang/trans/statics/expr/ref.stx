@@ -10,14 +10,14 @@ rules
 
     typeOfRef : scope * Ref -> TYPE
 
-    typeOfRef(s, Ref(nsid)) = typeOfRef_i(s, nsid).
+    typeOfRef(s, Ref(nsid)) = typeOfRef_i(s, nsidi(nsid)).
 
 rules
 
-    typeOfRef_i : scope * NSID -> TYPE
+    typeOfRef_i : scope * NSIDi -> TYPE
 
     // case: absolute NSID with 1 name element
-    typeOfRef_i(s, nsid@NSID(_, NSIDName([_]))) = resolveMod(s, nsid).
+    typeOfRef_i(s, nsid@NSIDiFull(_, [_])) = resolveMod(s, nsid).
 
     // dispatch all other cases to the common ref resolving rule
     typeOfRef_i(s, nsid) = resolveMembRef(s, nsid, MEMB_MODVARFN()).

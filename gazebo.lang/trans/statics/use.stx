@@ -12,24 +12,24 @@ rules
     useOk : scope * Use
 
     useOk(s, Use(nsid)) :- {name nameLast}
-        NSIDName(name) == nsidName(nsid),
+        name == nsidiName(nsidi(nsid)),
         nameLast == stringListLast(name),
         useOk(s, UseAs(nsid, nameLast)).
 
     useOk(s, UseAs(nsid, as)) :- {T s_mod}
-        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
+        resolveModRel(s, nsidi(nsid)) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
         s != s_mod | error $[can't import self]@nsid,
         // TODO: might want to add some metadata to the member declaration that it has been imported
         // TODO: ensure this is not resolved via an I-edge (e.g. by declaring it private)
         declareMemb(s, as, MEMB_MODVARFN(), T).
 
     useOk(s, UseFrom(nsid, froms)) :- {T s_mod}
-        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
+        resolveModRel(s, nsidi(nsid)) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
         s != s_mod | error $[can't import self]@nsid,
         useFromsOk(s, s_mod, froms).
 
     useOk(s, UseFromStar(nsid)) :- {T s_mod}
-        resolveModRel(s, nsid) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
+        resolveModRel(s, nsidi(nsid)) == T@MOD(s_mod) | error $[not a valid module: [T]]@nsid,
         s != s_mod | error $[can't import self]@nsid,
         // add an import edge to make all (visible) members visible to the current scope
         s -I-> s_mod.

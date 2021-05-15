@@ -21,24 +21,29 @@ signature
 
         PROP
         MEMB_KIND
+        NSIDi
 
     constructors
 
         PROP_OVERRIDABLE : TYPE -> PROP
-        PROP_FINAL : TYPE -> PROP
+        PROP_FINAL       : TYPE -> PROP
 
         MEMB_MODVARFN : MEMB_KIND
-        MEMB_TYPE : MEMB_KIND
-        MEMB_ENUMKEY : MEMB_KIND
+        MEMB_TYPE     : MEMB_KIND
+        MEMB_ENUMKEY  : MEMB_KIND
+
+        NSIDiFull  : string * list(string) -> NSIDi
+        NSIDiShort : list(string)          -> NSIDi
+        NSIDiRel   : list(string)          -> NSIDi
 
     relations
 
-        mod : NSID -> TYPE
-        currmod : -> (NSID * TYPE)
+        mod : NSIDi -> TYPE
+        currmod : -> (NSIDi * TYPE)
         memb : (string * MEMB_KIND) -> TYPE
         field : string -> TYPE
-        registry : NSID -> scope
-        registration : NSID -> scope
+        registry : NSIDi -> scope
+        registration : NSIDi -> scope
         regmeta : string -> scope
         bs : string -> TYPE
         alias : string -> scope
@@ -56,7 +61,7 @@ rules
 
 rules
 
-    currentMod : scope -> (NSID * scope)
+    currentMod : scope -> (NSIDi * scope)
 
     // TODO: this could maybe also be implemented without the explicit presence of the currmod relation
     currentMod(s) = (name, s_mod) :- {p p' T}
@@ -88,43 +93,51 @@ rules
     stringListLast([x]) = x.
     stringListLast([x|xs]) = stringListLast(xs).
 
+    stringListFlatten : list(list(string)) -> list(string)
+    stringListFlatten([]) = [].
+    stringListFlatten([x]) = x.
+    stringListFlatten([x|xs]) = stringListConcat(x, stringListFlatten(xs)).
+
 rules
 
-    nsid : string * list(string) -> NSID
+    nsidNameStrings : NSIDName -> list(string)
+    nsidNameStrings(NSIDName(parts)) = nsidNamePartStrings(parts).
 
-    nsid(namespace, names) = NSID(namespace, NSIDName(names)).
+    nsidNamePartStrings maps nsidNamePartString(list(*)) = list(*)
+    nsidNamePartString : NSIDNamePart -> string
+    nsidNamePartString(NSIDNamePartID(name)) = name.
+    nsidNamePartString(NSIDNamePartVerbatim(name)) = name.
 
-    nsidName : NSID -> NSIDName
-    nsidName(NSID(_, name)) = name.
-    nsidName(NSIDShort(name)) = name.
-    nsidName(NSIDRel(name)) = name.
+rules
 
-    nsidNameConcat : NSIDName * NSIDName -> NSIDName
+    nsidi : NSID -> NSIDi
+    nsidi(NSID(ns, names)) = NSIDiFull(ns, nsidNameStrings(names)).
+    nsidi(NSIDShort(names)) = NSIDiShort(nsidNameStrings(names)).
+    nsidi(NSIDRel(names)) = NSIDiRel(nsidNameStrings(names)).
 
-    nsidNameConcat(NSIDName(a), NSIDName(b)) = NSIDName(stringListConcat(a, b)).
-
-    nsidNameStripLast : NSIDName -> NSIDName
-
-    nsidNameStripLast(NSIDName(name)) = NSIDName(stringListInit(name)).
+    nsidiName : NSIDi -> list(string)
+    nsidiName(NSIDiFull(_, name)) = name.
+    nsidiName(NSIDiShort(name)) = name.
+    nsidiName(NSIDiRel(name)) = name.
 
 rules
 
     /** rel * base -> abs */
-    absolute : NSID * NSID -> NSID
+    absolute : NSIDi * NSIDi -> NSIDi
 
     /** good: already absolute */
-    absolute(rel@NSID(_, _), _) = rel.
+    absolute(rel@NSIDiFull(_, _), _) = rel.
 
     /** good: relative to namespace of base */
-    absolute(NSIDShort(rel), NSID(base_ns, _)) = NSID(base_ns, rel).
+    absolute(NSIDiShort(rel), NSIDiFull(base_ns, _)) = NSIDiFull(base_ns, rel).
 
     /** good: sub-name relative to base */
-    absolute(rel@NSIDRel(name), NSID(base_ns, base_name)) = NSID(base_ns, nsidNameConcat(nsidNameStripLast(base_name), name)).
+    absolute(rel@NSIDiRel(name), NSIDiFull(base_ns, base_name)) = NSIDiFull(base_ns, stringListConcat(stringListInit(base_name), name)).
 
     /** bad: misc */
-    absolute(rel@NSIDShort(name), base) = rel :-
+    absolute(rel@NSIDiShort(name), base) = rel :-
         false | error $[cannot compute absolute NSID of :[name] relative to [base]].
 
     /** bad: misc */
-    absolute(rel@NSIDRel(name), base) = rel :-
+    absolute(rel@NSIDiRel(name), base) = rel :-
         false | error $[cannot compute absolute NSID of [name] relative to [base]].

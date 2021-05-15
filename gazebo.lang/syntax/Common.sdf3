@@ -1,7 +1,7 @@
 module Common
 
 lexical sorts
-  ID_UNRESTR ID
+  ID_UNRESTR ID ID_NSID_VERBATIM
   INT FLOAT
   STRING
   STRING_CHAR BACKSLASH_CHAR
@@ -12,6 +12,7 @@ lexical syntax
 
   ID               = ID_UNRESTR
   ID_UNRESTR       = [a-zA-Z] [a-zA-Z0-9\_]*
+  ID_NSID_VERBATIM = [a-zA-Z\-\.\_] [a-zA-Z0-9\-\.\_]*
   // TODO: allow underscores in integers
   INT              = "-"? [0-9]+
   FLOAT            = INT FLOAT_SUFFIX
@@ -35,9 +36,9 @@ lexical restrictions
 
   // Ensure greedy matching for lexicals
   
-  COMMENT_CHAR    -/- [\/]
-  INT             -/- [0-9]
-  ID_UNRESTR      -/- [a-zA-Z0-9\_]
+  COMMENT_CHAR     -/- [\/]
+  INT              -/- [0-9]
+  ID_UNRESTR       -/- [a-zA-Z0-9\_]
   
   // Floats may not be followed by another suffix
   FLOAT           -/- [dfDF]

@@ -33,7 +33,7 @@ signature
         SELECTOR : scope -> TYPE
         TAG : TYPE
         /** registry */
-        RESOURCE : NSID -> TYPE
+        RESOURCE : NSIDi -> TYPE
         ITER : TYPE -> TYPE
         VOID : TYPE
 
@@ -85,10 +85,10 @@ rules
     // TODO: distinguish between different array/list fixed types
 
     typeOfType(s, TypeRef(nsid)) = T :-
-        T == resolveMembRef(s, nsid, MEMB_TYPE()).
+        T == resolveMembRef(s, nsidi(nsid), MEMB_TYPE()).
 
     typeOfType(s, TypeResourceRegistry(id_registry)) = RESOURCE(id_registry_full) :-
-        resolveRegistryRel(s, id_registry) == (id_registry_full, _)
+        resolveRegistryRel(s, nsidi(id_registry)) == (id_registry_full, _)
         | error $[registry not found]@id_registry,
         @id_registry.ref := id_registry_full.
 

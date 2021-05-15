@@ -177,7 +177,7 @@ rules // class: eqmulti
 
     selectorEqmultiPropInternalOk : ID * TYPE
     selectorEqmultiPropInternalOk("predicate", res@RESOURCE(ns)) :-
-        ns == nsid("minecraft", ["predicate"]) | error $[incompatible resource from registry [ns]]@res.
+        ns == NSIDiFull("minecraft", ["predicate"]) | error $[incompatible resource from registry [ns]]@res.
     selectorEqmultiPropInternalOk("predicate", T) :-
         false | error $[not an predicate]@T.
     selectorEqmultiPropInternalOk("tag", STRING()).
@@ -214,6 +214,6 @@ rules // class: eqspecial
     selectorEqspecialPropInternalOk("gamemode", T) :-
         try { false } | note $[todo: check gamemode type]@T.
     selectorEqspecialPropInternalOk("type", res@RESOURCE(ns)) :-
-        ns == nsid("minecraft", ["entity_type"]) | error $[incompatible resource from registry [ns], must be an entity type]@res.
+        ns == NSIDiFull("minecraft", ["entity_type"]) | error $[incompatible resource from registry [ns], must be an entity type]@res.
     selectorEqspecialPropInternalOk("type", T) :-
         false | error $[not an entity type]@T.

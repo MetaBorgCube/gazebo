@@ -3,7 +3,7 @@ import json
 import pathlib
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 
 Paths = dict[int, list[str]]
 
@@ -53,6 +53,18 @@ def parse_nsid(input: str):
     name_raw = split[1]
     name = list(flat(map(lambda x: x.split("~"), name_raw.split("/"))))
     return [ns] + name
+
+
+def _escape_nsid_part(part: str):
+    if "." in part or "-" in part:
+        return f"`{part}`"
+    return part
+
+
+def escape_nsid(inp: Union[str, list[str]]):
+    if isinstance(inp, str):
+        inp = parse_nsid(inp)
+    return nsid(list(map(_escape_nsid_part, inp)))
 
 
 def extract_paths(
@@ -252,7 +264,7 @@ def create_registrations(registry_name: str, registry_entries, mcdata: McData, n
     res = []
     for registration_name, registration_content in registry_entries.items():
         res.append(f"""
-        register {registration_name}
+        register {escape_nsid(registration_name)}
         {{
             protocol_id {registration_content["protocol_id"]}
             {aux_fn(registration_name, mcdata, nbtdoc, write_context)}
@@ -305,7 +317,7 @@ def main():
         registrations = create_registrations(registry_name, registry_content["entries"], mcdata, nbtdoc, write_context)
         registrations = "\n    ".join(registrations)
         outfiles[filename(registry_nsid)] += f"""
-        static registry $<{registry_name}>
+        static registry $<{registry_name.replace("/", "~")}>
         {{
             protocol_id {registry_content["protocol_id"]}
             {registrations}

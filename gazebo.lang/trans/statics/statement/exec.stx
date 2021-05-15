@@ -43,7 +43,7 @@ rules // fragments
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
     execFragOk(s, ExecIn(dim)) :- {T Tdim}
-        Tdim == RESOURCE(nsid("minecraft", ["dimension"])),
+        Tdim == RESOURCE(NSIDiFull("minecraft", ["dimension"])),
         typeOfExpr(withTypeInject(s, Tdim), dim) == Tdim | error $[not a dimension]@dim.
 
     execFragOk(s, ExecPositionedPos(p)) :- {T}

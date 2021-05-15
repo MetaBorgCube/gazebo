@@ -6,7 +6,7 @@ imports
 
 rules
 
-    declareMod : scope * NSID * TYPE
+    declareMod : scope * NSIDi * TYPE
 
     declareMod(s, name, T) :-
         !mod[name, T] in s,
@@ -14,7 +14,7 @@ rules
 
 rules
 
-    queryMod : scope * NSID -> list((path * (NSID * TYPE)))
+    queryMod : scope * NSIDi -> list((path * (NSIDi * TYPE)))
 
     queryMod(s, name) = p :-
         query mod
@@ -24,18 +24,18 @@ rules
 
 rules
 
-    concatQueryModRes : list((path * (NSID * TYPE))) * list((path * (NSID * TYPE))) -> list((path * (NSID * TYPE)))
+    concatQueryModRes : list((path * (NSIDi * TYPE))) * list((path * (NSIDi * TYPE))) -> list((path * (NSIDi * TYPE)))
     concatQueryModRes([], r) = r.
     concatQueryModRes([x|xs], r) = [x | concatQueryModRes(xs, r)].
 
-    flattenQueryModRes : list(list((path * (NSID * TYPE)))) -> list((path * (NSID * TYPE)))
+    flattenQueryModRes : list(list((path * (NSIDi * TYPE)))) -> list((path * (NSIDi * TYPE)))
     flattenQueryModRes([]) = [].
     flattenQueryModRes([x]) = x.
     flattenQueryModRes([x|xs]) = concatQueryModRes(x, flattenQueryModRes(xs)).
 
 rules
 
-    resolveMod : scope * NSID -> TYPE
+    resolveMod : scope * NSIDi -> TYPE
 
     resolveMod(s, name) = T :- {p p'}
         queryMod(s, name) == p,
@@ -50,7 +50,7 @@ rules
      * Any scope which has some path to the root scope suffices.
      * A resolve is also attempted to the implicit namespaces.
      */
-    resolveModRel : scope * NSID -> TYPE
+    resolveModRel : scope * NSIDi -> TYPE
 
     resolveModRel(s, nsid) = T :- {curr abs imMc imGzb qcomb p'}
         // relativize the specified NSID to the current module
@@ -58,8 +58,8 @@ rules
         abs == absolute(nsid, curr),
 
         // prep implicit
-        imMc == absolute(nsid, nsid("minecraft", [])),
-        imGzb == absolute(nsid, nsid("gzb", [])),
+        imMc == absolute(nsid, NSIDiFull("minecraft", [])),
+        imGzb == absolute(nsid, NSIDiFull("gzb", [])),
 
         // resolve in order
         qcomb == flattenQueryModRes([

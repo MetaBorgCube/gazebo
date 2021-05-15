@@ -16,16 +16,16 @@ rules
     /** root scope * module scope * registry */
     registryOk : scope * scope * Registry
 
-    registryOk(s_root, s_mod, DynamicRegistry(RegistryName(nsid))) :- {s_reg}
+    registryOk(s_root, s_mod, DynamicRegistry(RegistryName(nsid))) :- {s_registry}
         nsid == NSID(_, _) | error $[dynamic registry name must include a namespace]@nsid,
-        new s_reg, s_reg -P-> s_mod,
-        declareRegistry(s_root, nsid, s_reg).
+        new s_registry, s_registry -P-> s_mod,
+        declareRegistry(s_root, nsidi(nsid), s_registry).
 
-    registryOk(s_root, s_mod, StaticRegistry(RegistryName(nsid), RegistryMeta(meta))) :- {s_reg}
+    registryOk(s_root, s_mod, StaticRegistry(RegistryName(nsid), RegistryMeta(meta))) :- {s_registry}
         nsid == NSID(_, _) | error $[static registry name must include a namespace]@nsid,
-        new s_reg, s_reg -P-> s_mod,
-        registryMetasOk(s_reg, meta),
-        declareRegistry(s_root, nsid, s_reg).
+        new s_registry, s_registry -P-> s_mod,
+        registryMetasOk(s_registry, meta),
+        declareRegistry(s_root, nsidi(nsid), s_registry).
 
 rules
 
@@ -47,12 +47,12 @@ rules
         COMPOUND(s_data) == typeOfType(s, t) | error $[data type must be an interface]@t,
         declareRegmeta(s, "data", s_data).
 
-    registryMetaOk(s, RmeRegistration(id, RegistryMeta(meta))) :- {s_reg}
+    registryMetaOk(s, RmeRegistration(id, RegistryMeta(meta))) :- {s_registration}
         id == NSID(_, _) | error $[registration name must include a namespace]@id,
-        new s_reg, s_reg -P-> s,
-        declareRegistration(s, id, s_reg),
+        new s_registration, s_registration -P-> s,
+        declareRegistration(s, nsidi(id), s_registration),
         registryMetasNoRegistration(meta),
-        registryMetasOk(s_reg, meta).
+        registryMetasOk(s_registration, meta).
 
 rules
 

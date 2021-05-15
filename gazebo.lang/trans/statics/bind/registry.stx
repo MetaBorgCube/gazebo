@@ -7,7 +7,7 @@ imports
 rules
 
     /** root scope * registry name * registry scope */
-    declareRegistry : scope * NSID * scope
+    declareRegistry : scope * NSIDi * scope
 
     declareRegistry(s_root, nsid, s_reg) :-
         !registry[nsid, s_reg] in s_root,
@@ -15,7 +15,7 @@ rules
 
 rules
 
-    queryRegistry : scope * NSID -> list((path * (NSID * scope)))
+    queryRegistry : scope * NSIDi -> list((path * (NSIDi * scope)))
 
     queryRegistry(s, name) = p :-
         query registry
@@ -25,7 +25,7 @@ rules
 
 rules
 
-    queryAllRegistries : scope -> list((path * (NSID * scope)))
+    queryAllRegistries : scope -> list((path * (NSIDi * scope)))
 
     queryAllRegistries(s) = p :-
         query registry
@@ -35,21 +35,21 @@ rules
 
 rules
 
-    allRegistries : scope -> list((NSID * scope))
+    allRegistries : scope -> list((NSIDi * scope))
 
     allRegistries(s) = allRegistries_map(queryAllRegistries(s)).
 
-    allRegistries_map : list((path * (NSID * scope))) -> list((NSID * scope))
+    allRegistries_map : list((path * (NSIDi * scope))) -> list((NSIDi * scope))
     allRegistries_map([]) = [].
     allRegistries_map([(_, (name, s)) | tail]) = [(name, s) | allRegistries_map(tail)].
 
 rules
 
-    concatQueryRegistryRes : list((path * (NSID * scope))) * list((path * (NSID * scope))) -> list((path * (NSID * scope)))
+    concatQueryRegistryRes : list((path * (NSIDi * scope))) * list((path * (NSIDi * scope))) -> list((path * (NSIDi * scope)))
     concatQueryRegistryRes([], r) = r.
     concatQueryRegistryRes([x|xs], r) = [x | concatQueryRegistryRes(xs, r)].
 
-    flattenQueryRegistryRes : list(list((path * (NSID * scope)))) -> list((path * (NSID * scope)))
+    flattenQueryRegistryRes : list(list((path * (NSIDi * scope)))) -> list((path * (NSIDi * scope)))
     flattenQueryRegistryRes([]) = [].
     flattenQueryRegistryRes([x]) = x.
     flattenQueryRegistryRes([x|xs]) = concatQueryRegistryRes(x, flattenQueryRegistryRes(xs)).
@@ -57,34 +57,34 @@ rules
 rules
 
     /**
-     * Allow absolute NSIDs and short NSIDs (explicitly relative to the current namespace),
-     * but disallow any relative NSID.
-     * In the latter case the corresponding NSID is an absolute NSID,
+     * Allow absolute NSIDis and short NSIDis (explicitly relative to the current namespace),
+     * but disallow any relative NSIDi.
+     * In the latter case the corresponding NSIDi is an absolute NSIDi,
      * but with the namespace part set to "$illegal", causing it to be not found,
      * giving room for other query results.
      */
-    intern_prepRegistryNSID : NSID -> NSID
-    intern_prepRegistryNSID(NSIDRel(name)) = NSID("$illegal", name).
-    intern_prepRegistryNSID(nsid) = nsid.
+    intern_prepRegistryNSIDi : NSIDi -> NSIDi
+    intern_prepRegistryNSIDi(NSIDiRel(name)) = NSIDiFull("$illegal", name).
+    intern_prepRegistryNSIDi(nsid) = nsid.
 
 rules
 
     /**
      * Resolve a registry relative to the current module.
-     * If the given NSID is absolute, this function does not add any functionality.
+     * If the given NSIDi is absolute, this function does not add any functionality.
      * Any scope which has some path to the root scope suffices.
      * A resolve is also attempted to the implicit namespaces.
      */
-    resolveRegistryRel : scope * NSID -> (NSID * scope)
+    resolveRegistryRel : scope * NSIDi -> (NSIDi * scope)
 
     resolveRegistryRel(s, nsid) = (id_reg, s_reg) :- {curr abs imMc imGzb qcomb p'}
-        // relativize the specified NSID to the namespace of the current module
+        // relativize the specified NSIDi to the namespace of the current module
         currentMod(s) == (curr, _),
-        abs == absolute(intern_prepRegistryNSID(nsid), curr),
+        abs == absolute(intern_prepRegistryNSIDi(nsid), curr),
 
         // prep implicit
-        imMc == absolute(nsid, nsid("minecraft", [])),
-        imGzb == absolute(nsid, nsid("gzb", [])),
+        imMc == absolute(nsid, NSIDiFull("minecraft", [])),
+        imGzb == absolute(nsid, NSIDiFull("gzb", [])),
 
         // resolve in order
         qcomb == flattenQueryRegistryRes([

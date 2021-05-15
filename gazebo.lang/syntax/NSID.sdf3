@@ -8,6 +8,7 @@ context-free sorts
 
     NSID
     NSIDName
+    NSIDNamePart
 
 context-free syntax
 
@@ -15,4 +16,6 @@ context-free syntax
     NSID.NSIDShort = <:<NSIDName>>
     NSID.NSIDRel = <<NSIDName>>
     // TODO: Change NSID name separator to slash or backslash
-    NSIDName.NSIDName = <<{ID "~"}+>>
+    NSIDName.NSIDName = <<{NSIDNamePart  "~"}+>>
+    NSIDNamePart.NSIDNamePartID = <<ID>>
+    NSIDNamePart.NSIDNamePartVerbatim = <`<ID_NSID_VERBATIM>`>

@@ -22,14 +22,14 @@ rules
         declareAlias(s_root, "e", s_sel_e),
         // TODO: mark registration explicitly as $gzb:base_entity
         // [type==$<minecraft:entity_type>gzb:base_entity]
-        declareProp(s_sel_e, "type", PROP_OVERRIDABLE(RESOURCE(nsid("minecraft", ["entity_type"])))),
+        declareProp(s_sel_e, "type", PROP_OVERRIDABLE(RESOURCE(NSIDiFull("minecraft", ["entity_type"])))),
 
         // @a: all players
         new s_sel_a, s_sel_a -A-> s_sel_e,
         declareAlias(s_root, "a", s_sel_a),
         // TODO: mark value as $minecraft:player
         // [type==$<minecraft:entity_type>minecraft:player]
-        declareProp(s_sel_a, "type", PROP_FINAL(RESOURCE(nsid("minecraft", ["entity_type"])))),
+        declareProp(s_sel_a, "type", PROP_FINAL(RESOURCE(NSIDiFull("minecraft", ["entity_type"])))),
 
         // @p: nearest players
         new s_sel_p, s_sel_p -A-> s_sel_a,
@@ -62,18 +62,18 @@ rules // single-file entry point
         // TODO: declare global gamemode enum???
 
         new s_mod_mc_world, s_mod_mc_world -M-> s_root,
-        declareMod(s_root, nsid("minecraft", ["world"]), MOD(s_mod_mc_world)),
+        declareMod(s_root, NSIDiFull("minecraft", ["world"]), MOD(s_mod_mc_world)),
         declareMemb(s_mod_mc_world, "setblock",
             MEMB_MODVARFN(),
             FUNC([
                 // TODO: allow any pos
                 ("pos", POS(POS_ABS(), INT())),
-                ("block", RESOURCE(nsid("minecraft", ["block"])))
+                ("block", RESOURCE(NSIDiFull("minecraft", ["block"])))
             ], VOID())
         ),
 
         new s_mod_mc_text, s_mod_mc_text -M-> s_root,
-        declareMod(s_root, nsid("minecraft", ["text"]), MOD(s_mod_mc_text)),
+        declareMod(s_root, NSIDiFull("minecraft", ["text"]), MOD(s_mod_mc_text)),
         declareMemb(s_mod_mc_text, "say",
             MEMB_MODVARFN(),
             FUNC([
@@ -82,7 +82,7 @@ rules // single-file entry point
         ),
 
         new s_mod, s_mod -M-> s_root,
-        NSIDmod == nsid("myns", ["myname"]),
+        NSIDmod == NSIDiFull("myns", ["myname"]),
         Tmod == MOD(s_mod),
         declareMod(s_root, NSIDmod, Tmod),
         !currmod[(NSIDmod, Tmod)] in s_mod,

@@ -39,34 +39,36 @@ rules // resource
 
 rules
 
-    inferRegistry : scope * TRIdent -> ((NSID * scope) * (NSID * scope))
+    inferRegistry : scope * TRIdent -> ((NSIDi * scope) * (NSIDi * scope))
 
-    inferRegistry(s, TRIdentExplicit(id_registry, id_registration)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
+    inferRegistry(s, TRIdentExplicit(id_registry_raw, id_registration_raw)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
+        {id_registry} id_registry == nsidi(id_registry_raw),
+        {id_registration} id_registration == nsidi(id_registration_raw),
         resolveRegistryRel(s, id_registry) == (id_registry_full, s_registry)
-        | error $[registry not found]@id_registry,
-        @id_registry.ref := id_registry_full,
+        | error $[registry not found]@id_registry_raw,
+        @id_registry_raw.ref := id_registry_full,
         resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
-        | error $[registration not found in registry]@id_registration,
-        @id_registration.ref := id_registration_full.
+        | error $[registration not found in registry]@id_registration_raw,
+        @id_registration_raw.ref := id_registration_full.
 
     inferRegistry(s, TRIdentAnonymous(id_registration)) =
-        inferRegistryAnon(s, resolveTinj(s, UNK()), id_registration).
+        res@inferRegistryAnon(s, resolveTinj(s, UNK()), nsidi(id_registration)) :-
+        {id_registration_res} res == (_, (id_registration_res, _)),
+        @id_registration.ref := id_registration_res.
 
 rules
 
-    inferRegistryAnon : scope * TYPE * NSID -> ((NSID * scope) * (NSID * scope))
+    inferRegistryAnon : scope * TYPE * NSIDi -> ((NSIDi * scope) * (NSIDi * scope))
 
     inferRegistryAnon(s, Thint@RESOURCE(id_registry_hint), id_registration) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
         // no error checking on registry resolve, because type is provided as hint, so can be assumed to be valid
         resolveRegistryRel(s, id_registry_hint) == (id_registry_full, s_registry),
         resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
-        | error $[registration not found in registry]@id_registration,
-        @id_registration.ref := id_registration_full.
+        | error $[registration not found in registry]@id_registration.
 
     inferRegistryAnon(s, UNK(), id_registration) =
         res@resolveRegistryAndRegistrationFromAllRegistries(s, allRegistries(s), id_registration) :- {registration}
-        res == ((_, _), (registration, _)),
-        @id_registration.ref := registration.
+        res == ((_, _), (registration, _)).
 
     inferRegistryAnon(_, _, id_registration) = _ :-
         false | error $[not valid in the current context].
