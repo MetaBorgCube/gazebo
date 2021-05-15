@@ -23,11 +23,11 @@ Float
 
 test type ref [[
 RefType
-]] parse to TypeRef(NSIDRel(NSIDName(["RefType"])))
+]] parse to TypeRef(NSIDRel(NSIDName([NSIDNamePartID("RefType")])))
 
 test type resource registry [[
 $<entity_type>
-]] parse to TypeResourceRegistry(NSIDRel(NSIDName(["entity_type"])))
+]] parse to TypeResourceRegistry(NSIDRel(NSIDName([NSIDNamePartID("entity_type")])))
 
 test type array dynamic [[
 [String;]
@@ -53,9 +53,18 @@ test type list fixed named [[
 [Int: x, y, z]
 ]] parse succeeds
 
-test type enum [[
+test type enum untyped [[
 enum {A, B}
-]] parse to TypeEnum(["A", "B"])
+]] parse to TypeEnumUntyped(["A", "B"])
+
+test type enum typed [[
+enum String {A = "a", B = "b"}
+]] parse to
+     TypeEnumTyped(
+       TypeString()
+     , [ EnumTypedMemb("A", String("\"a\""))
+       , EnumTypedMemb("B", String("\"b\""))
+       ])
 
 test type interface [[
 interface
