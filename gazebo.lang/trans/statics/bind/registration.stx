@@ -80,7 +80,8 @@ rules
         res == resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(name, qres).
 
     resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb : NSIDi * list(((NSIDi * scope) * (NSIDi * scope))) -> ((NSIDi * scope) * (NSIDi * scope))
-    resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(_, []) = _ :- false.
+    resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(_, []) = _ :-
+        false | error $[not found in any registry].
     resolveRegistryAndRegistrationFromAllRegistries_firstOrAmb(src, [x|xs]) = x :-
         xs == [] | error $[ambiguous]@src.
 

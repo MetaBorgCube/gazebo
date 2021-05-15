@@ -65,7 +65,7 @@ def parse_nsid(input: str):
 
 
 def _escape_nsid_part(part: str):
-    if "." in part or "-" in part:
+    if "." in part or "-" in part or part == "match":
         return f"`{part}`"
     return part
 
@@ -74,6 +74,13 @@ def escape_nsid(inp: Union[str, list[str]]):
     if isinstance(inp, str):
         inp = parse_nsid(inp)
     return nsid(list(map(_escape_nsid_part, inp)))
+
+
+def escape_field_name(field: str) -> str:
+    # TODO: don't escape for 'facing' once it is no longer a restricted identifier
+    if ":" in field or field == "facing":
+        return f'"{field}"'
+    return field
 
 
 def extract_paths(
@@ -100,13 +107,13 @@ TYPES_GATHERED = set()
 
 PRIMITIVES = {
     "Boolean": "Bool",
-    "Byte": "Int",
-    "Double": "Float",
+    "Byte": "Int",  # TODO: support Byte
+    "Double": "Float",  # TODO: support Double
     "Float": "Float",
     "Int": "Int",
     "IntArray": "[Int;]",  # TODO: int array length_range and value_range
-    "Long": "Int",
-    "Short": "Short",
+    "Long": "Int",  # TODO: support Long
+    "Short": "Int",  # TODO: support Short
     "String": "String"
 }
 
@@ -123,16 +130,22 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
     if typename == "Enum":
         return nsid(ctx.enum_paths[config])
     if typename == "Id":
+        if config == "minecraft:entity":
+            # HACK: workaround for wrong registry name in mc-nbtdoc
+            config = "minecraft:entity_type"
+        if config == "minecraft:block_entity":
+            # HACK: workaround for wrong registry name in mc-nbtdoc
+            config = "minecraft:block_entity_type"
         return f"$<{config}>"
     if typename == "Index":
-        # TODO
-        return "Todo_Index"
+        # TODO: index
+        return "/*TODO:Index*/String"
     if typename == "List":
         # TODO: length_range
         return f"[{map_type(ctx, config['value_type'])}]"
     if typename == "Or":
-        # TODO
-        return "Todo_Or"
+        # TODO: sum type
+        return "/*TODO:Or*/String"
     return "Unk"
 
 
@@ -165,7 +178,7 @@ def write_compound(ctx: WriteContext, idx, compound: Any):
         field_type = map_type(ctx, field_meta["nbttype"])
         field = f"""
         /**{field_meta["description"]} */
-        {field_name} {field_type}"""
+        {escape_field_name(field_name)} {field_type}"""
         fields.append(field)
 
     fields = "\n    ".join(fields)
@@ -185,12 +198,14 @@ def write_enum(ctx: WriteContext, idx, enum: Any):
     file = file_ident(path[:-1])
     name = path[-1]
 
-    enum_content_type = next(enum["et"].keys().__iter__())
-    if enum_content_type not in {"Byte", "Int", "String"}:
-        raise ValueError("unrecognized enum value type")
+    enum_content_type_raw = next(enum["et"].keys().__iter__())
+    if enum_content_type_raw not in {"Byte", "Int", "String"}:
+        raise ValueError("unsupported enum value type")
+    # apply general type mapping in any case, may do something useful, or just nothing
+    enum_content_type = map_type(ctx, enum_content_type_raw)
 
     enum_entries = []
-    for enum_entry_name, enum_entry_conf in enum["et"][enum_content_type].items():
+    for enum_entry_name, enum_entry_conf in enum["et"][enum_content_type_raw].items():
         enum_entries.append((enum_entry_name, enum_entry_conf["description"], enum_entry_conf["value"]))
     enum_entries.sort(key=lambda tup: tup[2])
 

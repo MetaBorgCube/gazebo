@@ -43,7 +43,11 @@ rules
 
     declareInterfaceMembers maps declareInterfaceMember(*, *, list(*))
     declareInterfaceMember : scope * scope * InterfaceMember
-    declareInterfaceMember(s, s_interf, InterfaceMember(name, t)) :- {T}
+    declareInterfaceMember(s, s_interf, InterfaceMemberID(name, t)) :- {T}
+        T == typeOfType(s, t),
+        declareField(s_interf, name, T).
+    declareInterfaceMember(s, s_interf, InterfaceMemberString(name, t)) :- {T}
+        // TODO: get 'name' without the quotes
         T == typeOfType(s, t),
         declareField(s_interf, name, T).
 

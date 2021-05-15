@@ -41,6 +41,9 @@ language:
 exports:
 - language: ATerm
   directory: src-gen/statix
+- language: gazebo
+  directory: ./gen/output
+  includes: "**/*.gzb"
 runtime:
   statix:
     message-trace-length: 5

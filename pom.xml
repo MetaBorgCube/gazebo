@@ -23,6 +23,7 @@
   <modules>
     <module>gazebo.lang</module>
     <module>gazebo.test</module>
+    <module>gazebo.examples</module>
   </modules>
 
   <repositories>

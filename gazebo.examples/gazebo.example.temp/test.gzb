@@ -1,0 +1,6 @@
+module myns:test
+
+func ok
+{
+    const a := $the_end
+}

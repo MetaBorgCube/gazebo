@@ -49,6 +49,18 @@ rules
         declareField(s_comp, key, T),
         @key.ref := name_hint.
 
+    nbtCompoundKvOk(s, s_comp, [], KeyValueString(key, value)) :- {T}
+        // TODO: get 'key' without the quotes
+        T == typeOfExpr(s, value),
+        declareField(s_comp, key, T).
+
+    nbtCompoundKvOk(s, s_comp, [s_hint], KeyValueString(key, value)) :- {T Thint name_hint}
+        // TODO: get 'key' without the quotes
+        (name_hint, Thint) == resolveField(s_hint, key) | error $[unhinted key]@key,
+        T == typeOfExpr(withTypeInject(s, Thint), value),
+        declareField(s_comp, key, T),
+        @key.ref := name_hint.
+
 rules
 
     extractIterableTypeHint_array : TYPE -> TYPE
