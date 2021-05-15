@@ -23,6 +23,16 @@ context-free sorts
 
 context-free syntax
 
+    Start.StartModule = <
+        module <NSID>
+
+        <{Use "\n"}*>
+
+        <{Tli "\n\n"}*>
+
+    >
+    // ^ end with blank line to end file with newline
+
     Start.Start = <
         <{Use "\n"}*>
 

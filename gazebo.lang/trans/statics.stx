@@ -52,12 +52,38 @@ rules
         // [limit=1]
         declareProp(s_sel_s, "limit", PROP_FINAL(INT())).
 
-rules // single-file entry point
+rules
 
-    programOk : Start
+    /** root * mod nsid * uses * tlis */
+    ok : scope * NSIDi * list(Use) * list(Tli)
 
-    programOk(Start(u, t)) :- {s_root s_mod s_mod_mc_world s_mod_mc_text NSIDmod Tmod}
-        new s_root,
+    ok(s_root, nsid, uses, tlis) :- {s_mod Tmod}
+        new s_mod, s_mod -M-> s_root,
+        Tmod == MOD(s_mod),
+        declareMod(s_root, nsid, Tmod),
+        !currmod[(nsid, Tmod)] in s_mod,
+
+        usesOk(s_mod, uses),
+        tlisOk(s_root, s_mod, tlis).
+
+rules
+
+    startOk : scope * Start
+
+    startOk(s_root, Start(u, t)) :-
+        false | error $[no module indentification].
+
+    startOk(s_root, StartModule(nsid, u, t)) :-
+        ok(s_root, nsidi(nsid), u, t).
+
+    startOk(s_root, StartInject(nsid, u, t)) :-
+        ok(s_root, nsid, u, t).
+
+rules
+
+    init : scope
+
+    init(s_root) :- {s_mod_mc_world s_mod_mc_text}
         populateDefaultSelectors(s_root),
         // TODO: declare global gamemode enum???
 
@@ -79,25 +105,26 @@ rules // single-file entry point
             FUNC([
                 ("text", STRING())
             ], VOID())
-        ),
+        ).
 
-        new s_mod, s_mod -M-> s_root,
-        NSIDmod == NSIDiFull("myns", ["myname"]),
-        Tmod == MOD(s_mod),
-        declareMod(s_root, NSIDmod, Tmod),
-        !currmod[(NSIDmod, Tmod)] in s_mod,
+rules // single-file entry point
 
-        usesOk(s_mod, u),
-        tlisOk(s_root, s_mod, t).
+    programOk : Start
+
+    programOk(start) :- {s_root}
+        new s_root,
+        init(s_root),
+        startOk(s_root, start).
 
 rules // multi-file entry point
 
     projectOk : scope
 
-    projectOk(s).
+    projectOk(s_root) :-
+        new s_root,
+        init(s_root).
 
     fileOk : scope * Start
 
-    fileOk(s, start) :-
-        // TODO: link scope
-        programOk(start).
+    fileOk(s_root, start) :-
+        startOk(s_root, start).

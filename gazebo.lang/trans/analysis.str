@@ -5,20 +5,27 @@ imports
   statixruntime
   statix/api
 
+  gazebo
   pp
   injections/-
 
 rules // Analysis
 
   // single-file analysis
-  editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "programOk")
+//  editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "programOk")
   
-  // see README.md for details on how to switch to multi-file analysis
   // multi-file analysis
-//  editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "projectOk", "fileOk")
+  editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "projectOk", "fileOk")
 
-  pre-analyze  = explicate-injections-gazebo-Start
-  post-analyze = implicate-injections-gazebo-Start
+  pre-analyze = explicate-injections-gazebo
+  post-analyze = implicate-injections-gazebo
+//  pre-analyze(|resource) = explicate-injections-gazebo; gzb-inject-start(|resource)
+//  post-analyze           = gzb-eject-start ; implicate-injections-gazebo
+
+  gzb-inject-start(|resource): Start(uses, tlis){anno*} -> StartInject(nsid, uses, tlis){anno*}
+    with nsid := <gzb-resource-to-nsid> resource
+  gzb-eject-start: StartInject(_, uses, tlis){anno*} -> Start(uses, tlis){anno*}
+  gzb-resource-to-nsid: res -> NSIDiFull("myns", ["my", "name"])
 
 rules // Editor Services
 

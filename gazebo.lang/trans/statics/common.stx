@@ -36,6 +36,9 @@ signature
         NSIDiShort : list(string)          -> NSIDi
         NSIDiRel   : list(string)          -> NSIDi
 
+        /** alternative to Start with includes module name. injected by pre-analyze */
+        StartInject : NSIDi * list(Use) * list(Tli) -> Start
+
     relations
 
         mod : NSIDi -> TYPE

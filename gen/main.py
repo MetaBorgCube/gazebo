@@ -29,16 +29,25 @@ class McData:
 
 @dataclass
 class WriteContext:
-    outputs: defaultdict[pathlib.Path, str]
+    outputs: defaultdict[str, str]
     module_paths: Paths
     compound_paths: Paths
     enum_paths: Paths
 
 
-def filename(path: list[str]):
+def file_ident(path: list[str]):
     if len(path) < 2:
         raise ValueError("too few path elements")
+    return json.dumps(path)
+
+
+def file_ident_to_filename(fident: str) -> pathlib.Path:
+    path = json.loads(fident)
     return pathlib.Path(path[0], "function", *path[1:-1], path[-1] + ".gzb")
+
+
+def file_ident_to_nsid(fident: str) -> str:
+    return nsid(json.loads(fident))
 
 
 def nsid(path: list[str]):
@@ -141,7 +150,7 @@ def map_type(ctx: WriteContext, nbttype: Any) -> str:
 
 def write_compound(ctx: WriteContext, idx, compound: Any):
     path = ctx.compound_paths[idx]
-    file = filename(path[:-1])
+    file = file_ident(path[:-1])
     name = path[-1]
 
     supers = ""
@@ -173,7 +182,7 @@ def write_compound(ctx: WriteContext, idx, compound: Any):
 
 def write_enum(ctx: WriteContext, idx, enum: Any):
     path = ctx.enum_paths[idx]
-    file = filename(path[:-1])
+    file = file_ident(path[:-1])
     name = path[-1]
 
     enum_content_type = next(enum["et"].keys().__iter__())
@@ -316,7 +325,7 @@ def main():
         registry_nsid = parse_nsid(registry_name)
         registrations = create_registrations(registry_name, registry_content["entries"], mcdata, nbtdoc, write_context)
         registrations = "\n    ".join(registrations)
-        outfiles[filename(registry_nsid)] += f"""
+        outfiles[file_ident(registry_nsid)] += f"""
         static registry $<{registry_name.replace("/", "~")}>
         {{
             protocol_id {registry_content["protocol_id"]}
@@ -329,10 +338,13 @@ def main():
     #
 
     outdir = pathlib.Path("output")
-    for file, content in outfiles.items():
-        path = (outdir / file)
+    for fident, content in outfiles.items():
+        path = (outdir / file_ident_to_filename(fident))
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w") as f:
+            f.write("module ")
+            f.write(file_ident_to_nsid(fident))
+            f.write("\n\n")
             f.write(content)
             f.write("\n")
 
