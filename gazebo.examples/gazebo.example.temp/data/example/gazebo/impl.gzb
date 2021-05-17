@@ -1,0 +1,20 @@
+module example:impl
+
+from text use say, tc
+
+#:css~vote
+func my_voter
+{
+    if @e[type == $armor_stand]
+    {
+        :css~vote_in()
+    }
+}
+
+#:css~loop
+func loop
+{
+    say("loop")
+    //tellraw(@a, [tc("Hi", ::Green)])
+    /* [{"text":"Hi","color":"green"}] */
+}

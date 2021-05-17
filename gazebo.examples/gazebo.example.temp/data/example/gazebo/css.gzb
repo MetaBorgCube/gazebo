@@ -1,0 +1,51 @@
+/**
+ * Example: a cooperative subtick scheduler for background work.
+ * Primitive implementation loosely based on the Tickbuster project (https://github.com/Arcensoth/tickbuster-datapack).
+ * Only works for single-player.
+ */
+module example:css
+
+from text use say
+use worldborder
+
+// 20 ticks per second --> 50 ms/tick
+const msec_lim := 1000 / 20
+
+mut vote_count := 0
+func vote_in => vote_count += 1
+func vote_out => vote_count -= 1
+
+#tick
+func loop
+{
+    // call for votes
+    vote_count = 0
+    #:css~vote()
+
+    if vote_count > 0
+    {
+        // reset the worldborder
+        worldborder~set(0)
+        // add 1000 blocks over the course of one second
+        // this then corresponds to the amount of msec passed
+        worldborder~add(1000, 1)
+    }
+
+    // in practice end_of_tick is *actually* called at the end of the tick,
+    // by means of an advancement
+    end_of_tick()
+}
+
+func end_of_tick
+{
+    // try as long as there are some votes left
+    for vote_count > 0
+    {
+        msec_passed := worldborder~get()
+        // break if tick time exceeded
+        if msec_passed > msec_lim =>
+            break
+        // invoke loop handles
+        #:css~loop()
+    }
+}

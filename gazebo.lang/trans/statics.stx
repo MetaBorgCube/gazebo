@@ -84,9 +84,27 @@ rules
 
     init : scope
 
-    init(s_root) :- {s_mod_mc_world s_mod_mc_text}
+    init(s_root) :- {s_mod_mc_entity s_mod_mc_world s_sel}
         populateDefaultSelectors(s_root),
         // TODO: declare global gamemode enum???
+
+        new s_mod_mc_entity, s_mod_mc_entity -M-> s_root,
+        declareMod(s_root, NSIDiFull("minecraft", ["entity"]), MOD(s_mod_mc_entity)),
+        new s_sel, // pure dummy
+        declareMemb(s_mod_mc_entity, "summon",
+            MEMB_MODVARFN(),
+            FUNC([
+                // TODO: allow any pos
+                ("pos", POS(POS_ABS(), INT())),
+                ("entity", RESOURCE(NSIDiFull("minecraft", ["entity_type"])))
+            ], VOID())
+        ),
+        declareMemb(s_mod_mc_entity, "kill",
+            MEMB_MODVARFN(),
+            FUNC([
+                ("target", SELECTOR(s_sel))
+            ], VOID())
+        ),
 
         new s_mod_mc_world, s_mod_mc_world -M-> s_root,
         declareMod(s_root, NSIDiFull("minecraft", ["world"]), MOD(s_mod_mc_world)),
@@ -98,13 +116,13 @@ rules
                 ("block", RESOURCE(NSIDiFull("minecraft", ["block"])))
             ], VOID())
         ),
-
-        new s_mod_mc_text, s_mod_mc_text -M-> s_root,
-        declareMod(s_root, NSIDiFull("minecraft", ["text"]), MOD(s_mod_mc_text)),
-        declareMemb(s_mod_mc_text, "say",
+        declareMemb(s_mod_mc_world, "fill",
             MEMB_MODVARFN(),
             FUNC([
-                ("text", STRING())
+                // TODO: allow any pos
+                ("pos", POS(POS_ABS(), INT())),
+                ("pos", POS(POS_ABS(), INT())),
+                ("block", RESOURCE(NSIDiFull("minecraft", ["block"])))
             ], VOID())
         ).
 

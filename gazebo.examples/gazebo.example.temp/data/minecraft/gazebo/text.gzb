@@ -1,0 +1,13 @@
+module minecraft:text
+
+type TextColor enum
+{
+    Default,
+    Red,
+    Green,
+    Blue
+}
+
+extern func say(message String)
+
+extern func tc(message String, color TextColor) -> String

@@ -1,0 +1,106 @@
+/**
+ * Example: very basic Game-of-Life implementation.
+ */
+module example:minesweeper
+
+from world use fill, setblock
+from entity use summon, kill
+
+const block_dead := $<block>white_wool
+const block_alive := $<block>black_wool
+const tag_dead := "dead"
+const tag_alive := "alive"
+const tag_transition_death := "transition_death"
+const tag_transition_birth := "transition_birth"
+
+const tag_cell := "cell"
+alias @Cell = @e[type == $marker, is tag_cell]
+
+type Transition enum { None, Death, Birth }
+
+user func reset
+{
+    fill(`(0 0 0), `(10 0 10), block_dead)
+    kill(@Cell)
+}
+
+user func advance
+{
+    try_init()
+    mark()
+    apply()
+}
+
+func try_init
+{
+    if not @Cell
+    {
+        for x <- 0..10 =>
+        for z <- 0..10
+        {
+            // ideally: summon(`(x 0 z), @Cell[is tag_dead])
+            summon(`(x 0 z), $marker{
+                Tags: [tag_cell, tag_dead]
+            })
+        }
+    }
+}
+
+func count_live_neighbors -> Int
+{
+    mut count := 0
+    as @Cell[distance matches 0.1..1.42, is tag_alive] =>
+        count += 1
+    return count
+}
+
+func mark
+{
+    as @Cell
+    at @s
+    {
+        neighs := count_live_neighbors()
+        mut transition := Transition::Death
+
+        if @s[is tag_alive]
+        {
+            if neighs matches 2..3
+            {
+                transition = ::None
+            }
+        }
+        else
+        {
+            if neighs == 3 =>
+                transition = ::Birth
+            else =>
+                transition = ::None
+        }
+
+        match transition
+        {
+            ::None {}
+            ::Death => @s.tags += tag_transition_death
+            ::Birth => @s.tags += tag_transition_birth
+        }
+    }
+}
+
+func apply
+{
+    // Birth
+    as @Cell[is tag_transition_birth]
+    {
+        @s.tags -= tag_transition_birth
+        @s.tags += tag_alive
+        setblock(`(~ ~ ~), block_alive)
+    }
+
+    // Death
+    as @Cell[is tag_transition_death]
+    {
+        @s.tag -= tag_transition_death
+        @s.tags -= tag_alive
+        setblock(`(~ ~ ~), block_dead)
+    }
+}
