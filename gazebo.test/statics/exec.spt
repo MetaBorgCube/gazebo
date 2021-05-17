@@ -34,7 +34,7 @@ facing `(0 0 0)
 ]] analysis succeeds
 
 test exec facing entity [[
-facing entity @r
+facing entity @r feet
 ]] analysis succeeds
 
 test exec in [[

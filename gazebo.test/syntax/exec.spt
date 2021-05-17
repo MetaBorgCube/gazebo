@@ -49,11 +49,11 @@ positioned as @s
 ]] parse succeeds
 
 test exec rotated abs [[
-rotated 45
+rotated 45 0
 ]] parse succeeds
 
 test exec rotated rel [[
-rotated ~2.5
+rotated ~2.5 5
 ]] parse succeeds
 
 test exec rotated as [[
