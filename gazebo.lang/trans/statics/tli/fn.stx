@@ -31,10 +31,8 @@ rules
         declareParams(s_params, Tparams),
 
         new s_body, s_body -P-> s_params,
-        declareParams(s_body, Tparams),
-
         typeOfExpr(s_body, e) == Te,
-        subtype(Te, Tret),
+        subtype(Te, Tret) | error $[actual returned type does not conform to the spec ([Tret])]@e,
 
         declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
 
