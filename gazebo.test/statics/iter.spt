@@ -1,0 +1,22 @@
+language gazebo
+module statics/iter
+
+fixture [[
+func test => for x <- [[...]] { }
+]]
+
+test iter list [[
+[1, 2, 3]
+]] analysis succeeds
+
+test iter array [[
+[;"Hello"]
+]] analysis succeeds
+
+test iter range int [[
+5..10
+]] analysis succeeds
+
+test iter range float [[
+.3...5
+]] analysis succeeds

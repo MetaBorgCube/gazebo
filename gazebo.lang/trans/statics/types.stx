@@ -144,6 +144,7 @@ rules
     typeUnwrapIter(ITER(T)) = T.
     typeUnwrapIter(LIST(T)) = T.
     typeUnwrapIter(ARRAY(T)) = T.
+    typeUnwrapIter(RANGE(T)) = T.
     typeUnwrapIter(T) = UNK().
 
 rules
