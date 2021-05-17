@@ -48,7 +48,7 @@ context-free syntax
 
     Expr = Find
     Find.FindIndex = <<Expr-I>[<Expr-I>]>
-    Find.FindPathID = <<Expr-I>.<ID>>
+    Find.FindPath = <<Expr-I>.<ID>>
     Find.FindPathString = <<Expr-I>.<STRING>>
 
     // prevent any selector or resource (e.g. @a[level>4], or $res[k<4]) to be interpreted as an index find
@@ -164,7 +164,7 @@ context-free priorities
 
     {
         Find.FindIndex
-        Find.FindPathID
+        Find.FindPath
         Find.FindPathString
     } > {
         Invoke.InvokeNone

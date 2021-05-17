@@ -56,7 +56,7 @@ context-free syntax
 
     EnumTypedMemb.EnumTypedMemb = <<ID> = <Expr>>
 
-    InterfaceMember.InterfaceMemberID = <<ID> <Type>>
+    InterfaceMember.InterfaceMember = <<ID> <Type>>
     InterfaceMember.InterfaceMemberString = <<STRING> <Type>>
 
 lexical syntax

@@ -13,9 +13,7 @@ rules
     typeOfFind(s, FindIndex(Expr2Expr-I(e), Expr2Expr-I(idx))) = typeOfFindIndex(s, Te, Tidx) :-
         Te == typeOfExpr(s, e),
         Tidx == typeOfExpr(s, idx).
-    typeOfFind(s, FindPathID(Expr2Expr-I(e), id)) = typeOfFindString(s, Te, id) :-
-        Te == typeOfExpr(s, e).
-    typeOfFind(s, FindPathString(Expr2Expr-I(e), str)) = typeOfFindString(s, Te, str) :-
+    typeOfFind(s, FindPath(Expr2Expr-I(e), id)) = typeOfFindString(s, Te, id) :-
         Te == typeOfExpr(s, e).
 
 rules

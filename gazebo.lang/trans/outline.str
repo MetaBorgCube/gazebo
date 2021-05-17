@@ -2,9 +2,7 @@ module outline
 
 imports
   
-  signatures/gazebo-sig
-  signatures/Function-sig
-  signatures/Type-sig
+  signatures/-
   libspoofax/editor/outline
 
 rules
@@ -18,6 +16,6 @@ rules
   to-outline-label: FnExpr(FnSpec(_, _, name, _), _) -> name
   to-outline-label: FnExt(name, _) -> name
   to-outline-label: TypeDecl(name, _) -> name
-  to-outline-label: InterfaceMemberID(name, _) -> name
+  to-outline-label: InterfaceMember(name, _) -> name
   to-outline-label: InterfaceMemberString(name, _) -> <un-double-quote; unescape> name
   to-outline-label: EnumTypedMemb(name, _) -> name

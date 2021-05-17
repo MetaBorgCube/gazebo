@@ -26,7 +26,7 @@ context-free syntax
     }
     >
 
-    NBTKeyValue.KeyValueID = <<ID>: <Expr>>
+    NBTKeyValue.KeyValue = <<ID>: <Expr>>
     NBTKeyValue.KeyValueString = <<STRING>: <Expr>>
 
     NBTArray.NBTArrayAnonymous = <[; <{Expr ", "}*>]>

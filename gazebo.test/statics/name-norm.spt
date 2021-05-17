@@ -1,0 +1,34 @@
+language gazebo
+module statics/name-norm
+
+// Type (interface)
+
+test interface names normalized: duplicate decl even when quoted [[
+type Test interface
+{
+    a Int
+    "a" Int
+}
+]] parse succeeds
+   analysis fails
+
+test compound names normalized: unquoted ref to quoted decl [[
+const a := interface{[["a"]] Int}::{[[a]]: 2}
+]] analysis succeeds
+   resolve #2 to #1
+
+// NBT
+
+test compound names normalized: duplicate decl even when quoted [[
+const a := {
+    a: 123,
+    "a": 456
+}
+]] parse succeeds
+   analysis fails
+
+test compound names normalized: unquoted ref to quoted decl [[
+const a := {[["b"]]: 123}
+const b := a.[[b]]
+]] analysis succeeds
+   resolve #2 to #1

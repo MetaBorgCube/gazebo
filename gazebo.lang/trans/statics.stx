@@ -71,7 +71,8 @@ rules
     startOk : scope * Start
 
     startOk(s_root, Start(u, t)) :-
-        false | error $[no module indentification].
+        try { false } | warning $[no module indentification],
+        ok(s_root, NSIDiFull("myns", ["myname"]), u, t).
 
     startOk(s_root, StartModule(nsid, u, t)) :-
         ok(s_root, nsidi(nsid), u, t).

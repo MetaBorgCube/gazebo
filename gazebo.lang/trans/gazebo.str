@@ -28,3 +28,7 @@ rules // Debugging
     with
       filename := <guarantee-extension(|"aterm")> path
     ; result   := node
+
+rules
+
+  norm-str-tracked = origin-track-forced(un-double-quote; unescape)

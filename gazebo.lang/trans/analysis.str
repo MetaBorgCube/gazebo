@@ -17,10 +17,15 @@ rules // Analysis
   // multi-file analysis
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "projectOk", "fileOk")
 
-  pre-analyze = explicate-injections-gazebo
+  pre-analyze = explicate-injections-gazebo; norm-str-id
   post-analyze = implicate-injections-gazebo
 //  pre-analyze(|resource) = explicate-injections-gazebo; gzb-inject-start(|resource)
 //  post-analyze           = gzb-eject-start ; implicate-injections-gazebo
+
+  norm-str-id = bottomup(try(norm-str-id-))
+  norm-str-id-: FindPathString(e, k) -> FindPath(e, <norm-str-tracked> k)
+  norm-str-id-: InterfaceMemberString(name, t) -> InterfaceMember(<norm-str-tracked> name, t)
+  norm-str-id-: KeyValueString(k, v) -> KeyValue(<norm-str-tracked> k, v)
 
   gzb-inject-start(|resource): Start(uses, tlis){anno*} -> StartInject(nsid, uses, tlis){anno*}
     with nsid := <gzb-resource-to-nsid> resource
