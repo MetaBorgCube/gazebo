@@ -64,3 +64,7 @@ rules // assign
 
     statementOk(s, Assign2Statement(assign)) :-
         assignOk(s, assign).
+
+rules // break
+
+    statementOk(s, Break()).

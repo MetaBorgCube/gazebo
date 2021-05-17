@@ -23,6 +23,7 @@ context-free syntax
 
     // Primitive statements
     Statement.InvokeStmt = Invoke
+    Statement.Break = <break>
     Noop.Noop = <;>
     Statement = Noop
 
@@ -32,6 +33,10 @@ context-free syntax
     }
     >
     Block.SingleStmt = [=> [Statement]]
+
+lexical syntax
+
+    ID = "break" {reject}
 
 /**
  * Declaration statement
