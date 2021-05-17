@@ -26,6 +26,7 @@ rules // Analysis
   norm-str-id-: FindPathString(e, k) -> FindPath(e, <norm-str-tracked> k)
   norm-str-id-: InterfaceMemberString(name, t) -> InterfaceMember(<norm-str-tracked> name, t)
   norm-str-id-: KeyValueString(k, v) -> KeyValue(<norm-str-tracked> k, v)
+  norm-str-id-: NSIDNamePartVerbatim(x) -> NSIDNamePart(x)
 
   gzb-inject-start(|resource): Start(uses, tlis){anno*} -> StartInject(nsid, uses, tlis){anno*}
     with nsid := <gzb-resource-to-nsid> resource

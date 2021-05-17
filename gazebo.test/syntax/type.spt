@@ -23,11 +23,11 @@ Float
 
 test type ref [[
 RefType
-]] parse to TypeRef(NSIDRel(NSIDName([NSIDNamePartID("RefType")])))
+]] parse to TypeRef(NSIDRel(NSIDName([NSIDNamePart("RefType")])))
 
 test type resource registry [[
 $<entity_type>
-]] parse to TypeResourceRegistry(NSIDRel(NSIDName([NSIDNamePartID("entity_type")])))
+]] parse to TypeResourceRegistry(NSIDRel(NSIDName([NSIDNamePart("entity_type")])))
 
 test type array dynamic [[
 [String;]

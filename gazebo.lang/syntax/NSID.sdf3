@@ -17,5 +17,5 @@ context-free syntax
     NSID.NSIDRel = <<NSIDName>>
     // TODO: Change NSID name separator to slash or backslash
     NSIDName.NSIDName = <<{NSIDNamePart  "~"}+>>
-    NSIDNamePart.NSIDNamePartID = <<ID>>
+    NSIDNamePart.NSIDNamePart = <<ID>>
     NSIDNamePart.NSIDNamePartVerbatim = <`<ID_NSID_VERBATIM>`>

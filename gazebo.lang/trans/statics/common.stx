@@ -108,8 +108,7 @@ rules
 
     nsidNamePartStrings maps nsidNamePartString(list(*)) = list(*)
     nsidNamePartString : NSIDNamePart -> string
-    nsidNamePartString(NSIDNamePartID(name)) = name.
-    nsidNamePartString(NSIDNamePartVerbatim(name)) = name.
+    nsidNamePartString(NSIDNamePart(name)) = name.
 
 rules
 
