@@ -89,8 +89,10 @@ rules // compare (boolean logic)
         typeOfExpr(s, e) == Te,
         typeBoolish(Te) | error $[cannot negate non-boolean value]@e.
 
-    typeOfExprImpl(s, Cmp(l, op, r)) = BOOL() :- {Tl Tr}
-        try { false } | note $[todo].
+    typeOfExprImpl(s, cmp@Cmp(Expr2Expr-I(l), op, Expr2Expr-I(r))) = BOOL() :- {Tl Tr}
+        typeOfExpr(s, l) == Tl,
+        typeOfExpr(s, r) == Tr,
+        typeComparable(op, Tl, Tr) | error $[[Tl] and [Tr] are not comparable]@cmp.
 
 rules // range
 

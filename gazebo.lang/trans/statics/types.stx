@@ -45,13 +45,9 @@ signature
         // Modules
         MOD : scope -> TYPE
 
-        // Lambda
-        LAMBDA : TYPE
-
-        // Members (constants, variables, functions)
-        CONST : TYPE
-        VAR : TYPE
+        // Function & Lambda
         FUNC : list((ID * TYPE)) * TYPE -> TYPE
+        LAMBDA : TYPE
 
         // Misc
         /** univeral top type, anything is a subtype of UNK */
@@ -136,6 +132,58 @@ rules
     typeNumeric(INT()).
     typeNumeric(FLOAT()).
     typeNumeric(_) :- false.
+
+rules
+
+    typeComparable : Compare * TYPE * TYPE
+
+    typeComparable(CmpGt(), T, T) :-
+        typeNumeric(T).
+
+    typeComparable(CmpGte(), T, T) :-
+        typeNumeric(T).
+
+    typeComparable(CmpLt(), T, T) :-
+        typeNumeric(T).
+
+    typeComparable(CmpLte(), T, T) :-
+        typeNumeric(T).
+
+    typeComparable(CmpEqual(), Tl, Tr) :-
+        typeComparableEqual(Tl, Tr).
+
+    typeComparable(CmpNotEqual(), Tl, Tr) :-
+        // not equal is just a boolean inversion,
+        // so same rules hold as for being CmpEqual()-comparable
+        typeComparableEqual(Tl, Tr).
+
+    typeComparable(CmpEquiv(), Tl, Tr) :-
+        false | error $[reserved operator for future use].
+
+    typeComparable(CmpIs(), SELECTOR(_), STRING()).
+    typeComparable(CmpIs(), POS(_, Tpos), RESOURCE(NSIDiFull("minecraft", ["block"]))) :-
+        typeNumeric(Tpos).
+
+    typeComparable(CmpMatches(), T, RANGE(T)).
+
+rules
+
+    typeComparableEqual : TYPE * TYPE
+    typeComparableEqual(STRING(), STRING()).
+    typeComparableEqual(BOOL(), BOOL()).
+    typeComparableEqual(INT(), INT()).
+    typeComparableEqual(FLOAT(), FLOAT()).
+    typeComparableEqual(ENUM(s_en), ENUM(s_en)).
+    typeComparableEqual(POS(_, Tl), POS(_, Tr)) :-
+        typeComparableEqual(Tl, Tr).
+    typeComparableEqual(RANGE(Tl), RANGE(Tr)) :-
+        typeComparableEqual(Tl, Tr).
+    typeComparableEqual(RESOURCE(reg), RESOURCE(reg)).
+    typeComparableEqual(COMPOUND(_), COMPOUND(_)).
+    typeComparableEqual(LIST(Tl), LIST(Tr)) :-
+        typeComparableEqual(Tl, Tr).
+    typeComparableEqual(ARRAY(Tl), ARRAY(Tr)) :-
+        typeComparableEqual(Tl, Tr).
 
 rules
 
