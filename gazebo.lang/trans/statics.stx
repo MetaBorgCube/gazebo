@@ -84,13 +84,12 @@ rules
 
     init : scope
 
-    init(s_root) :- {s_mod_mc_entity s_mod_mc_world s_sel}
+    init(s_root) :- {s_mod_mc_entity s_mod_mc_world}
         populateDefaultSelectors(s_root),
         // TODO: declare global gamemode enum???
 
         new s_mod_mc_entity, s_mod_mc_entity -M-> s_root,
         declareMod(s_root, NSIDiFull("minecraft", ["entity"]), MOD(s_mod_mc_entity)),
-        new s_sel, // pure dummy
         declareMemb(s_mod_mc_entity, "summon",
             MEMB_MODVARFN(),
             FUNC([
@@ -102,7 +101,7 @@ rules
         declareMemb(s_mod_mc_entity, "kill",
             MEMB_MODVARFN(),
             FUNC([
-                ("target", SELECTOR(s_sel))
+                ("target", SELECTOR(_))
             ], VOID())
         ),
 
