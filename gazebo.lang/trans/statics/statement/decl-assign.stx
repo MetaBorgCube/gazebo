@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/expr
+    statics/expr/arith
     statics/bind/memb
     statics/types
     statics/type/bounds
@@ -26,27 +27,27 @@ rules // assign
         typeOfExpr(withTypeInject(s, Td), src) == Ts,
         subtype(Ts, Td) | error $[[Ts] is not assignable to [Td]]@src.
 
-    assignOk(s, AssignAdd(dst, src)) :- {Td Ts}
-        try { false } | note $[todo: check + op],
-        typeOfExpr(s, dst) == Td,
-        typeOfExpr(s, src) == Ts.
+    assignOk(s, AssignAdd(dst, src)) :-
+        assignOk_i(s, dst, src).
 
-    assignOk(s, AssignSub(dst, src)) :- {Td Ts}
-        try { false } | note $[todo: check - op],
-        typeOfExpr(s, dst) == Td,
-        typeOfExpr(s, src) == Ts.
+    assignOk(s, AssignSub(dst, src)) :-
+        assignOk_i(s, dst, src).
 
-    assignOk(s, AssignMul(dst, src)) :- {Td Ts}
-        try { false } | note $[todo: check * op],
-        typeOfExpr(s, dst) == Td,
-        typeOfExpr(s, src) == Ts.
+    assignOk(s, AssignMul(dst, src)) :-
+        assignOk_i(s, dst, src).
 
-    assignOk(s, AssignDiv(dst, src)) :- {Td Ts}
-        try { false } | note $[todo: check / op],
-        typeOfExpr(s, dst) == Td,
-        typeOfExpr(s, src) == Ts.
+    assignOk(s, AssignDiv(dst, src)) :-
+        assignOk_i(s, dst, src).
 
-    assignOk(s, AssignMod(dst, src)) :- {Td Ts}
-        try { false } | note $[todo: check % op],
+    assignOk(s, AssignMod(dst, src)) :-
+        assignOk_i(s, dst, src).
+
+rules
+
+    assignOk_i : scope * Expr * Expr
+
+    assignOk_i(s, dst, src) :- {Td Ts Tarith}
         typeOfExpr(s, dst) == Td,
-        typeOfExpr(s, src) == Ts.
+        typeOfExpr(withTypeInject(s, Td), src) == Ts,
+        Tarith == typeOfArithGeneral(Td, Ts),
+        subtype(Tarith, Td).
