@@ -2,25 +2,23 @@ module analysis
 
 imports
 
+  libspoofax/term/origin
+  libspoofax/resource/path
+
   statixruntime
   statix/api
 
   gazebo
   pp
   injections/-
+  signatures/-
 
 rules // Analysis
 
-  // single-file analysis
-//  editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "programOk")
-  
-  // multi-file analysis
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "projectOk", "fileOk")
 
-  pre-analyze = explicate-injections-gazebo; norm-str-id
-  post-analyze = implicate-injections-gazebo
-//  pre-analyze(|resource) = explicate-injections-gazebo; gzb-inject-start(|resource)
-//  post-analyze           = gzb-eject-start ; implicate-injections-gazebo
+  pre-analyze = origin-track-forced(explicate-injections-gazebo; norm-str-id; gzb-inject-start)
+  post-analyze = origin-track-forced(gzb-eject-start; implicate-injections-gazebo)
 
   norm-str-id = bottomup(try(norm-str-id-))
   norm-str-id-: FindPathString(e, k) -> FindPath(e, <norm-str-tracked> k)
@@ -28,10 +26,30 @@ rules // Analysis
   norm-str-id-: KeyValueString(k, v) -> KeyValue(<norm-str-tracked> k, v)
   norm-str-id-: NSIDNamePartVerbatim(x) -> NSIDNamePart(x)
 
-  gzb-inject-start(|resource): Start(uses, tlis){anno*} -> StartInject(nsid, uses, tlis){anno*}
-    with nsid := <gzb-resource-to-nsid> resource
-  gzb-eject-start: StartInject(_, uses, tlis){anno*} -> Start(uses, tlis){anno*}
-  gzb-resource-to-nsid: res -> NSIDiFull("myns", ["my", "name"])
+  origin-file-path-stem =
+      origin-file
+    ; current-language-relative-source-path
+    ; remove-extension
+
+  resource-path-to-nsid(|res-ident) =
+      split-fetch(?res-ident)
+    ; ?(nss, names)
+    ; !NSIDiFull(<last> nss, names)
+
+  file-path-stem-to-nsid(|res-ident) =
+      string-tokenize(?'/')
+    ; resource-path-to-nsid(|res-ident)
+
+  gzb-extract-module-nsid =
+      origin-file-path-stem
+    ; file-path-stem-to-nsid(|"gazebo")
+
+  gzb-inject-start: s@Start(uses, tlis) -> StartInject(nsid, uses, tlis)
+    with nsid := <gzb-extract-module-nsid> s
+  gzb-inject-start: s -> s
+
+  gzb-eject-start: StartInject(_, uses, tlis) -> Start(uses, tlis)
+  gzb-eject-start: s -> s
 
 rules // Editor Services
 

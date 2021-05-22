@@ -1,5 +1,3 @@
-module minecraft:text
-
 type TextColor enum
 {
     Default,

@@ -1,8 +1,6 @@
 /**
  * Example: very basic Game-of-Life implementation.
  */
-module example:minesweeper
-
 from world use fill, setblock
 from entity use summon, kill
 

@@ -3,8 +3,6 @@
  * Primitive implementation loosely based on the Tickbuster project (https://github.com/Arcensoth/tickbuster-datapack).
  * Only works for single-player.
  */
-module example:css
-
 from text use say
 use worldborder
 

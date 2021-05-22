@@ -1,5 +1,3 @@
-module example:impl
-
 from text use say, tc
 
 #:css~vote

@@ -1,5 +1,3 @@
-module minecraft:worldborder
-
 extern func add(distance Int, time Int)
 
 extern func get() -> Int
