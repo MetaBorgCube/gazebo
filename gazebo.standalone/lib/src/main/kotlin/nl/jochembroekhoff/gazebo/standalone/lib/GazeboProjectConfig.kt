@@ -39,7 +39,6 @@ class GazeboProjectConfig : ISpoofaxProjectConfig {
     }
 
     override fun statixConfig(): IStatixProjectConfig {
-//        return StatixProjectConfig(listOf("gazebo"), null, null)
-        return StatixProjectConfig(null, null, null)
+        return StatixProjectConfig(listOf("gazebo"), null, null)
     }
 }

@@ -46,5 +46,7 @@ exports:
   includes: "**/*.gzb"
 runtime:
   statix:
+    concurrent:
+    - gazebo
     message-trace-length: 5
     message-term-depth: 3

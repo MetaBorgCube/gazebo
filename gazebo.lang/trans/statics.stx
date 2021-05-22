@@ -139,7 +139,6 @@ rules // multi-file entry point
     projectOk : scope
 
     projectOk(s_root) :-
-        new s_root,
         init(s_root).
 
     fileOk : scope * Start
