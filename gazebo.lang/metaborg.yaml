@@ -21,6 +21,8 @@ language:
     sdf2table: java
     placeholder:
       prefix: "$"
+  statix:
+    concurrent: true
   stratego:
     format: ctree
     args:
@@ -46,7 +48,5 @@ exports:
   includes: "**/*.gzb"
 runtime:
   statix:
-    concurrent:
-    - gazebo
     message-trace-length: 5
     message-term-depth: 3

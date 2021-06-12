@@ -1,0 +1,4 @@
+dynamic registry $<minecraft:structure>
+dynamic registry $<minecraft:loot_table>
+dynamic registry $<minecraft:recipe>
+dynamic registry $<minecraft:dimension>

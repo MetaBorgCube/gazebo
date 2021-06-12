@@ -1,11 +1,13 @@
 import itertools
 import json
 import pathlib
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from dataclasses import dataclass
 from typing import Any, Union
 
 Paths = dict[int, list[str]]
+
+OVERLAY_HEADER = "/* OVERLAY */\n\n"
 
 
 def flat(notflat):
@@ -43,7 +45,7 @@ def file_ident(path: list[str]):
 
 def file_ident_to_filename(fident: str) -> pathlib.Path:
     path = json.loads(fident)
-    return pathlib.Path(path[0], "function", *path[1:-1], path[-1] + ".gzb")
+    return pathlib.Path(path[0], "gazebo", *path[1:-1], path[-1] + ".gzb")
 
 
 def file_ident_to_nsid(fident: str) -> str:
@@ -104,6 +106,8 @@ def extract_paths(
 
 
 TYPES_GATHERED = set()
+REGISTRIES_GENERATED = set()
+REGISTRIES_REFERENCED = set()
 
 PRIMITIVES = {
     "Boolean": "Bool",
@@ -136,6 +140,7 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
         if config == "minecraft:block_entity":
             # HACK: workaround for wrong registry name in mc-nbtdoc
             config = "minecraft:block_entity_type"
+        REGISTRIES_REFERENCED.add(config)
         return f"$<{config}>"
     if typename == "Index":
         # TODO: index
@@ -342,11 +347,15 @@ def main():
     mcdata = McData(mcdata_registries, mcdata_siplified_blocks)
 
     for registry_name, registry_content in mcdata_registries.items():
-        registry_nsid = parse_nsid(registry_name)
+        registry = registry_name.replace("/", "~")
+        REGISTRIES_GENERATED.add(registry)
+
         registrations = create_registrations(registry_name, registry_content["entries"], mcdata, nbtdoc, write_context)
         registrations = "\n    ".join(registrations)
+
+        registry_nsid = parse_nsid(registry_name)
         outfiles[file_ident(registry_nsid)] += f"""
-        static registry $<{registry_name.replace("/", "~")}>
+        static registry $<{registry}>
         {{
             protocol_id {registry_content["protocol_id"]}
             {registrations}
@@ -357,9 +366,9 @@ def main():
     # output
     #
 
-    outdir = pathlib.Path("output")
+    output_dir = pathlib.Path("output")
     for fident, content in outfiles.items():
-        path = (outdir / file_ident_to_filename(fident))
+        path = (output_dir / file_ident_to_filename(fident))
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w") as f:
             f.write("module ")
@@ -367,6 +376,41 @@ def main():
             f.write("\n\n")
             f.write(content)
             f.write("\n")
+
+    #
+    # overlay
+    #
+
+    overlay_dir = pathlib.Path("input/overlay")
+
+    def apply_overlay(p: pathlib.Path):
+        if p.is_dir():
+            for entry in p.iterdir():
+                apply_overlay(entry)
+            return
+
+        p_rel = p.relative_to(overlay_dir)
+        p_base = output_dir / p_rel
+        # delete if overlay content was written to a new file previously (instead of actually overlaying)
+        #  (not doing this would cause the file to grow only and never be reset)
+        if p_base.exists():
+            with p_base.open("r") as f_base:
+                if f_base.read(len(OVERLAY_HEADER)) == OVERLAY_HEADER:
+                    p_base.unlink()
+        # append overlay content
+        with p.open("r") as f_in:
+            with p_base.open("a") as f_out:
+                f_out.write(OVERLAY_HEADER)
+                f_out.write(f_in.read())
+
+    apply_overlay(overlay_dir)
+
+    #
+    # warn
+    #
+
+    for nonregistered_registry in REGISTRIES_REFERENCED - REGISTRIES_GENERATED:
+        print("referenced non-registered registry:", nonregistered_registry)
 
 
 if __name__ == "__main__":
