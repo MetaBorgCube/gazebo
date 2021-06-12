@@ -2,6 +2,7 @@ language gazebo
 module statics/iter
 
 fixture [[
+module test:test
 func test => for x <- [[...]] { }
 ]]
 

@@ -2,6 +2,7 @@ language gazebo
 module statics/random/registries/block-states
 
 fixture [[
+module test:test
 static registry $<minecraft:block>
 {
     register minecraft:repeater

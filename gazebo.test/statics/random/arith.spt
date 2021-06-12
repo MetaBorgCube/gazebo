@@ -2,6 +2,7 @@ language gazebo
 module statics/random/arith
 
 fixture [[
+module test:test
 mut intvar := 0
 mut floatvar := 0.0
 func arith_test { [[...]] }

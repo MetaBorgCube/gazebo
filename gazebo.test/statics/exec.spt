@@ -2,6 +2,7 @@ language gazebo
 module statics/exec
 
 fixture [[
+module test:test
 static registry $<minecraft:dimension>
 {
     register minecraft:the_end { protocol_id 2 }

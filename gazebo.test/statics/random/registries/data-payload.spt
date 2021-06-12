@@ -2,6 +2,7 @@ language gazebo
 module statics/random/registries/data-payload
 
 fixture [[
+module test:test
 static registry $<minecraft:entity_type> {
     register minecraft:pig
     {

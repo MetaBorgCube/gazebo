@@ -1,6 +1,11 @@
 language gazebo
 module statics/random/registries/register-static
 
+fixture [[
+module test:test
+[[...]]
+]]
+
 test static registry minecraft:block with real data [[
 static registry $<minecraft:block>
 {

@@ -1,6 +1,11 @@
 language gazebo
 module statics/construct
 
+fixture [[
+module test:test
+[[...]]
+]]
+
 test construct complex interface with nested enum constructor [[
 type YesNo enum { Yes, No }
 type Entity interface
@@ -90,6 +95,7 @@ func test
 }
 ]] analysis succeeds
 
-
-
-
+test take hint from function return type [[
+type AB enum { A, B }
+func test -> AB = ::B
+]] analysis succeeds

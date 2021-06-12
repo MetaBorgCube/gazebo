@@ -1,6 +1,11 @@
 language gazebo
 module statics/random/registries/ref-registration
 
+fixture [[
+module test:test
+[[...]]
+]]
+
 test refer correctly [[
 static registry $<[[testns:testname]]>
 {

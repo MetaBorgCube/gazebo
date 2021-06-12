@@ -1,6 +1,11 @@
 language gazebo
 module statics/tag
 
+fixture [[
+module test:test
+[[...]]
+]]
+
 test invoke tag without args [[
 func test => #test_tag()
 ]] analysis succeeds

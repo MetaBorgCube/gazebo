@@ -1,6 +1,11 @@
 language gazebo
 module statics/random/composition
 
+fixture [[
+module test:test
+[[...]]
+]]
+
 test unable to assign list of supertype because of subtype by constructed interface override [[
 type A interface {a [Float]}
 type B interface : A {a [Int]}

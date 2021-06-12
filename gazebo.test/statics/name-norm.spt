@@ -1,6 +1,11 @@
 language gazebo
 module statics/name-norm
 
+fixture [[
+module test:test
+[[...]]
+]]
+
 // Type (interface)
 
 test interface names normalized: duplicate decl even when quoted [[
