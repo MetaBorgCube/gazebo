@@ -9,7 +9,6 @@ imports
 
 context-free sorts
 
-    Noop
     Block
     Statement
 
@@ -24,8 +23,7 @@ context-free syntax
     // Primitive statements
     Statement.InvokeStmt = Invoke
     Statement.Break = <break>
-    Noop.Noop = <;>
-    Statement = Noop
+    Statement.Noop = <;>
 
     Block.Block = <
     {

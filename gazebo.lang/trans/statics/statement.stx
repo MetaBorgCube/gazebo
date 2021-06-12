@@ -33,7 +33,7 @@ rules // expr (invoke only)
 
 rules // noop
 
-    statementOk(s, Noop2Statement(_)).
+    statementOk(s, Noop()).
 
 rules // decl
 
