@@ -112,6 +112,8 @@ rules
     typeOfType(s, TypeInterfaceCompose(bases, membs)) =
         typeOfInterface(s, membs, bases).
 
+    typeOfType(s, TypeBottom()) = BOTTOM().
+
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].
 

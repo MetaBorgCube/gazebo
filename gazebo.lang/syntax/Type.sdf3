@@ -67,6 +67,10 @@ lexical syntax
     ID = "Float" {reject}
     ID = "enum" {reject}
 
+context-free syntax // additional types for internal usage
+
+    Type.TypeBottom = <__BOTTOM>
+
 context-free sorts
 
     TypeDecl

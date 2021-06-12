@@ -27,6 +27,7 @@ rules
     subtype(ARRAY(a), ARRAY(b)) :- subtype(a, b).
 
     subtype(_, UNK()).
+    subtype(BOTTOM(), _).
     //LAMBDA
 
     subtype(a, b) :- a == b.
