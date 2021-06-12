@@ -98,11 +98,11 @@ rules
         Tmemb == resolveMemb(s_mod, name_memb, kind) | error $[[name_memb] is not a member of module [name_mod]]@name_memb.
 
     // case: absolute NSID with 2 or more name elements
-    resolveMembRef(s, nsid@NSIDiFull(ns, name), kind) = Tmemb :- {nsid_init Tmod s_mod}
+    resolveMembRef(s, nsid@NSIDiFull(ns, name), kind) = Tmemb :- {nsid_init Tmod s_mod name_last}
         nsid_init == NSIDiFull(ns, stringListInit(name)),
-        Tmod == resolveMod(s, nsid_init),
+        Tmod == resolveMod(s, nsid_init) | error $[module not found]@nsid,
         Tmod == MOD(s_mod),
-        Tmemb == resolveMemb(s_mod, stringListLast(name), kind).
+        Tmemb == resolveMemb(s_mod, name_last@stringListLast(name), kind) | error $[[name_last] is not a member of the module]@name_last.
 
     resolveMembRef(s, nsid, _) = UNK() :-
         false | error $[don't know how to resolve reference]@nsid.

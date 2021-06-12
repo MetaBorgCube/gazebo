@@ -10,7 +10,7 @@ rules
 
     declareMod(s, name, T) :-
         !mod[name, T] in s,
-        queryMod(s, name) == [(_, (_, _))] | error $[duplicate definition]@name.
+        queryMod(s, name) == [(_, (_, _))] | error $[duplicate module, only allowed once]@name.
 
 rules
 
