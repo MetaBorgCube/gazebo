@@ -144,8 +144,13 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
         # TODO: length_range
         return f"[{map_type(ctx, config['value_type'])}]"
     if typename == "Or":
-        # TODO: sum type
-        return "/*TODO:Or*/String"
+        if len(config) == 0:
+            return "__BOTTOM"
+        if len(config) == 1:
+            return map_type(ctx, config[0])
+        else:
+            # TODO: sum type
+            return "/*TODO:Or*/String"
     return "Unk"
 
 
