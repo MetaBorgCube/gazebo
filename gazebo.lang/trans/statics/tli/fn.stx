@@ -20,6 +20,7 @@ rules
         declareParams(s_params, Tparams),
 
         new s_body, s_body -P-> s_params,
+        !ret[Tret] in s_body,
         blockOk(s_body, body),
 
         declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).

@@ -63,7 +63,11 @@ match "str"
 }
 ]] parse succeeds
 
-test return [[
+test return empty [[
+return
+]] parse succeeds
+
+test return expr [[
 return "apple"
 ]] parse succeeds
 

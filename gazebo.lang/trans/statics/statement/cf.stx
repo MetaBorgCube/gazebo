@@ -102,6 +102,17 @@ rules // return
 
     returnOk : scope * Return
 
-    returnOk(s, ReturnValue(e)) :- {T}
-        try { false } | note $[todo: check type is supertype of expected return type]@e,
-        typeOfExpr(s, e) == T.
+    returnOk(s, r@ReturnEmpty()) :-
+        returnType(s) == VOID() | error $[expected a return value]@r.
+
+    returnOk(s, ReturnValue(e)) :- {Te Tret}
+        returnType(s) == Tret,
+        typeOfExpr(withTypeInject(s, Tret), e) == Te,
+        subtype(Te, Tret) | error $[returned value is not a supertype of the expected return type]@e.
+
+    returnType : scope -> TYPE
+
+    returnType(s) = Tret :-
+        query ret
+            filter P*
+            in s |-> [(_, Tret)].

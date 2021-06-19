@@ -139,7 +139,7 @@ context-free sorts Return
 context-free syntax
 
     Statement = Return
-    //Return.ReturnEmpty = <return>
+    Return.ReturnEmpty = <return>
     Return.ReturnValue = <return <Expr>>
 
 lexical syntax

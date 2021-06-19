@@ -1,0 +1,56 @@
+language gazebo
+module statics/return
+
+fixture [[
+module test:test
+[[...]]
+]]
+
+test no return for void [[
+func a {}
+func test => a()
+]] analysis succeeds
+
+test empty return for void [[
+func a {}
+func test
+{
+    a()
+    return
+}
+]] analysis succeeds
+
+test return value in void [[
+func test
+{
+    return "hello"
+}
+]] analysis fails
+
+test empty return while expecting value [[
+func test -> Int
+{
+    return
+}
+]] analysis fails
+
+test return equally typed value [[
+func test -> Int
+{
+    return 123
+}
+]] analysis succeeds
+
+test return subtyped value [[
+func test -> Float
+{
+    return 123
+}
+]] analysis succeeds
+
+test return hinted type [[
+func test -> enum{X,Y}
+{
+    return ::Y
+}
+]] analysis succeeds

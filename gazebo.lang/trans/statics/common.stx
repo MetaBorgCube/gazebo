@@ -53,6 +53,7 @@ signature
         prop : string -> PROP
         enumkey : -> string
         tinj : -> TYPE
+        ret : -> TYPE
 
 rules
 
