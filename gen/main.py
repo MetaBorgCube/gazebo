@@ -115,7 +115,6 @@ PRIMITIVES = {
     "Double": "Float",  # TODO: support Double
     "Float": "Float",
     "Int": "Int",
-    "IntArray": "[Int;]",  # TODO: int array length_range and value_range
     "Long": "Int",  # TODO: support Long
     "Short": "Int",  # TODO: support Short
     "String": "String"
@@ -123,12 +122,20 @@ PRIMITIVES = {
 
 
 def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
-    if typename in PRIMITIVES:
-        return PRIMITIVES[typename]
     TYPES_GATHERED.add(json.dumps({
         "name": typename,
         "config": config,
     }))
+    if typename in PRIMITIVES:
+        return PRIMITIVES[typename]
+    if typename == "IntArray":
+        # TODO: support value_range
+        len_constraint = ""
+        if len_constraint_config := config.get("length_range"):
+            if len_constraint_config[0] != len_constraint_config[1]:
+                raise ValueError(f"Unsupported length_range: {len_constraint_config}")
+            len_constraint = f" {len_constraint_config[0]}"
+        return f"[Int;{len_constraint}]"
     if typename == "Compound":
         return nsid(ctx.compound_paths[config])
     if typename == "Enum":
