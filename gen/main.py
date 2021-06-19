@@ -1,7 +1,7 @@
 import itertools
 import json
 import pathlib
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Union
 
@@ -31,7 +31,7 @@ class McData:
 
 @dataclass
 class WriteContext:
-    outputs: defaultdict[str, str]
+    outputs: defaultdict[str, list[str]]
     module_paths: Paths
     compound_paths: Paths
     enum_paths: Paths
@@ -151,7 +151,7 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
         return f"$<{config}>"
     if typename == "Index":
         # TODO: index
-        return "/*TODO:Index*/String"
+        return "String // TODO(Index)"
     if typename == "List":
         # TODO: length_range
         return f"[{map_type(ctx, config['value_type'])}]"
@@ -162,7 +162,10 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
             return map_type(ctx, config[0])
         else:
             # TODO: sum type
-            return "/*TODO:Or*/String"
+            alternatives = set(map(lambda t: map_type(ctx, t), config))
+            if len(alternatives) == 1:
+                return alternatives.pop()
+            return f"String // TODO(Or): {' | '.join(alternatives)}"
     return "Unk"
 
 
@@ -207,7 +210,7 @@ def write_compound(ctx: WriteContext, idx, compound: Any):
         {fields}
     }}"""
 
-    ctx.outputs[file] += content
+    ctx.outputs[file].append(content)
 
 
 def write_enum(ctx: WriteContext, idx, enum: Any):
@@ -241,7 +244,7 @@ def write_enum(ctx: WriteContext, idx, enum: Any):
         {enum_entries_out}
     }}"""
 
-    ctx.outputs[file] += content
+    ctx.outputs[file].append(content)
 
 
 def _type_block_states(states: list[str]) -> tuple[str, list[str]]:
@@ -315,7 +318,7 @@ def create_registrations(registry_name: str, registry_entries, mcdata: McData, n
 
 
 def main():
-    outfiles = defaultdict(lambda: "")
+    outfiles = defaultdict(lambda: [])
     write_context = WriteContext(outfiles, {}, {}, {})
 
     #
@@ -361,13 +364,13 @@ def main():
         registrations = "\n    ".join(registrations)
 
         registry_nsid = parse_nsid(registry_name)
-        outfiles[file_ident(registry_nsid)] += f"""
+        outfiles[file_ident(registry_nsid)].append(f"""
         static registry $<{registry}>
         {{
             protocol_id {registry_content["protocol_id"]}
             {registrations}
         }}
-        """
+        """)
 
     #
     # output
@@ -381,7 +384,7 @@ def main():
             f.write("module ")
             f.write(file_ident_to_nsid(fident))
             f.write("\n\n")
-            f.write(content)
+            f.write("".join(content))
             f.write("\n")
 
     #
