@@ -1,0 +1,15 @@
+module common
+
+signature
+
+  sorts
+
+    NSIDi
+
+  constructors
+
+    NSIDiFull  : string * List(string) -> NSIDi
+    NSIDiShort :          List(string) -> NSIDi
+    NSIDiRel   :          List(string) -> NSIDi
+
+    StartInject : NSIDi * List(Use) * List(Tli) -> Start

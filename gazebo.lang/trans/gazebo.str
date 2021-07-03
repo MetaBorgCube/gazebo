@@ -7,20 +7,6 @@ imports
   outline
   analysis
 
-signature
-
-  sorts
-
-    NSIDi
-
-  constructors
-
-    NSIDiFull  : string * List(string) -> NSIDi
-    NSIDiShort :          List(string) -> NSIDi
-    NSIDiRel   :          List(string) -> NSIDi
-
-    StartInject : NSIDi * List(Use) * List(Tli) -> Start
-
 rules // Debugging
   
   debug-show-aterm:
@@ -28,7 +14,3 @@ rules // Debugging
     with
       filename := <guarantee-extension(|"aterm")> path
     ; result   := node
-
-rules
-
-  norm-str-tracked = origin-track-forced(un-double-quote; unescape)

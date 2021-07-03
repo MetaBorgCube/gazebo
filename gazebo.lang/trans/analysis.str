@@ -8,7 +8,7 @@ imports
   statixruntime
   statix/api
 
-  gazebo
+  common
   pp
   injections/-
   signatures/-
@@ -19,6 +19,8 @@ rules // Analysis
 
   pre-analyze = origin-track-forced(explicate-injections-gazebo; norm-str-id; gzb-inject-start)
   post-analyze = origin-track-forced(gzb-eject-start; implicate-injections-gazebo)
+
+  norm-str-tracked = origin-track-forced(un-double-quote; unescape)
 
   norm-str-id = bottomup(try(norm-str-id-))
   norm-str-id-: FindPathString(e, k) -> FindPath(e, <norm-str-tracked> k)
