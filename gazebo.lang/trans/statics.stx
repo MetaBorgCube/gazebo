@@ -84,46 +84,8 @@ rules
 
     init : scope
 
-    init(s_root) :- {s_mod_mc_entity s_mod_mc_world}
-        populateDefaultSelectors(s_root),
-        // TODO: declare global gamemode enum???
-
-        new s_mod_mc_entity, s_mod_mc_entity -M-> s_root,
-        declareMod(s_root, NSIDiFull("minecraft", ["entity"]), MOD(s_mod_mc_entity)),
-        declareMemb(s_mod_mc_entity, "summon",
-            MEMB_MODVARFN(),
-            FUNC([
-                // TODO: allow any pos
-                ("pos", POS(POS_ABS(), INT())),
-                ("entity", RESOURCE(NSIDiFull("minecraft", ["entity_type"])))
-            ], VOID())
-        ),
-        declareMemb(s_mod_mc_entity, "kill",
-            MEMB_MODVARFN(),
-            FUNC([
-                ("target", SELECTOR(_))
-            ], VOID())
-        ),
-
-        new s_mod_mc_world, s_mod_mc_world -M-> s_root,
-        declareMod(s_root, NSIDiFull("minecraft", ["world"]), MOD(s_mod_mc_world)),
-        declareMemb(s_mod_mc_world, "setblock",
-            MEMB_MODVARFN(),
-            FUNC([
-                // TODO: allow any pos
-                ("pos", POS(POS_ABS(), INT())),
-                ("block", RESOURCE(NSIDiFull("minecraft", ["block"])))
-            ], VOID())
-        ),
-        declareMemb(s_mod_mc_world, "fill",
-            MEMB_MODVARFN(),
-            FUNC([
-                // TODO: allow any pos
-                ("pos", POS(POS_ABS(), INT())),
-                ("pos", POS(POS_ABS(), INT())),
-                ("block", RESOURCE(NSIDiFull("minecraft", ["block"])))
-            ], VOID())
-        ).
+    init(s_root) :-
+        populateDefaultSelectors(s_root).
 
 rules // single-file entry point
 

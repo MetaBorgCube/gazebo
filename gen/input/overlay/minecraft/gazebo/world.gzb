@@ -1,0 +1,10 @@
+func setblock(pos gzb:type~AnyPosExact, block $<:block>)
+{
+    |setblock %pos %block|
+}
+
+// TODO: support fill style (e.g. "replace")
+func fill(from, to gzb:type~AnyPosExact, block $<:block>)
+{
+    |fill %from %to %block|
+}

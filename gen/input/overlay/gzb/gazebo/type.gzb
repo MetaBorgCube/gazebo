@@ -1,0 +1,2 @@
+type AnyPos `*Float
+type AnyPosExact `*Int

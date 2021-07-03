@@ -14,6 +14,10 @@ def flat(notflat):
     return itertools.chain.from_iterable(notflat)
 
 
+def _mkdirs(path: pathlib.Path):
+    path.mkdir(parents=True, exist_ok=True)
+
+
 @dataclass
 class NbtDoc:
     registries: dict
@@ -379,7 +383,7 @@ def main():
     output_dir = pathlib.Path("output")
     for fident, content in outfiles.items():
         path = (output_dir / file_ident_to_filename(fident))
-        path.parent.mkdir(parents=True, exist_ok=True)
+        _mkdirs(path.parent)
         with path.open("w") as f:
             f.write("module ")
             f.write(file_ident_to_nsid(fident))
@@ -401,6 +405,7 @@ def main():
 
         p_rel = p.relative_to(overlay_dir)
         p_base = output_dir / p_rel
+        _mkdirs(p_base.parent)
         # delete if overlay content was written to a new file previously (instead of actually overlaying)
         #  (not doing this would cause the file to grow only and never be reset)
         if p_base.exists():
@@ -411,6 +416,7 @@ def main():
         with p.open("r") as f_in:
             with p_base.open("a") as f_out:
                 f_out.write(OVERLAY_HEADER)
+                # TODO: write correct "module x:y~z" if this is a new file
                 f_out.write(f_in.read())
 
     apply_overlay(overlay_dir)

@@ -1,6 +1,4 @@
-type AnyPos `*Float
-
-func summon(pos `*Float, target $<entity_type>)
+func summon(pos gzb:type~AnyPos, target $<:entity_type>)
 {
     |summon %pos %target|
 }
