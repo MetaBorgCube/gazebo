@@ -6,6 +6,9 @@ type TextColor enum
     Blue
 }
 
-extern func say(message String)
-
 extern func tc(message String, color TextColor) -> String
+
+func say(message String)
+{
+    raw |say %message|
+}

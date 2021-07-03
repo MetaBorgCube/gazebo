@@ -1,5 +1,0 @@
-extern func add(distance Int, time Int)
-
-extern func get() -> Int
-
-extern func set(distance Int/*, time Int*/)

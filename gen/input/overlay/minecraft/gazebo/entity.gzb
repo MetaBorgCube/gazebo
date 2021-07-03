@@ -1,9 +1,9 @@
 func summon(pos gzb:type~AnyPos, target $<:entity_type>)
 {
-    |summon %pos %target|
+    raw |summon %pos %target|
 }
 
 func kill(target @)
 {
-    |kill %target|
+    raw |kill %target|
 }

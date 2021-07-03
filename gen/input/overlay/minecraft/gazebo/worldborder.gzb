@@ -1,0 +1,14 @@
+func add(distance, time Int)
+{
+    raw |worldborder add %distance %time|
+}
+
+func get() -> Int
+{
+    return |worldborder get|
+}
+
+func set(distance/*, time Int*/)
+{
+    raw |worldborder set %distance|
+}

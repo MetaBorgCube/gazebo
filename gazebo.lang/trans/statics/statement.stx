@@ -4,7 +4,6 @@ imports
 
     statics/common
     statics/statement/exec
-    statics/statement/raw
     statics/expr
     statics/statement/decl-assign
     statics/statement/cf
@@ -29,13 +28,13 @@ rules // exec
 
 rules // raw
 
-    statementOk(s, Raw2Statement(raw)) :-
-        rawOk(s, raw).
+    statementOk(s, RawStmt(raw)) :-
+        typeOfExpr(s, Raw2Expr(raw)) == _.
 
 rules // expr (invoke only)
 
-    statementOk(s, stmt@InvokeStmt(i)) :- {T}
-        typeOfExpr(s, Invoke2Expr(i)) == T.
+    statementOk(s, stmt@InvokeStmt(i)) :-
+        typeOfExpr(s, Invoke2Expr(i)) == _.
 
 rules // noop
 

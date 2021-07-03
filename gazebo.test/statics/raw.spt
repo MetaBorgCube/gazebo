@@ -1,0 +1,21 @@
+language gazebo
+module statics/raw
+
+fixture [[
+module test:test
+[[...]]
+]]
+
+test return raw is int [[
+func test -> Int
+{
+    return |test|
+}
+]] analysis succeeds
+
+test raw statement with a single expr interpolation [[
+func say(message String)
+{
+    raw |say %(message)|
+}
+]] analysis succeeds

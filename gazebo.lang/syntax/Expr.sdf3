@@ -9,6 +9,7 @@ imports
     Literals
     Type
     NSID
+    Raw
 
 context-free sorts
 
@@ -30,6 +31,7 @@ context-free syntax
     Expr = Tag
     Expr = Resource
     Expr = Literal
+    Expr = Raw
 
 /**
  * Reference

@@ -20,7 +20,6 @@ context-free syntax
 
     // Imported statements
     Statement = Exec
-    Statement = Raw
 
     // Primitive statements
     Statement.InvokeStmt = Invoke
@@ -73,6 +72,11 @@ context-free syntax
         for [{ID ", "}+] <- [Expr]
         [Block]
     ]
+
+lexical syntax
+
+    ID = "for" {reject}
+    ID = "in" {reject}
 
 /**
  * If statement
@@ -161,6 +165,13 @@ context-free syntax
     Assign.AssignMul = <<Expr> *= <Expr>>
     Assign.AssignDiv = <<Expr> /= <Expr>>
     Assign.AssignMod = <<Expr> %= <Expr>>
+
+/**
+ * Raw statement
+ */
+context-free syntax
+
+    Statement.RawStmt = <raw <Raw>>
 
 template options
 

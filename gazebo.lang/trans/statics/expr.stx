@@ -14,6 +14,7 @@ imports
     statics/expr/range
     statics/expr/vec
     statics/expr/construct
+    statics/expr/raw
     statics/types
 
 rules
@@ -113,3 +114,8 @@ rules // construct
 
     typeOfExprImpl(s, Construct2Expr(constr)) = T :-
         T == typeOfConstruct(s, constr).
+
+rules // raw
+
+    typeOfExprImpl(s, Raw2Expr(raw)) = T :-
+        T == typeOfRaw(s, raw).

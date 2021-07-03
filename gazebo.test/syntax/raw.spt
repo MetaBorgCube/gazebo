@@ -8,18 +8,26 @@ func test
 }
 ]]
 
-test raw no interpolation [[
-|say hello|
+// as expression
+
+test raw-expr no interpolation [[
+raw |say hello|
 ]] parse succeeds
 
-test raw ID interpolation [[
-|say %test hello|
+test raw-expr ID interpolation [[
+raw |say %test hello|
 ]] parse succeeds
 
-test raw expr interpolation [[
-|%(1+4) sdfsdf|
+test raw-expr expr interpolation [[
+raw |%(1+4) sdfsdf|
 ]] parse succeeds
 
-test raw configured expr interpolation [[
-|execute if score %(score counter) matches 1.. run function %(name $fn)|
+test raw-expr configured expr interpolation [[
+raw |execute if score %(score counter) matches 1.. run function %(name $fn)|
+]] parse succeeds
+
+// as statement
+
+test raw-statement return [[
+return |eval %a + %b|
 ]] parse succeeds

@@ -1,4 +1,4 @@
-module statics/statement/raw
+module statics/expr/raw
 
 imports
 
@@ -7,9 +7,9 @@ imports
 
 rules
 
-    rawOk : scope * Raw
+    typeOfRaw : scope * Raw -> TYPE
 
-    rawOk(s, Raw(parts)) :-
+    typeOfRaw(s, Raw(parts)) = INT() :-
         rawPartsOk(s, parts).
 
 rules
