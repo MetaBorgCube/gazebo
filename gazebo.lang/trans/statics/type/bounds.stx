@@ -26,6 +26,9 @@ rules
     subtype(LIST(a), LIST(b)) :- subtype(a, b).
     subtype(ARRAY(a), ARRAY(b)) :- subtype(a, b).
 
+    // TODO: ensure selector constraints are satisfied
+    subtype(SELECTOR(_), SELECTOR(_)).
+
     subtype(_, UNK()).
     subtype(BOTTOM(), _).
     //LAMBDA
@@ -67,6 +70,10 @@ rules
     lub(LIST(a), LIST(b)) = LIST(lub(a, b)).
     lub(ARRAY(a), ARRAY(b)) = ARRAY(lub(a, b)).
 
+    lub(SELECTOR(_), SELECTOR(_)) = SELECTOR(s_sel_lub) :-
+        // TODO: selector intersection
+        new s_sel_lub.
+
     lub(a, UNK()) = a.
     lub(UNK(), b) = b.
 
@@ -89,6 +96,10 @@ rules
     llb(COMPOUND(s_comp_a), COMPOUND(s_comp_b)) = COMPOUND(llbCompound([s_comp_a, s_comp_b])).
     llb(LIST(a), LIST(b)) = LIST(llb(a, b)).
     llb(ARRAY(a), ARRAY(b)) = ARRAY(llb(a, b)).
+
+    llb(SELECTOR(_), SELECTOR(_)) = SELECTOR(s_sel_llb) :-
+        // TODO: selector union
+        new s_sel_llb.
 
     llb(UNK(), T) = T.
     llb(T, UNK()) = T.

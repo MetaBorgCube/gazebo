@@ -88,6 +88,9 @@ rules
         | error $[registry not found]@id_registry,
         @id_registry.ref := id_registry_full.
 
+    typeOfType(s, TypeSelector()) = SELECTOR(s_sel_t) :-
+        new s_sel_t.
+
     typeOfType(s, TypeArrayDynamic(t)) = ARRAY(T) :-
         T == typeOfType(s, t).
     typeOfType(s, TypeArrayFixedAnonymous(t, size)) = ARRAY(T) :-
