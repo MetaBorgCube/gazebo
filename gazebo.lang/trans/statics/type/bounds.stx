@@ -61,7 +61,8 @@ rules
     lub(FLOAT(), INT()) = FLOAT().
     lub(INT(), FLOAT()) = FLOAT().
 
-    //lub(POS(a), POS(b)) :- lub(a, b).
+    // TODO: LUB of kinds
+    lub(POS(k_a, Ta), POS(k_b, Tb)) = POS(POS_ANY(), lub(Ta, Tb)).
     lub(RANGE(a), RANGE(b)) = RANGE(lub(a, b)).
 
     lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
@@ -88,7 +89,8 @@ rules
     llb(FLOAT(), INT()) = INT().
     llb(INT(), FLOAT()) = INT().
 
-    //llb(POS(a), POS(b)) :- llb(a, b).
+    // TODO: LLB of kinds
+    llb(POS(k_a, Ta), POS(k_b, Tb)) = POS(POS_ANY(), llb(Ta, Tb)).
     llb(RANGE(a), RANGE(b)) = RANGE(llb(a, b)).
 
     llb(ITER(a), ITER(b)) = ITER(llb(a, b)).

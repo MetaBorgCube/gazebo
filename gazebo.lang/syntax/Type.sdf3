@@ -9,18 +9,28 @@ imports
 context-free sorts
 
     Type
+    PosKind
     EnumTypedMemb
     InterfaceMember
 
 context-free syntax
 
+    Type.TypeRef = <<NSID>>
+
     Type.TypeString = <String>
     Type.TypeBool = <Bool>
     Type.TypeInt = <Int>
     Type.TypeFloat = <Float>
-    Type.TypeRef = <<NSID>>
+
+    Type.TypePos = <`<PosKind><Type>>
+    PosKind.PosAbs = <>
+    PosKind.PosRel = <~>
+    PosKind.PosLoc = <^>
+    PosKind.PosAny = <*>
+
     Type.TypeResourceRegistry = [$<[NSID]>]
     Type.TypeTag = [#]
+
     // TODO: support selector constraints
     Type.TypeSelector = [@]
 
