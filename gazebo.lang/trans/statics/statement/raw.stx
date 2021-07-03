@@ -1,0 +1,33 @@
+module statics/statement/raw
+
+imports
+
+    statics/common
+    statics/expr
+
+rules
+
+    rawOk : scope * Raw
+
+    rawOk(s, Raw(parts)) :-
+        rawPartsOk(s, parts).
+
+rules
+
+    rawPartsOk maps rawPartOk(*, list(*))
+    rawPartOk : scope * RawPart
+
+    rawPartOk(s, InterpolateID(id)) :-
+        _ == typeOfExpr(s, Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart(id)]))))),
+        try { false } | note $[TODO: check suitability]@id.
+
+    rawPartOk(s, InterpolateExpr(e)) :-
+        _ == typeOfExpr(s, e),
+        try { false } | note $[TODO: check suitability]@e.
+
+    rawPartOk(s, InterpolateConfigured(conf, e)) :-
+        _ == typeOfExpr(s, e),
+        try { false } | note $[TODO: check suitability]@e,
+        try { false } | note $[TODO: check validity]@conf.
+
+    rawPartOk(s, RawPart(_)).

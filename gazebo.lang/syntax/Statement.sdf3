@@ -6,6 +6,7 @@ imports
     Expr
     Exec
     NBT
+    Raw
 
 context-free sorts
 
@@ -19,6 +20,7 @@ context-free syntax
 
     // Imported statements
     Statement = Exec
+    Statement = Raw
 
     // Primitive statements
     Statement.InvokeStmt = Invoke

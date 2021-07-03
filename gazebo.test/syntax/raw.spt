@@ -1,0 +1,25 @@
+language gazebo
+module syntax/raw
+
+fixture [[
+func test
+{
+    [[...]]
+}
+]]
+
+test raw no interpolation [[
+|say hello|
+]] parse succeeds
+
+test raw ID interpolation [[
+|say %test hello|
+]] parse succeeds
+
+test raw expr interpolation [[
+|%(1+4) sdfsdf|
+]] parse succeeds
+
+test raw configured expr interpolation [[
+|execute if score %(score counter) matches 1.. run function %(name $fn)|
+]] parse succeeds

@@ -1,0 +1,37 @@
+module Raw
+
+imports
+
+    Common
+    Expr
+
+context-free sorts
+
+    Raw
+    RawPart
+
+lexical sorts
+
+    RawChars
+    RawChar
+
+syntax
+
+    Raw-CF.Raw = "|" RawPart-CF* "|"
+
+context-free syntax
+
+    RawPart.InterpolateID = <%<ID>>
+    RawPart.InterpolateExpr = <%(<Expr>)>
+    RawPart.InterpolateConfigured = <%(<ID_UNRESTR> <Expr>)>
+    RawPart.RawPart = RawChars
+
+lexical syntax
+
+    RawChars = RawChar+ {longest-match}
+    RawChar = ~[\|\%\\\t\r\n]
+    RawChar = "\\%" | "\\\\"
+
+lexical restrictions
+
+    RawChars -/- ~[\|\%\\\t\r\n]

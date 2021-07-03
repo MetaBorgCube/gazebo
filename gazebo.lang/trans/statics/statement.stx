@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/statement/exec
+    statics/statement/raw
     statics/expr
     statics/statement/decl-assign
     statics/statement/cf
@@ -25,6 +26,11 @@ rules // exec
 
     statementOk(s, Exec2Statement(ex)) :-
         execOk(s, ex).
+
+rules // raw
+
+    statementOk(s, Raw2Statement(raw)) :-
+        rawOk(s, raw).
 
 rules // expr (invoke only)
 
