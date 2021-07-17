@@ -39,6 +39,8 @@ class GazeboProjectConfig : ISpoofaxProjectConfig {
     }
 
     override fun statixConfig(): IStatixProjectConfig {
-        return StatixProjectConfig(listOf("gazebo"), null, null)
+        // Gazebo language will be automatically configured as parallel because it is defined to be so in its own
+        //  metaborg.yaml file
+        return StatixProjectConfig(null, 5, 3)
     }
 }
