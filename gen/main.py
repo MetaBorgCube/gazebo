@@ -41,6 +41,16 @@ class WriteContext:
     enum_paths: Paths
 
 
+def _path_all_rel_parents(path: pathlib.Path):
+    if len(path.name) == 0:
+        return
+    if path.suffix == ".gzb":
+        yield path.stem
+    else:
+        yield path.name
+    yield from _path_all_rel_parents(path.parent)
+
+
 def file_ident(path: list[str]):
     if len(path) < 2:
         raise ValueError("too few path elements")
@@ -50,6 +60,14 @@ def file_ident(path: list[str]):
 def file_ident_to_filename(fident: str) -> pathlib.Path:
     path = json.loads(fident)
     return pathlib.Path(path[0], "gazebo", *path[1:-1], path[-1] + ".gzb")
+
+
+def rel_filename_to_file_ident(path: pathlib.Path) -> str:
+    elems = list(_path_all_rel_parents(path))
+    elems.reverse()
+    type = elems.pop(1)
+    assert type == "gazebo"
+    return json.dumps(elems)
 
 
 def file_ident_to_nsid(fident: str) -> str:
@@ -414,9 +432,11 @@ def main():
                     p_base.unlink()
         # append overlay content
         with p.open("r") as f_in:
+            new_file = not p_base.exists()
             with p_base.open("a") as f_out:
                 f_out.write(OVERLAY_HEADER)
-                # TODO: write correct "module x:y~z" if this is a new file
+                if new_file:
+                    f_out.write(f"/*inject*/ module {file_ident_to_nsid(rel_filename_to_file_ident(p_rel))}\n\n")
                 f_out.write(f_in.read())
 
     apply_overlay(overlay_dir)

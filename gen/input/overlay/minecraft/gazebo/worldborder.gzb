@@ -8,7 +8,7 @@ func get() -> Int
     return |worldborder get|
 }
 
-func set(distance/*, time Int*/)
+func set(distance/*, time*/ Int)
 {
     raw |worldborder set %distance|
 }
