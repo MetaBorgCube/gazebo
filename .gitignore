@@ -1,0 +1,21 @@
+# General output or temp folders
+.cache
+bin
+src-gen
+target
+
+# Eclipse
+.classpath
+.project
+.settings
+.factorypath
+
+# IntelliJ IDEA
+.idea
+
+# Gradle
+build
+.gradle
+
+# Spoofax
+.polyglot.metaborg.yaml
