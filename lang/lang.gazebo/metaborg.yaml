@@ -1,0 +1,51 @@
+---
+id: nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
+name: gazebo
+dependencies:
+  compile:
+  - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
+  - org.metaborg:org.metaborg.meta.lang.template:${metaborgVersion}
+  - org.metaborg:statix.lang:${metaborgVersion}
+  - org.metaborg:sdf3.ext.statix:${metaborgVersion}
+  source:
+  - org.metaborg:meta.lib.spoofax:${metaborgVersion}
+  - org.metaborg:statix.runtime:${metaborgVersion}
+pardonedLanguages:
+- EditorService
+- Stratego-Sugar
+- SDF
+language:
+  sdf:
+    pretty-print: gazebo
+    sdf2table: java
+    placeholder:
+      prefix: "$"
+  statix:
+    concurrent: true
+  stratego:
+    format: ctree
+    args:
+    - -la
+    - stratego-lib
+    - -la
+    - stratego-sglr
+    - -la
+    - stratego-gpp
+    - -la
+    - stratego-xtc
+    - -la
+    - stratego-aterm
+    - -la
+    - stratego-sdf
+    - -la
+    - strc
+exports:
+- language: ATerm
+  directory: src-gen/statix
+- language: gazebo
+  directory: ./gen/output
+  includes: "**/*.gzb"
+runtime:
+  statix:
+    message-trace-length: 5
+    message-term-depth: 3

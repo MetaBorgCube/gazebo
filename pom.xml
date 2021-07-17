@@ -5,8 +5,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 >
   <modelVersion>4.0.0</modelVersion>
-  <groupId>nl.jochembroekhoff</groupId>
-  <artifactId>gazebo-parent</artifactId>
+  <groupId>nl.jochembroekhoff.gazebo</groupId>
+  <artifactId>parent</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
 
@@ -21,9 +21,10 @@
   </parent>
 
   <modules>
-    <module>gazebo.lang</module>
-    <module>gazebo.test</module>
-    <module>gazebo.examples</module>
+    <module>lang</module>
+    <module>ext</module>
+    <module>lib</module>
+    <module>examples</module>
   </modules>
 
   <repositories>
@@ -71,4 +72,12 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
+
+  <developers>
+    <developer>
+      <name>Jochem Broekhoff</name>
+      <email>j.h.broekhoff@student.tudelft.nl</email>
+      <organization>Delft University of Technology</organization>
+    </developer>
+  </developers>
 </project>

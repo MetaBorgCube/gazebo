@@ -1,0 +1,13 @@
+module mcam
+
+context-free start-symbols
+
+    StartAM
+
+context-free sorts
+
+    StartAM
+
+context-free syntax
+
+    StartAM.StartAM = <start>

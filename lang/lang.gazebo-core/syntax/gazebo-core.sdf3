@@ -1,0 +1,13 @@
+module gazebo-core
+
+context-free start-symbols
+
+    StartC
+
+context-free sorts
+
+    StartC
+
+context-free syntax
+
+    StartC.StartC = <start>

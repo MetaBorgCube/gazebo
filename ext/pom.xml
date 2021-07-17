@@ -5,14 +5,20 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 >
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>gazebo.test</artifactId>
-  <packaging>spoofax-test</packaging>
+  <artifactId>ext-parent</artifactId>
+  <packaging>pom</packaging>
 
   <parent>
     <groupId>nl.jochembroekhoff.gazebo</groupId>
     <artifactId>parent</artifactId>
     <version>${revision}</version>
   </parent>
+
+  <modules>
+    <module>ext.gzb2gzbc</module>
+    <module>ext.gzbc2mcam</module>
+    <module>ext.mcam2mcje</module>
+  </modules>
 
   <dependencies>
     <dependency>
@@ -22,24 +28,16 @@
       <type>spoofax-language</type>
     </dependency>
     <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.spt</artifactId>
-      <version>${metaborg-version}</version>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lang.gazebo-core</artifactId>
+      <version>${revision}</version>
       <type>spoofax-language</type>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lang.mcam</artifactId>
+      <version>${revision}</version>
+      <type>spoofax-language</type>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.metaborg</groupId>
-        <artifactId>spoofax-maven-plugin</artifactId>
-        <version>${metaborg-version}</version>
-        <configuration>
-          <languageUnderTest>nl.jochembroekhoff:gazebo.lang:${revision}</languageUnderTest>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

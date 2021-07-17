@@ -1,0 +1,39 @@
+---
+id: nl.jochembroekhoff.gazebo:lib.std.mcje:0.1.0-SNAPSHOT
+name: gazebo-lib-std-mcje
+dependencies:
+  compile:
+  - nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
+contributions:
+- name: gazebo
+  id: nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
+- name: gazebo-core
+  id: nl.jochembroekhoff.gazebo:lang.gazebo-core:0.1.0-SNAPSHOT
+- name: .mcam
+  id: nl.jochembroekhoff.gazebo:lang.mcam:0.1.0-SNAPSHOT
+language:
+  sdf:
+    enabled: false
+  stratego:
+    format: ctree
+    args:
+    - -la
+    - stratego-lib
+    - -la
+    - stratego-sglr
+    - -la
+    - stratego-gpp
+    - -la
+    - stratego-xtc
+    - -la
+    - stratego-aterm
+    - -la
+    - stratego-sdf
+    - -la
+    - strc
+build:
+  useBuildSystemSpec: true
+runtime:
+  statix:
+    message-trace-length: 5
+    message-term-depth: 3
