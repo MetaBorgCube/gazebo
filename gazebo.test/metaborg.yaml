@@ -1,9 +1,9 @@
 ---
-id: nl.jochembroekhoff:gazebo.test:0.1.0-SNAPSHOT
-name: gazebo
+id: nl.jochembroekhoff.gazebo:gazebo.test:0.1.0-SNAPSHOT
+name: gazebo-test
 dependencies:
   compile:
-  - nl.jochembroekhoff:gazebo.lang:0.1.0-SNAPSHOT
+  - nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
   - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
 build:
   useBuildSystemSpec: true

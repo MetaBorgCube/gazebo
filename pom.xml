@@ -12,6 +12,7 @@
 
   <properties>
     <revision>0.1.0-SNAPSHOT</revision>
+    <metaborgVersion>2.5.16</metaborgVersion>
   </properties>
 
   <parent>
@@ -24,7 +25,8 @@
     <module>lang</module>
     <module>ext</module>
     <module>lib</module>
-    <module>examples</module>
+    <!--<module>examples</module>-->
+    <module>misc</module>
   </modules>
 
   <repositories>

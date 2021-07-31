@@ -42,6 +42,8 @@ language:
 exports:
 - language: ATerm
   directory: src-gen/statix
+build:
+  useBuildSystemSpec: true
 runtime:
   statix:
     message-trace-length: 5

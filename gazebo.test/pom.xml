@@ -37,7 +37,7 @@
         <artifactId>spoofax-maven-plugin</artifactId>
         <version>${metaborg-version}</version>
         <configuration>
-          <languageUnderTest>nl.jochembroekhoff:gazebo.lang:${revision}</languageUnderTest>
+          <languageUnderTest>nl.jochembroekhoff.gazebo:lang.gazebo:${revision}</languageUnderTest>
         </configuration>
       </plugin>
     </plugins>

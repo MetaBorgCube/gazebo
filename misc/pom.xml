@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>misc</artifactId>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>nl.jochembroekhoff.gazebo</groupId>
+    <artifactId>parent</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <dependencies>
+    <!-- languages -->
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lang.gazebo</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lang.gazebo-core</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lang.mcam</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <!-- extensions -->
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>ext.gzb2gzbc</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>ext.gzbc2mcam</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>ext.mcam2mcje</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <!-- libraries -->
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lib.std.common</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>lib.std.mcje</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <outputDirectory>${project.build.directory}/out-lang</outputDirectory>
+          <overWriteReleases>false</overWriteReleases>
+          <overWriteSnapshots>true</overWriteSnapshots>
+          <artifactItems>
+            <!-- languages -->
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>lang.gazebo</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>lang.gazebo-core</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>lang.mcam</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <!-- extensions -->
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>ext.gzb2gzbc</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>ext.gzbc2mcam</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>ext.mcam2mcje</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <!-- libraries -->
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>lib.std.common</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>lib.std.mcje</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
+          </artifactItems>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

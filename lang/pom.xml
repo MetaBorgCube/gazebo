@@ -19,4 +19,45 @@
     <module>lang.gazebo-core</module>
     <module>lang.mcam</module>
   </modules>
+
+  <dependencies>
+    <!-- metaborg.yaml compile dependencies -->
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.meta.lang.esv</artifactId>
+      <version>${metaborgVersion}</version>
+      <type>spoofax-language</type>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.meta.lang.template</artifactId>
+      <version>${metaborgVersion}</version>
+      <type>spoofax-language</type>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>statix.lang</artifactId>
+      <version>${metaborgVersion}</version>
+      <type>spoofax-language</type>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>sdf3.ext.statix</artifactId>
+      <version>${metaborgVersion}</version>
+      <type>spoofax-language</type>
+    </dependency>
+    <!-- metaborg.yaml source dependencies -->
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>meta.lib.spoofax</artifactId>
+      <version>${metaborgVersion}</version>
+      <type>spoofax-language</type>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>statix.runtime</artifactId>
+      <version>${metaborgVersion}</version>
+      <type>spoofax-language</type>
+    </dependency>
+  </dependencies>
 </project>

@@ -6,7 +6,7 @@
 >
   <profiles>
     <profile>
-      <id>add-metaborg-release-repos</id>
+      <id>metaborg-release-repos</id>
       <repositories>
         <repository>
           <id>metaborg-release-repo</id>
@@ -34,7 +34,7 @@
     </profile>
 
     <profile>
-      <id>add-metaborg-snapshot-repos</id>
+      <id>metaborg-snapshot-repos</id>
       <repositories>
         <repository>
           <id>metaborg-snapshot-repo</id>
@@ -63,7 +63,7 @@
   </profiles>
 
   <activeProfiles>
-    <activeProfile>add-metaborg-release-repos</activeProfile>
-    <activeProfile>add-metaborg-snapshot-repos</activeProfile>
+    <activeProfile>metaborg-release-repos</activeProfile>
+    <activeProfile>metaborg-snapshot-repos</activeProfile>
   </activeProfiles>
 </settings>
