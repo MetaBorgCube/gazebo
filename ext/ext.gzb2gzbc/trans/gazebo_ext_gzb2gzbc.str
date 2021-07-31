@@ -1,0 +1,17 @@
+module gazebo_ext_gzb2gzbc
+
+imports
+
+  signatures/gazebo-sig
+  signatures/gazebo-core-sig
+
+  pp/gazebo-core-pp
+
+  libspoofax/-
+
+strategies
+
+  generate-gzb: input@(selected, position, ast@Start(_, _), path, project-path) -> (filename, result)
+    where
+      filename := <get-src-gen(|project-path, "", "")> // LEFTOFF
+    ; result := StartC()

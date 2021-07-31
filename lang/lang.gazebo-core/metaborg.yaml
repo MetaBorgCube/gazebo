@@ -1,5 +1,6 @@
 ---
-id: nl.jochembroekhoff.gazebo:lang.gazebo-core:0.1.0-SNAPSHOT
+gazeboVersion: 0.1.0-SNAPSHOT
+id: nl.jochembroekhoff.gazebo:lang.gazebo-core:${gazeboVersion}
 name: gazebo-core
 dependencies:
   compile:
@@ -42,6 +43,10 @@ language:
 exports:
 - language: ATerm
   directory: src-gen/statix
+- language: Stratego-Sugar
+  directory: src-gen
+  includes: "**/*.str"
+  excludes: "nabl2/**/*.str"
 build:
   useBuildSystemSpec: true
 runtime:

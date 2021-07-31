@@ -1,6 +1,7 @@
 package nl.jochembroekhoff.gazebo.standalone.lib
 
 import org.apache.commons.io.IOUtils
+import org.metaborg.core.action.CompileGoal
 import org.metaborg.core.build.BuildInputBuilder
 import org.metaborg.core.messages.WithLocationStreamMessagePrinter
 import org.metaborg.core.project.IProject
@@ -18,12 +19,17 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
 
     private fun loadLanguageImpl(spoofax: Spoofax) {
         configuration.languageArchiveProvider(spoofax.resourceService).forEach { languageArchive ->
-            spoofax.languageDiscoveryService.languageFromArchive(languageArchive)
+            if (languageArchive.isFolder) {
+                spoofax.languageDiscoveryService.languageFromDirectory(languageArchive)
+            } else {
+                spoofax.languageDiscoveryService.languageFromArchive(languageArchive)
+            }
         }
     }
 
     private fun buildProject(spoofax: Spoofax, project: IProject): ISpoofaxBuildOutput? {
         val buildInput = BuildInputBuilder(project)
+            .withTransformGoals(listOf(CompileGoal()))
             .withSourcesFromDefaultSourceLocations(true)
             .withMessagePrinter(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
             .build(spoofax.dependencyService, spoofax.languagePathService)

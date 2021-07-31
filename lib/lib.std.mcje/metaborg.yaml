@@ -1,16 +1,17 @@
 ---
-id: nl.jochembroekhoff.gazebo:lib.std.mcje:0.1.0-SNAPSHOT
+gazeboVersion: 0.1.0-SNAPSHOT
+id: nl.jochembroekhoff.gazebo:lib.std.mcje:${gazeboVersion}
 name: gazebo-lib-std-mcje
 dependencies:
   compile:
-  - nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
+  - nl.jochembroekhoff.gazebo:lang.gazebo:${gazeboVersion}
 contributions:
 - name: gazebo
-  id: nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
+  id: nl.jochembroekhoff.gazebo:lang.gazebo:${gazeboVersion}
 - name: gazebo-core
-  id: nl.jochembroekhoff.gazebo:lang.gazebo-core:0.1.0-SNAPSHOT
+  id: nl.jochembroekhoff.gazebo:lang.gazebo-core:${gazeboVersion}
 - name: mcam
-  id: nl.jochembroekhoff.gazebo:lang.mcam:0.1.0-SNAPSHOT
+  id: nl.jochembroekhoff.gazebo:lang.mcam:${gazeboVersion}
 language:
   sdf:
     enabled: false

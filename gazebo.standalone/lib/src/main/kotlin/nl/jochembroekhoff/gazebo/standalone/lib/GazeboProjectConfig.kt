@@ -10,6 +10,13 @@ import org.metaborg.core.language.LanguageIdentifier
 import org.metaborg.spoofax.core.config.ISpoofaxProjectConfig
 
 class GazeboProjectConfig : ISpoofaxProjectConfig {
+
+    companion object {
+        private fun gazeboProjectIdentifier(component: String): String {
+            return "nl.jochembroekhoff.gazebo:${component}:0.1.0-SNAPSHOT"
+        }
+    }
+
     override fun metaborgVersion(): String {
         return MetaborgConstants.METABORG_VERSION
     }
@@ -20,13 +27,20 @@ class GazeboProjectConfig : ISpoofaxProjectConfig {
 
     override fun compileDeps(): Collection<LanguageIdentifier> {
         return listOf(
-            LanguageIdentifier.parse("nl.jochembroekhoff:gazebo.lang:0.1.0-SNAPSHOT")
+            LanguageIdentifier.parse(gazeboProjectIdentifier("lang.gazebo")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("lang.gazebo-core")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("lang.mcam")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("ext.gzb2gzbc")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("ext.gzbc2mcam")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("ext.mcam2mcje")),
         )
     }
 
     override fun sourceDeps(): Collection<LanguageIdentifier> {
         return listOf(
-            LanguageIdentifier.parse("nl.jochembroekhoff:gazebo.lang:0.1.0-SNAPSHOT")
+            LanguageIdentifier.parse(gazeboProjectIdentifier("lang.gazebo")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("lang.gazebo-core")),
+            LanguageIdentifier.parse(gazeboProjectIdentifier("lang.mcam")),
         )
     }
 

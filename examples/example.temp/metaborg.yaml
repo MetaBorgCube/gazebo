@@ -1,11 +1,15 @@
 ---
-id: nl.jochembroekhoff.gazebo:example.temp:0.1.0-SNAPSHOT
+gazeboVersion: 0.1.0-SNAPSHOT
+id: nl.jochembroekhoff.gazebo:example.temp:${gazeboVersion}
 name: example-temp
 dependencies:
   compile:
-  - nl.jochembroekhoff.gazebo:lang.gazebo:0.1.0-SNAPSHOT
-  - nl.jochembroekhoff.gazebo:lang.gazebo-core:0.1.0-SNAPSHOT
-  - nl.jochembroekhoff.gazebo:lang.mcam:0.1.0-SNAPSHOT
+  - nl.jochembroekhoff.gazebo:lang.gazebo:${gazeboVersion}
+  - nl.jochembroekhoff.gazebo:lang.gazebo-core:${gazeboVersion}
+  - nl.jochembroekhoff.gazebo:lang.mcam:${gazeboVersion}
+  - nl.jochembroekhoff.gazebo:ext.gzb2gzbc:${gazeboVersion}
+  - nl.jochembroekhoff.gazebo:ext.gzbc2mcam:${gazeboVersion}
+  - nl.jochembroekhoff.gazebo:ext.mcam2mcje:${gazeboVersion}
 build:
   useBuildSystemSpec: true
 runtime:

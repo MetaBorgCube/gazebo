@@ -1,14 +1,16 @@
 ---
-id: nl.jochembroekhoff.gazebo:ext.mcam2cmcje:0.1.0-SNAPSHOT
-name: gazebo-ext-mcam2cmcje
+gazeboVersion: 0.1.0-SNAPSHOT
+id: nl.jochembroekhoff.gazebo:ext.mcam2mcje:${gazeboVersion}
+name: gazebo-ext-mcam2mcje
 dependencies:
   compile:
-  - nl.jochembroekhoff.gazebo:lang.mcam:0.1.0-SNAPSHOT
+  - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
   source:
-  - nl.jochembroekhoff.gazebo:lang.mcam:0.1.0-SNAPSHOT
+  - org.metaborg:meta.lib.spoofax:${metaborgVersion}
+  - nl.jochembroekhoff.gazebo:lang.mcam:${gazeboVersion}
 contributions:
 - name: mcam
-  id: nl.jochembroekhoff.gazebo:lang.mcam:0.1.0-SNAPSHOT
+  id: nl.jochembroekhoff.gazebo:lang.mcam:${gazeboVersion}
 language:
   sdf:
     enabled: false
