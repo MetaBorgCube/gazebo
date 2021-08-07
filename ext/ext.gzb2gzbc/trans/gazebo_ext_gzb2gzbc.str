@@ -5,13 +5,40 @@ imports
   signatures/gazebo-sig
   signatures/gazebo-core-sig
 
+  pp/gazebo-core-parenthesize
   pp/gazebo-core-pp
 
   libspoofax/-
 
 strategies
 
-  generate-gzb: input@(selected, position, ast@Start(_, _), path, project-path) -> (filename, result)
+  get-filename: s -> s'
+    with
+      names := <strip-annos; string-tokenize(|['/'])> s
+    ; s' := <last> names
+
+  get-dir(|path): s -> s'
+    with
+      names := <strip-annos; string-tokenize(|['/'])> s
+    ; names' := <at-last(![])> names
+    ; if [h | tl] := names' then
+        s' := <concat-strings> [path, "/",  <separate-by(|"/"); concat-strings> names']
+      else
+        s' := path
+      end
+
+  get-src-gen(|project-path, folder, ext):
+    filename -> filename'
+    with
+      fn := <get-filename> filename
+    ; src-gen-path := <concat-strings> [project-path, "/src-gen"]
+    ; src-gen-folder := <concat-strings> [src-gen-path, "/" ,folder]
+    ; file-folder := <get-dir(|src-gen-folder)> filename
+    ; filename' := <concat-strings> [file-folder, "/" , fn, ext]
+
+strategies
+
+  generate-gzbc: input@(selected, position, ast, path, project-path) -> (filename, result)
     where
-      filename := <get-src-gen(|project-path, "", "")> // LEFTOFF
+      filename := <get-src-gen(|project-path, "gzb-interm", ".aterm-speed.gzbc")> "a/b"
     ; result := StartC()

@@ -1,11 +1,8 @@
 package nl.jochembroekhoff.gazebo.standalone.cli
 
-import nl.jochembroekhoff.gazebo.standalone.lib.GazeboModule
-import nl.jochembroekhoff.gazebo.standalone.lib.GazeboRunner
-import nl.jochembroekhoff.gazebo.standalone.lib.GazeboRunnerConfiguration
+import nl.jochembroekhoff.gazebo.standalone.lib.*
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.resource.IResourceService
-import org.metaborg.spoofax.core.Spoofax
 import org.metaborg.util.log.LoggerUtils
 import org.metaborg.util.time.Timer
 import picocli.CommandLine.*
@@ -52,7 +49,7 @@ class CLIApplication : Callable<Int> {
 
         val runnerConfig = createRunnerConfiguration()
 
-        Spoofax(GazeboModule()).use { spoofax ->
+        GazeboSpoofaxFactory.createGazeboSpoofax().use { spoofax ->
             GazeboRunner(runnerConfig).run(spoofax)
             // TODO: get error messages and print them here, instead of letting GazeboRunner do it
         }

@@ -22,7 +22,11 @@ class GazeboProjectConfig : ISpoofaxProjectConfig {
     }
 
     override fun sources(): Collection<ISourceConfig> {
-        return listOf(LangSource("gazebo", "./data"))
+        return listOf(
+            LangSource("gazebo", "./data"),
+            LangSource("gazebo-core", "./src-gen/gzb-interm"),
+            LangSource("mcam", "./src-gen/gzb-interm"),
+        )
     }
 
     override fun compileDeps(): Collection<LanguageIdentifier> {
