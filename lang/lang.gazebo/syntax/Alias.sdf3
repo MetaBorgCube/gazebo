@@ -12,3 +12,4 @@ context-free sorts
 context-free syntax
 
     Alias.Alias = <alias <Selector> = <Selector>>
+    Alias.GlobalAlias = <global alias <Selector> = <Selector>>

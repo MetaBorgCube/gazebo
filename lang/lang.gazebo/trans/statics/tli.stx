@@ -15,8 +15,8 @@ rules
     /** root scope * module scope * top-level item */
     tliOk : scope * scope * Tli
 
-    tliOk(_, s, Alias2Tli(a)) :-
-        aliasOk(s, a).
+    tliOk(s_root, s, Alias2Tli(a)) :-
+        aliasOk(s_root, s, a).
 
     tliOk(_, s, Fn2Tli(fn)) :-
         fnOk(s, fn).

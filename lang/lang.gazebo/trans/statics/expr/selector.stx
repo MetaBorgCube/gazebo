@@ -208,7 +208,7 @@ rules // class: eqspecial
     selectorEqspecialConstraintOk(s, k, cmp) :-
         // TODO: ensure only one kind of cmp is used
         // TODO: ensure == is only used when once (or multiple times, but only if being overridden)
-        false | error $[implement eqspecial constraint].
+        try { false } | note $[implement eqspecial constraint].
 
     selectorEqspecialPropInternalOk : ID * TYPE
     selectorEqspecialPropInternalOk("gamemode", T) :-

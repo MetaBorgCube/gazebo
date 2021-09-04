@@ -1,0 +1,31 @@
+/*
+The default global selectors available in the Game.
+These selectors are defined here to provide semantic correctness, but later transformation stages will convert them
+into their 'real' versions. If not, all selectors at runtime would still all be lengthy variations of @e which are
+probably a bit slower as well as being less readable.
+
+This file contains some special cases for built-in selectors which have no real semantic alias _or_ those which are
+simply the root of all other selectors (namely @e). These cases are accounted for in the relevant compiler stages.
+*/
+
+/** all entities */
+global alias @e = @e
+
+/** all players */
+global alias @a = @e[type == $<:entity_type>:player]
+
+/** nearest player */
+global alias @p = @a[sort = "nearest", limit = 1]
+
+/** random player */
+global alias @r = @a[sort = "random", limit = 1]
+
+/* TODO: @s has special semantics besides just being limited to a single entity; depending on context information
+    more concrete details could actually be inferred
+
+   example (which should compile were this inference to be implemented):
+    as @e[type = $horse] =>
+        @s.Saddle = false
+*/
+/** sender */
+global alias @s = @e[limit = 1]

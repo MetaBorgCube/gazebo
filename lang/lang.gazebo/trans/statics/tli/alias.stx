@@ -8,11 +8,26 @@ imports
 
 rules
 
-    aliasOk : scope * Alias
+    aliasOk : scope * scope * Alias
 
-    aliasOk(s, Alias(dst@Selector(name, dstProps), src)) :- {T s_sel}
+    aliasOk(_, s, Alias(dst, src)) :-
+        aliasOkCommon(s, s, dst, src).
+
+    aliasOk(s_root, s, GlobalAlias(dst, src)) :-
+        aliasOkCommon(s, s_root, dst, src).
+
+    /** special case for root selector declaration (e.g. "@e = @e" to define @e as a root selector, i.e. no A-edge) */
+    aliasOk(s_root, s, GlobalAlias(Selector(name, []), Selector(name, []))) :- {s_sel_root}
+        new s_sel_root,
+        declareAlias(s_root, name, s_sel_root).
+
+rules
+
+    aliasOkCommon : scope * scope * Selector * Selector    
+
+    aliasOkCommon(s_occurrence, s_target, dst@Selector(name, dstProps), src) :- {T s_sel}
         dstProps == [] | error $[destination must not have any properties]@dstProps,
         // TODO: ensure compile-time computation computability of srcProps
-        typeOfSelector(s, src) == T,
+        typeOfSelector(s_occurrence, src) == T,
         T == SELECTOR(s_sel),
-        declareAlias(s, name, s_sel).
+        declareAlias(s_target, name, s_sel).

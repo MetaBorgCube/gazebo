@@ -9,6 +9,7 @@ imports
   pp/gazebo-core-pp
 
   libspoofax/-
+  statix/api
 
 strategies
 

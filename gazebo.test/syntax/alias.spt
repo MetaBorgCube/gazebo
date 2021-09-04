@@ -4,3 +4,7 @@ module syntax/alias
 test alias [[
 alias @near = @e[distance<5]
 ]] parse succeeds
+
+test alias global [[
+global alias @p = @e[type = $player]
+]] parse succeeds
