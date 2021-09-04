@@ -55,6 +55,7 @@ signature
         /** universal bottom type, nothing is a subtype of BOTTOM */
         BOTTOM : TYPE
         ENUMKEY : TYPE
+        OPTIONAL : TYPE -> TYPE
 
     sorts POS_KIND
 

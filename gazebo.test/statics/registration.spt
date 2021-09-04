@@ -1,0 +1,26 @@
+language gazebo
+module statics/subtype
+
+fixture [[
+module test:test
+[[...]]
+]]
+
+test creating a resource only requires partial data [[
+static registry $<test:partial>
+{
+    register test:partial_entity
+    {
+        data interface
+        {
+            [[a]] String
+            b [Float]
+        }
+    }
+}
+
+const p := $partial_entity{
+    [[a]]: "Hi"
+}
+]] analysis succeeds
+   resolve #2 to #1

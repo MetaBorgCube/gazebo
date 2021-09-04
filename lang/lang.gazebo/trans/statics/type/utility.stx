@@ -1,0 +1,32 @@
+module statics/type/utility
+
+imports
+
+    statics/common
+    statics/bind/field
+
+rules
+
+    /** get an optional version of given type, if not optional already */
+    optional : TYPE -> TYPE
+
+    optional(T@OPTIONAL(_)) = T.
+
+    optional(T) = OPTIONAL(T).
+
+rules
+
+    /** create a derived type with all keys set to optional types. applicable to compounds only */
+    partial : TYPE -> TYPE
+
+    partial(COMPOUND(s_interf)) = COMPOUND(s_interf_opt) :- {all_fields}
+        all_fields == queryAllFields(s_interf),
+        new s_interf_opt,
+        partial_declareFields(s_interf_opt, all_fields).
+
+    partial(T) = T.
+
+    partial_declareFields maps partial_declareField(*, list(*))
+    partial_declareField : scope * (path * (string * TYPE))
+    partial_declareField(s, (_, (name, T))) :-
+        declareField(s, name, optional(T)).

@@ -14,6 +14,10 @@ rules
     // TODO: check if all possibilities are defined
     subtype : TYPE * TYPE
 
+    subtype(OPTIONAL(Ta), OPTIONAL(Tb)) :- subtype(Ta, Tb).
+    subtype(Ta, OPTIONAL(Tb)) :- subtype(Ta, Tb).
+    // OPTIONAL(Ta) <: Tb never holds if Tb is not optional
+
     subtype(INT(), FLOAT()).
 
     // TODO: ensure POS kinds are legal
@@ -48,8 +52,12 @@ rules
 
     subtypeCompound_membersOk maps subtypeCompound_memberOk(*, list(*))
     subtypeCompound_memberOk : scope * (path * (string * TYPE))
-    subtypeCompound_memberOk(s_comp_a, memb_b@(_, (name, Tb))) :- {Ta}
-        (_, Ta) == resolveField(s_comp_a, name),
+    subtypeCompound_memberOk(s_comp_a, memb_b@(_, (name, Tb))) :-
+        subtypeCompound_memberOk_matchField(Tb, queryField(s_comp_a, name)) /*TODO: error message?*/.
+
+    subtypeCompound_memberOk_matchField : TYPE * list((path * (string * TYPE)))
+    subtypeCompound_memberOk_matchField(Tb@OPTIONAL(_), []).
+    subtypeCompound_memberOk_matchField(Tb, [(_, (_, Ta)) | _]) :-
         subtype(Ta, Tb).
 
 rules
@@ -57,6 +65,10 @@ rules
     /** derive least upper bound */
     // TODO: check if all possibilities are defined
     lub : TYPE * TYPE -> TYPE
+
+    lub(OPTIONAL(Ta), OPTIONAL(Tb)) = OPTIONAL(lub(Ta, Tb)).
+    lub(Ta, OPTIONAL(Tb)) = lub(Ta, Tb).
+    lub(OPTIONAL(Ta), Tb) = lub(Ta, Tb).
 
     lub(FLOAT(), INT()) = FLOAT().
     lub(INT(), FLOAT()) = FLOAT().
@@ -85,6 +97,10 @@ rules
 
     /** derive least lower bound */
     llb : TYPE * TYPE -> TYPE
+
+    llb(OPTIONAL(Ta), OPTIONAL(Tb)) = OPTIONAL(llb(Ta, Tb)).
+    llb(Ta, OPTIONAL(Tb)) = OPTIONAL(llb(Ta, Tb)).
+    llb(OPTIONAL(Ta), Tb) = OPTIONAL(llb(Ta, Tb)).
 
     llb(FLOAT(), INT()) = INT().
     llb(INT(), FLOAT()) = INT().

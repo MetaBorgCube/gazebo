@@ -1,0 +1,18 @@
+language gazebo
+module statics/subtype
+
+fixture [[
+module test:test
+[[...]]
+]]
+
+test compound assign narrower [[
+type A interface {a Int}
+func test
+{
+    mut a := A::{a: 5}
+    b := {a: 8, b: 7}
+    a = b
+    // here, b is a subtype of a, because it can be assigned to a
+}
+]] analysis succeeds
