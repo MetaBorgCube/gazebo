@@ -1,0 +1,26 @@
+module Identifier
+
+lexical sorts
+
+    ID ID_VERBATIM
+
+lexical syntax
+
+    ID = [a-zA-Z] [a-zA-Z0-9\_]*
+    ID_VERBATIM = [a-zA-Z\-\.\_] [a-zA-Z0-9\-\.\_]*
+
+lexical restrictions
+
+    // greedy match
+    ID -/- [a-zA-Z0-9\_]
+    ID_VERBATIM -/- [a-zA-Z0-9\-\.\_]
+
+context-free sorts
+
+    IdentFull-C
+    IdentLocal-C
+
+context-free syntax
+
+    IdentFull-C.IdentFull-C = <:(<ID_VERBATIM>, <ID_VERBATIM*>)>
+    IdentLocal-C.IdentLocal-C = <<ID>>

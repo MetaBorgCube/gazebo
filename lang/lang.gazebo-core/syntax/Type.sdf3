@@ -1,0 +1,78 @@
+module Type
+
+imports
+
+    Expr
+    Identifier
+
+context-free sorts
+
+    Type-C
+    TypeRef-C
+    PosKind-C
+    EnumMemb-C
+    InterfaceMemb-C
+
+context-free syntax
+
+    TypeRef-C.TypeRef-C = <<IdentFull-C>>
+
+context-free syntax
+
+    Type-C.TypeString-C = <String>
+    Type-C.TypeBool-C = <Bool>
+    Type-C.TypeInt-C = <Int>
+    Type-C.TypeFloat-C = <Float>
+
+context-free syntax
+
+    Type-C.TypePos-C = <`<PosKind-C><Type-C>>
+    PosKind-C.PosKindAbs-C = <>
+    PosKind-C.PosKindRel-C = <~>
+    PosKind-C.PosKindLoc-C = <^>
+    PosKind-C.PosKindAny-C = <*>
+
+context-free syntax
+
+    Type-C.TypeResourceRegistry-C = <$<IdentFull-C>>
+    Type-C.TypeTag-C = <#>
+
+context-free syntax
+
+    Type-C.TypeSelector-C = [@]
+
+context-free syntax
+
+    Type-C.TypeArrayDynamic-C = <[<Type-C>;]>
+    Type-C.TypeArrayFixedAnonymous-C = <[<Type-C>; <INT>]>
+    Type-C.TypeArrayFixedNamed-C = <[<Type-C>; <{ID ", "}+>]>
+    Type-C.TypeListDynamic-C = <[<Type-C>]>
+    Type-C.TypeListFixedAnonymous-C = <[<Type-C>: <INT>]>
+    Type-C.TypeListFixedNamed-C = <[<Type-C>: <{ID ", "}+>]>
+
+context-free syntax
+
+    Type-C.TypeEnum-C = <
+        enum <Type-C>
+        {
+            <{EnumMemb-C ",\n"}+>
+        }
+    >
+
+    EnumMemb-C.EnumMemb-C = <<ID> = <Expr-C>>
+
+context-free syntax
+
+    Type-C.TypeInterface-C = <
+        interface : <{Type-C ", "}*>
+        {
+            <{InterfaceMemb-C ",\n"}*>
+        }
+    >
+
+    // TODO: also allow arbitrary string key?
+    InterfaceMemb-C.InterfaceMemb-C = <<ID> <Type-C>>
+
+context-free syntax
+
+    Type-C.TypeBottom-C = <__BOTTOM>

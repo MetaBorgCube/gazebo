@@ -34,7 +34,6 @@ context-free syntax
     // TODO: support selector constraints
     Type.TypeSelector = [@]
 
-    // TODO: think more about this notation
     Type.TypeArrayDynamic = <[<Type>;]>
     Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>
     Type.TypeArrayFixedNamed = <[<Type>; <{ID ", "}+>]>

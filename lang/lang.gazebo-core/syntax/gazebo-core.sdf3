@@ -1,13 +1,34 @@
 module gazebo-core
 
+imports
+
+    Decl
+    Function
+    Identifier
+    Registry
+    Type
+
 context-free start-symbols
 
-    StartC
+    Start-C
 
 context-free sorts
 
-    StartC
+    Start-C
+    Tli-C
 
 context-free syntax
 
-    StartC.StartC = <start>
+    Start-C.Start-C = <
+        module <IdentFull-C>
+
+        <Tli-C*>
+
+    > // includes final newline
+
+context-free syntax
+
+    Tli-C = Function-C
+    Tli-C = Decl-C
+    Tli-C = Registry-C
+    Tli-C = Type-C

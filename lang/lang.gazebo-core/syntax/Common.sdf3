@@ -1,0 +1,32 @@
+module Common
+
+lexical sorts
+
+    COMMENT_CHAR INDSIDE_COMMENT
+    NEWLINE_EOF EOF
+
+lexical syntax
+
+    LAYOUT           = [\ \t\n\r]
+    COMMENT_CHAR     = [\*]
+    LAYOUT           = "/*" INSIDE_COMMENT* "*/"
+    INSIDE_COMMENT   = ~[\*]
+    INSIDE_COMMENT   = COMMENT_CHAR
+    LAYOUT           = "//" ~[\n\r]* NEWLINE_EOF
+    NEWLINE_EOF      = [\n\r]
+    NEWLINE_EOF      = EOF
+    EOF              =
+
+lexical restrictions
+
+    COMMENT_CHAR     -/- [\/]
+
+    // EOF may not be followed by any char
+    EOF             -/- ~[]
+
+context-free restrictions
+
+    // Ensure greedy matching for comments
+    LAYOUT? -/- [\ \t\n\r]
+    LAYOUT? -/- [\/].[\/]
+    LAYOUT? -/- [\/].[\*]

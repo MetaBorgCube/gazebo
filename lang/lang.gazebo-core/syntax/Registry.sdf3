@@ -1,0 +1,50 @@
+module Registry
+
+imports
+
+    Expr
+    Identifier
+    Type
+
+context-free sorts
+
+    RegistryKind-C
+    Registry-C
+    Registration-C
+    RegistrationMetaEntry-C
+    RmeBlockState-C
+
+context-free syntax
+
+    RegistryKind-C.RegistryKindDynamic-C = <dynamic>
+    RegistryKind-C.RegistryKindStatic-C = <static>
+
+    Registry-C.Registry-C = <
+        registry <RegistryKind-C> <IdentFull-C>
+        {
+            <{Registration-C "\n"}+>
+        }
+    >
+
+    Registration-C.Registration-C = <
+        register <IdentFull-C>
+        {
+            <RegistrationMetaEntry-C+>
+        }
+    >
+
+    RegistrationMetaEntry-C.RmeProtocolId-C = <protocol_id <INT>>
+    RegistrationMetaEntry-C.RmeData-C = <data <TypeRef-C>>
+    RegistrationMetaEntry-C.RmeBlockStates-C = <
+        block_states
+        {
+            <{RmeBlockState-C "\n"}+>
+        }
+    >
+
+    RmeBlockState-C.RmeBlockState-C = <
+        <ID> <TypeRef-C>
+        {
+            <{Expr-C ", "}+>
+        }
+    >

@@ -1,0 +1,25 @@
+module Function
+
+imports
+
+    Identifier
+    Type
+    Statement
+
+context-free sorts
+
+    Param-C
+    Signature-C
+    Function-C
+
+context-free syntax
+
+    Param-C.Param-C = <<ID> <TypeRef-C>>
+
+    Signature-C.Signature-C = [([{Param-C ", "}*]) -> [TypeRef-C]]
+
+    Function-C.Function-C = <
+        func <ID><Signature-C>
+        <Block-C>
+    >
+    Function-C.FunctionExt-C = <extern func <ID><Signature-C>>

@@ -1,0 +1,19 @@
+module Decl
+
+imports
+
+    Expr
+    Identifier
+
+context-free sorts
+
+    Decl-C
+    DeclKind-C
+
+context-free syntax
+
+    Decl-C.Decl-C = <<DeclKind-C> <ID> := <Expr-C>>
+
+    DeclKind-C.DeclKindVar-C = <var>
+    DeclKind-C.DeclKindVal-C = <val>
+    DeclKind-C.DeclKindConst-C = <const>

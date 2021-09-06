@@ -1,0 +1,157 @@
+module Expr
+
+imports
+
+    Identifier
+    Type
+    Props
+
+context-free sorts
+
+    Expr-C
+
+context-free syntax
+
+    Expr-C = <(<Expr-C>)> {bracket}
+
+///
+
+context-free sorts NbtCompoundEntry-C
+context-free syntax
+
+    Expr-C.NbtCompound-C = <
+    {
+        <{NbtCompoundEntry-C ",\n"}*>
+    }
+    >
+
+    NbtCompoundEntry-C.NbtCompoundEntry-C = <<ID>: <Expr-C>>
+
+    Expr-C.NbtArray-C = <[; <{Expr-C ", "}*>]>
+    Expr-C.NbtList-C = <[: <{Expr-C ", "}*>]>
+
+///
+
+lexical sorts
+
+    STRING STRING_CHAR
+    INT FLOAT
+
+lexical syntax
+
+    STRING      = "\"" STRING_CHAR* "\""
+    STRING_CHAR = ~[\\\"\n]
+    STRING_CHAR = "\\" [\\\"]
+
+    INT         = "-"? [0-9]+
+    FLOAT       = INT
+    FLOAT       = INT "." INT
+
+context-free syntax
+
+    Expr-C.String-C = STRING
+    Expr-C.BoolT-C = <true>
+    Expr-C.BoolF-C = <false>
+    Expr-C.NumI-C = <<INT>I>
+    Expr-C.NumF-C = <<FLOAT>F>
+    Expr-C.NumD-C = <<FLOAT>D>
+
+///
+
+context-free syntax
+
+    Expr-C.Selector-C = <@<ID><Props-C>>
+
+///
+
+context-free syntax
+
+    Expr-C.RefFull-C = IdentFull-C
+    Expr-C.RefLocal-C = IdentLocal-C
+
+///
+
+context-free syntax
+
+    Expr-C.FindIndex-C = <<Expr-C>.[<Expr-C>]>
+    // TODO: string find
+    Expr-C.FindKey-C = <<Expr-C>.<ID>>
+
+///
+
+context-free syntax
+
+    // TODO
+    Expr-C.Invoke-C = <<Expr-C>()>
+
+///
+
+context-free syntax
+
+    Expr-C.Mul-C = <<Expr-C> * <Expr-C>> {left}
+    Expr-C.Div-C = <<Expr-C> / <Expr-C>> {left}
+    Expr-C.Mod-C = <<Expr-C> % <Expr-C>> {left}
+
+    Expr-C.Add-C = <<Expr-C> + <Expr-C>> {left}
+    Expr-C.Sub-C = <<Expr-C> - <Expr-C>> {left}
+    
+    // TODO: prio
+
+///
+
+context-free sorts Compare-C
+context-free syntax
+
+    Expr-C.And-C = <<Expr-C> and <Expr-C>> {assoc}
+    Expr-C.Or-C = <<Expr-C> or <Expr-C>> {assoc}
+
+    Expr-C.Not-C = <not <Expr-C>>
+
+    Expr-C.Cmp-C = <<Expr-C> <Compare-C> <Expr-C>> {non-assoc}
+    Compare-C.CmpGt-C = [>]
+    Compare-C.CmpGte-C = [>=]
+    Compare-C.CmpLt-C = [<]
+    Compare-C.CmpLte-C = [<=]
+    Compare-C.CmpEqual-C = [==]
+    Compare-C.CmpNotEqual-C = [!=]
+    Compare-C.CmpEquiv-C = [eq]
+    Compare-C.CmpIs-C = [is]
+    Compare-C.CmpMatchces-C = [matches]
+
+///
+
+context-free syntax
+
+    Expr-C.Range-C = <..(<Expr-C>, <Expr-C>)>
+
+///
+
+context-free sorts PositionKind-C PositionCoordKind-C PositionCoord-C
+context-free syntax
+
+    Expr-C.Position-C = <`(<PositionKind-C>, <PositionCoord-C>, <PositionCoord-C>, <PositionCoord-C>)>
+
+    PositionKind-C.PositionKindAbs = <abs>
+    PositionKind-C.PositionKindLoc = <loc>
+    PositionKind-C.PositionKindRel = <rel>
+
+    PositionCoordKind-C.PositionCoordKindAbs-C = <abs>
+    PositionCoordKind-C.PositionCoordKindDyn-C = <dyn>
+
+    PositionCoord-C.PositionCoord-C = <<PositionCoordKind-C> <Expr-C>>
+
+///
+
+context-free syntax
+
+    Expr-C.EnumRef-C = <<TypeRef-C>::<ID>>
+
+///
+
+context-free sorts RawPart-C
+context-free syntax
+
+    Expr-C.Raw-C = <|(<{RawPart-C ", "}+>)>
+
+    RawPart-C.RawText-C = <text <STRING>>
+    RawPart-C.RawFormat-C = <format(<ID>) <Expr-C>>

@@ -1,0 +1,106 @@
+module Statement
+
+imports
+
+    Decl
+    Expr
+
+context-free sorts
+
+    Statement-C
+    Block-C
+
+context-free syntax
+
+    Statement-C = Decl-C
+
+    Block-C.Block-C = <
+    {
+        <{Statement-C ";\n"}*>;
+    }
+    >
+
+///
+
+context-free sorts ExecuteAnchor-C ExecuteFragment-C
+context-free syntax
+
+    ExecuteAnchor-C.AnchorEyes-C = <eyes>
+    ExecuteAnchor-C.AnchorFeet-C = <feet>
+
+    ExecuteFragment-C.ExecuteAlign-C = <align(<Expr-C>)>
+    ExecuteFragment-C.ExecuteAnchored-C = <anchored(<ExecuteAnchor-C>)>
+    // TODO: etc...
+
+    Statement-C.ExecuteStmt-C = <
+        execute <{ExecuteFragment-C ", "}+>
+        <Block-C>
+    >
+
+///
+
+context-free syntax
+
+    Statement-C.DiscardStmt-C = <discard <Expr-C>>
+
+///
+
+context-free syntax
+
+    Statement-C.LoopStmt-C = <
+        loop <Expr-C>
+        <Block-C>
+    >
+    Statement-C.IterateStmt-C = <
+        iterate <Expr-C>
+        <Block-C>
+    >
+
+///
+
+context-free syntax
+
+    Statement-C.IfStmt-C = <
+        if <Expr-C>
+        <Block-C>
+        else
+        <Block-C>
+    >
+
+///
+
+context-free sorts MatchCase-C
+context-free syntax
+
+    Statement-C.MatchStmt-C = <
+        match <Expr-C>
+        <{MatchCase-C "\n"}+>
+    >
+
+    MatchCase-C.MatchCase-C = <
+        case <Expr-C>
+        <Block-C>
+    >
+
+///
+
+context-free syntax
+
+    Statement-C.ReturnExprStmt-C = <return <Expr-C>>
+    // this is sufficient for unambiguously indicating a void return,
+    // because statements are separated by semicolon
+    Statement-C.ReturnVoidStmt-C = <return>
+
+///
+
+context-free sorts AssignOperator-C
+context-free syntax
+
+    Statement-C.AssignStmt-C = <<Expr-C> <AssignOperator-C> <Expr-C>>
+
+    AssignOperator-C.AssignOperatorEq = <=>
+    AssignOperator-C.AssignOperatorAdd = <+=>
+    AssignOperator-C.AssignOperatorSub = <-=>
+    AssignOperator-C.AssignOperatorMul = <*=>
+    AssignOperator-C.AssignOperatorDiv = </=>
+    AssignOperator-C.AssignOperatorMod = <%=>

@@ -1,0 +1,23 @@
+module Props
+
+imports
+
+    Expr
+    Identifier
+
+context-free sorts
+
+    Props-C
+    Prop-C
+    PropMapEntry-C
+
+context-free syntax
+
+    Props-C.Props-C = <[<{Prop-C ", "}*>]>
+
+    Prop-C.PropKv-C = <<ID> = <Expr-C>>
+    Prop-C.PropCmp-C = <<ID> <Compare-C> <Expr-C>>
+    Prop-C.PropMap-C = <<ID> = {<{PropMapEntry-C ", "}*>}>
+
+    PropMapEntry-C.PropMapEntryKv-C = <<ID> = <Expr-C>>
+    PropMapEntry-C.PropMapEntryCmp-C = <<ID> <Compare-C> <Expr-C>>
