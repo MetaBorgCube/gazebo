@@ -18,7 +18,7 @@ rules // Analysis
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"statics", "projectOk", "fileOk")
 
   pre-analyze = origin-track-forced(explicate-injections-gazebo; norm-str-id; gzb-inject-start)
-  post-analyze = origin-track-forced(gzb-eject-start; implicate-injections-gazebo)
+  post-analyze = origin-track-forced(implicate-injections-gazebo)
 
   norm-str-tracked = origin-track-forced(un-double-quote; unescape)
 
@@ -49,9 +49,6 @@ rules // Analysis
   gzb-inject-start: s@Start(uses, tlis) -> StartInject(nsid, uses, tlis)
     with nsid := <gzb-extract-module-nsid> s
   gzb-inject-start: s -> s
-
-  gzb-eject-start: StartInject(_, uses, tlis) -> Start(uses, tlis)
-  gzb-eject-start: s -> s
 
 rules // Editor Services
 

@@ -8,15 +8,18 @@ imports
 language
 
   table         : target/metaborg/sdf.tbl
-  start symbols : StartC
+  start symbols : Start-C
 
   line comment  : "//"
   block comment : "/*" * "*/"
   fences        : [ ] ( ) { }
 
-/*
 colorer
-*/
+
+  INT : green
+  FLOAT : green
+  STRING : blue
+  _.Selector-C : orange
 
 menus
   

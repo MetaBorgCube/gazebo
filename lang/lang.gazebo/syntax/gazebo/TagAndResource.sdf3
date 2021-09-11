@@ -1,11 +1,11 @@
-module TagAndResource
+module gazebo/TagAndResource
 
 imports
 
-    Common
-    NSID
-    Props
-    NBT
+    gazebo/Common
+    gazebo/NSID
+    gazebo/Props
+    gazebo/NBT
 
 context-free sorts
 

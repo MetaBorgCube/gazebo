@@ -1,9 +1,10 @@
-module Props
+module gazebo-core/Props
 
 imports
 
-    Expr
-    Identifier
+    gazebo-core/Common
+    gazebo-core/Expr
+    gazebo-core/Identifier
 
 context-free sorts
 

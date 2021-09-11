@@ -1,10 +1,10 @@
-module Exec
+module gazebo/Exec
 
 imports
 
-    Common
-    Expr
-    Statement
+    gazebo/Common
+    gazebo/Expr
+    gazebo/Statement
 
 // https://minecraft.gamepedia.com/Commands/execute
 

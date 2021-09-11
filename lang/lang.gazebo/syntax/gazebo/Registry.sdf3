@@ -1,12 +1,12 @@
-module Registry
+module gazebo/Registry
 
 imports
 
-    Common
-    NSID
-    Expr
-    Type
-    Literals
+    gazebo/Common
+    gazebo/NSID
+    gazebo/Expr
+    gazebo/Type
+    gazebo/Literals
 
 context-free sorts
 

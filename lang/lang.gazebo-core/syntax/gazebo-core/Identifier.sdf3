@@ -1,4 +1,8 @@
-module Identifier
+module gazebo-core/Identifier
+
+imports
+
+    gazebo-core/Common
 
 lexical sorts
 

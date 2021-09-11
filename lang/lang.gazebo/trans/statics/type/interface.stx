@@ -2,7 +2,7 @@ module statics/type/interface
 
 imports
 
-    signatures/Type-sig
+    signatures/gazebo/Type-sig
     statics/common
     statics/bind/field
     statics/type/bounds

@@ -1,10 +1,11 @@
-module Function
+module gazebo-core/Function
 
 imports
 
-    Identifier
-    Type
-    Statement
+    gazebo-core/Common
+    gazebo-core/Identifier
+    gazebo-core/Type
+    gazebo-core/Statement
 
 context-free sorts
 

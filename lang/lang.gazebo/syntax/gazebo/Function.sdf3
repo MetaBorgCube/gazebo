@@ -1,12 +1,12 @@
-module Function
+module gazebo/Function
 
 imports
 
-    Common
-    Type
-    Statement
-    TagAndResource
-    Expr
+    gazebo/Common
+    gazebo/Type
+    gazebo/Statement
+    gazebo/TagAndResource
+    gazebo/Expr
 
 context-free sorts
 

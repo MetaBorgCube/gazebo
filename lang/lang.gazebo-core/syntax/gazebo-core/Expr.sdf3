@@ -1,10 +1,12 @@
-module Expr
+module gazebo-core/Expr
 
 imports
 
-    Identifier
-    Type
-    Props
+    gazebo-core/Common
+    gazebo-core/Identifier
+    gazebo-core/Type
+    gazebo-core/Props
+    gazebo-core/Resource
 
 context-free sorts
 
@@ -56,11 +58,22 @@ context-free syntax
     Expr-C.NumF-C = <<FLOAT>F>
     Expr-C.NumD-C = <<FLOAT>D>
 
+lexical syntax
+
+    ID = "true" {reject}
+    ID = "false" {reject}
+
 ///
 
 context-free syntax
 
     Expr-C.Selector-C = <@<ID><Props-C>>
+
+///
+
+context-free syntax
+
+    Expr-C.ResInst-C = Resource-C
 
 ///
 
@@ -81,8 +94,8 @@ context-free syntax
 
 context-free syntax
 
-    // TODO
-    Expr-C.Invoke-C = <<Expr-C>()>
+    // TODO: keyword args
+    Expr-C.Invoke-C = <<Expr-C>(<{Expr-C ", "}*>)>
 
 ///
 
@@ -129,7 +142,7 @@ context-free syntax
 context-free sorts PositionKind-C PositionCoordKind-C PositionCoord-C
 context-free syntax
 
-    Expr-C.Position-C = <`(<PositionKind-C>, <PositionCoord-C>, <PositionCoord-C>, <PositionCoord-C>)>
+    Expr-C.Position-C = <`<PositionKind-C>(<PositionCoord-C>, <PositionCoord-C>, <PositionCoord-C>)>
 
     PositionKind-C.PositionKindAbs = <abs>
     PositionKind-C.PositionKindLoc = <loc>

@@ -1,12 +1,12 @@
-module Statement
+module gazebo/Statement
 
 imports
 
-    Common
-    Expr
-    Exec
-    NBT
-    Raw
+    gazebo/Common
+    gazebo/Expr
+    gazebo/Exec
+    gazebo/NBT
+    gazebo/Raw
 
 context-free sorts
 

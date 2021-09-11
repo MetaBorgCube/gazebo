@@ -1,9 +1,9 @@
-module Props
+module gazebo/Props
 
 imports
 
-    Common
-    Expr
+    gazebo/Common
+    gazebo/Expr
 
 context-free sorts
 

@@ -1,10 +1,10 @@
-module Type
+module gazebo/Type
 
 imports
 
-    Common
-    NSID
-    Expr
+    gazebo/Common
+    gazebo/NSID
+    gazebo/Expr
 
 context-free sorts
 

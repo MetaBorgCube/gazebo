@@ -2,11 +2,12 @@ module gazebo-core
 
 imports
 
-    Decl
-    Function
-    Identifier
-    Registry
-    Type
+    gazebo-core/Common
+    gazebo-core/Decl
+    gazebo-core/Function
+    gazebo-core/Identifier
+    gazebo-core/Registry
+    gazebo-core/Type
 
 context-free start-symbols
 

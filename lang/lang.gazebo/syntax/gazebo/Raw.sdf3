@@ -1,9 +1,9 @@
-module Raw
+module gazebo/Raw
 
 imports
 
-    Common
-    Expr
+    gazebo/Common
+    gazebo/Expr
 
 context-free sorts
 

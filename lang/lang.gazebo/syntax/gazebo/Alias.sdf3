@@ -1,9 +1,9 @@
-module Alias
+module gazebo/Alias
 
 imports
 
-    Common
-    Selector
+    gazebo/Common
+    gazebo/Selector
 
 context-free sorts
 

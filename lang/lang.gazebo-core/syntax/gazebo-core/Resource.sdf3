@@ -1,0 +1,17 @@
+module gazebo-core/Resource
+
+imports
+
+    gazebo-core/Common
+    gazebo-core/Expr
+    gazebo-core/Identifier
+    gazebo-core/Props
+
+context-free sorts
+
+    Resource-C
+
+context-free syntax
+
+    Resource-C.ResourceBare-C = <$(<IdentFull-C>, <IdentFull-C>)>
+    Resource-C.ResourcePropsPayl-C = <$(<IdentFull-C>, <IdentFull-C>, <Props-C>, <Expr-C>)>

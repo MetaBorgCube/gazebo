@@ -1,8 +1,8 @@
-module NSID
+module gazebo/NSID
 
 imports
 
-    Common
+    gazebo/Common
 
 context-free sorts
 

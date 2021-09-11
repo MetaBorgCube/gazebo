@@ -2,8 +2,8 @@ module statics/types
 
 imports
 
-    signatures/NSID-sig
-    signatures/Type-sig
+    signatures/gazebo/NSID-sig
+    signatures/gazebo/Type-sig
     statics/common
     statics/bind/field
     statics/bind/memb

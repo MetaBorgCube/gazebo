@@ -1,15 +1,15 @@
-module Expr
+module gazebo/Expr
 
 imports
 
-    Common
-    NBT
-    Selector
-    TagAndResource
-    Literals
-    Type
-    NSID
-    Raw
+    gazebo/Common
+    gazebo/NBT
+    gazebo/Selector
+    gazebo/TagAndResource
+    gazebo/Literals
+    gazebo/Type
+    gazebo/NSID
+    gazebo/Raw
 
 context-free sorts
 

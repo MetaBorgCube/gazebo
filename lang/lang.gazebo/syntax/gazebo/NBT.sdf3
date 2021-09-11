@@ -1,10 +1,10 @@
-module NBT
+module gazebo/NBT
 
 imports
 
-    Common
-    Expr
-    Type
+    gazebo/Common
+    gazebo/Expr
+    gazebo/Type
 
 context-free sorts
 

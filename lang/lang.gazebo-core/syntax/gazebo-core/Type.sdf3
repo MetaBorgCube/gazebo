@@ -1,9 +1,10 @@
-module Type
+module gazebo-core/Type
 
 imports
 
-    Expr
-    Identifier
+    gazebo-core/Common
+    gazebo-core/Expr
+    gazebo-core/Identifier
 
 context-free sorts
 

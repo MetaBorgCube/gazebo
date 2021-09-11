@@ -2,13 +2,13 @@ module gazebo
 
 imports
   
-    Common
-    Alias
-    NSID
-    Function
-    Statement
-    Registry
-    Type
+    gazebo/Common
+    gazebo/Alias
+    gazebo/NSID
+    gazebo/Function
+    gazebo/Statement
+    gazebo/Registry
+    gazebo/Type
 
 context-free start-symbols
   

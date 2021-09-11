@@ -1,9 +1,10 @@
-module Statement
+module gazebo-core/Statement
 
 imports
 
-    Decl
-    Expr
+    gazebo-core/Common
+    gazebo-core/Decl
+    gazebo-core/Expr
 
 context-free sorts
 
@@ -30,6 +31,7 @@ context-free syntax
 
     ExecuteFragment-C.ExecuteAlign-C = <align(<Expr-C>)>
     ExecuteFragment-C.ExecuteAnchored-C = <anchored(<ExecuteAnchor-C>)>
+    ExecuteFragment-C.ExecutePositionedAs-C = <positioned_as(<Expr-C>)>
     // TODO: etc...
 
     Statement-C.ExecuteStmt-C = <

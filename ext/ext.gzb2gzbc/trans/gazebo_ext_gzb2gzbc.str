@@ -2,14 +2,17 @@ module gazebo_ext_gzb2gzbc
 
 imports
 
-  signatures/gazebo-sig
-  signatures/gazebo-core-sig
+  signatures/-
 
   pp/gazebo-core-parenthesize
   pp/gazebo-core-pp
 
   libspoofax/-
   statix/api
+  
+  libstratego-gpp
+
+  common
 
 strategies
 
@@ -39,7 +42,34 @@ strategies
 
 strategies
 
-  generate-gzbc: input@(selected, position, ast, path, project-path) -> (filename, result)
+  pp-gzbc =
+      parenthesize-gazebo-core
+    ; prettyprint-gazebo-core-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+strategies
+
+  nsid-name-part: NSIDNamePart(name) -> name 
+  nsid-name-part: NSIDNamePartVerbatim(verb) -> verb
+  nsid-name-list: NSIDName(parts) -> <map(nsid-name-part)> parts
+
+  identf-from-nsid: NSIDiFull(ns, names) -> IdentFull-C(ns, names)
+  identf-from-nsid: NSID(ns, name) -> IdentFull-C(ns, <nsid-name-list> name)
+  identf-from-nsid: other -> <identf-from-nsid> ref
+    where
+      analysis := <stx-get-ast-analysis> other
+    ; ref := <stx-get-ast-ref(|analysis)> other
+
+  generate-gzbc: StartModule(mod, uses, tlis) -> Start-C(<identf-from-nsid> mod, [])
+  generate-gzbc: StartInject(mod, uses, tlis) -> <generate-gzbc> StartModule(mod, uses, tlis)
+
+  generate-gzbc-shared: input@(selected, _, ast, path, project-path) -> (filename, result)
     where
       filename := <get-src-gen(|project-path, "gzb-interm", ".aterm-speed.gzbc")> "a/b"
-    ; result := StartC()
+    ; result := <generate-gzbc> ast
+
+  generate-gzbc-local: input@(_, _, ast, path, _) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"gzbc")> path
+    ; result := <generate-gzbc; pp-gzbc> ast

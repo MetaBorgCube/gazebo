@@ -1,10 +1,11 @@
-module Registry
+module gazebo-core/Registry
 
 imports
 
-    Expr
-    Identifier
-    Type
+    gazebo-core/Common
+    gazebo-core/Expr
+    gazebo-core/Identifier
+    gazebo-core/Type
 
 context-free sorts
 

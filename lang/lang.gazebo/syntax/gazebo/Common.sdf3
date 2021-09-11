@@ -1,4 +1,4 @@
-module Common
+module gazebo/Common
 
 lexical sorts
   ID_UNRESTR ID ID_NSID_VERBATIM

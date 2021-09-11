@@ -1,8 +1,8 @@
-module Literals
+module gazebo/Literals
 
 imports
 
-    Common
+    gazebo/Common
 
 context-free sorts
 

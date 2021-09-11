@@ -1,9 +1,9 @@
-module Selector
+module gazebo/Selector
 
 imports
 
-    Common
-    Props
+    gazebo/Common
+    gazebo/Props
 
 context-free sorts
 
