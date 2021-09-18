@@ -1,5 +1,23 @@
 module common
 
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  statix/api
+
+  pp/gazebo-parenthesize
+  pp/gazebo-pp
+  pp/gazebo-core-parenthesize
+  pp/gazebo-core-pp
+
+  libspoofax/-
+
+  libstratego-gpp
+
 signature
 
   sorts
@@ -13,3 +31,93 @@ signature
     NSIDiRel   :          List(string) -> NSIDi
 
     StartInject : NSIDi * List(Use) * List(Tli) -> Start
+
+strategies
+
+  /** opt-map(T -> U) :: Option(T) -> Option(U) */
+  opt-map(s) = None() <+ Some(s)
+
+  /** opt-unwrap :: Option(T) -> T */
+  opt-unwrap = ?Some(<id>)
+
+  /** opt-unwrap(_ -> T) :: Option(T) -> T */
+  opt-unwrap(fallback) =
+    ?None(); fallback
+  <+ ?Some(<id>)
+
+rules
+
+  get-filename: s -> s'
+    with
+      names := <strip-annos; string-tokenize(|['/'])> s
+    ; s' := <last> names
+
+  get-dir(|path): s -> s'
+    with
+      names := <strip-annos; string-tokenize(|['/'])> s
+    ; names' := <at-last(![])> names
+    ; if [h | tl] := names' then
+        s' := <concat-strings> [path, "/",  <separate-by(|"/"); concat-strings> names']
+      else
+        s' := path
+      end
+
+  get-src-gen(|project-path, folder, ext):
+    filename -> filename'
+    with
+      fn := <get-filename> filename
+    ; src-gen-path := <concat-strings> [project-path, "/src-gen"]
+    ; src-gen-folder := <concat-strings> [src-gen-path, "/" ,folder]
+    ; file-folder := <get-dir(|src-gen-folder)> filename
+    ; filename' := <concat-strings> [file-folder, "/" , fn, ext]
+
+strategies
+
+  pp-gzb =
+      parenthesize-gazebo
+    ; prettyprint-gazebo-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+  pp-gzbc =
+      parenthesize-gazebo-core
+    ; prettyprint-gazebo-core-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+strategies
+
+  relevant-tli =
+    ?Alias(_, _)
+  //+ ?GlobalAlias(_, _)
+  + ?FnBlock(_, _)
+  + ?FnExpr(_, _)
+  + ?FnExt(_, _)
+  + ?TypeDecl(_, _)
+  // TODO: add more as more transformations are implemented
+
+rules
+
+  nsid-name-part: NSIDNamePart(name) -> name 
+  nsid-name-part: NSIDNamePartVerbatim(verb) -> verb
+  nsid-name-list: NSIDName(parts) -> <map(nsid-name-part)> parts
+
+  identf-from-nsid: NSIDiFull(ns, names) -> IdentFull-C(ns, names)
+  identf-from-nsid: NSID(ns, name) -> IdentFull-C(ns, <nsid-name-list> name)
+  identf-from-nsid: other -> <identf-from-nsid> ref
+    with
+      analysis := <stx-get-ast-analysis> other
+    ; ref := <stx-get-ast-ref(|analysis)> other
+
+strategies // is-simple-type :: Type -> id
+
+  is-simple-type =
+    ?TypeString()
+  + ?TypeBool()
+  + ?TypeInt()
+  + ?TypeFloat()
+
+strategies
+
+  string-norm = un-double-quote; unescape
+  string-denorm = escape; double-quote

@@ -1,0 +1,31 @@
+module desugar
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  signatures/-
+
+  common
+
+rules
+
+  desugar : FnExpr(spec, e) -> FnBlock(spec, Block([ReturnValue(e)]))
+
+rules
+
+  desugar: TypeEnumUntyped(memb_keys) -> TypeEnumTyped(TypeInt(), membs)
+    with
+      membs := <number(!EnumTypedMemb(<Fst>, NumI(<Snd; int-to-string>)))> memb_keys
+
+  desugar: TypeInterface(membs) -> TypeInterfaceCompose([], membs)
+
+rules
+
+  desugar: IsProp(e) -> KvProp("tag", e)
+
+rules
+
+  desugar: ResourceBare(ident) -> ResourceFull(ident, Props([]), NBTCompound([]))
+  desugar: ResourceProps(ident, props) -> ResourceFull(ident, props, NBTCompound([]))
+  desugar: ResourceNBT(ident, payl) -> ResourceFull(ident, Props([]), payl)

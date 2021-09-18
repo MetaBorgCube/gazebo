@@ -8,15 +8,20 @@ imports
 
 context-free sorts
 
+    TypeDecl-C
+
     Type-C
-    TypeRef-C
     PosKind-C
     EnumMemb-C
     InterfaceMemb-C
 
 context-free syntax
 
-    TypeRef-C.TypeRef-C = <<IdentFull-C>>
+    TypeDecl-C.TypeDecl-C = <type <ID> <Type-C>>
+
+context-free syntax
+
+    Type-C.TypeRef-C = <<IdentFull-C>>
 
 context-free syntax
 
@@ -77,3 +82,4 @@ context-free syntax
 context-free syntax
 
     Type-C.TypeBottom-C = <__BOTTOM>
+    Type-C.TypeVoid-C = <__VOID>

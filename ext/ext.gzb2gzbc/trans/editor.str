@@ -1,0 +1,26 @@
+module editor
+
+imports
+
+  common
+  desugar
+  generate
+
+rules
+
+  editor-desugar-gzb-local: input@(_, _, ast, path, _) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"desugared.gzb")> path
+    ; result := <topdown(try(desugar)); pp-gzb> ast 
+
+rules
+
+  editor-generate-gzbc-shared: input@(selected, _, ast, path, project-path) -> (filename, result)
+    where
+      filename := <get-src-gen(|project-path, "gzb-interm", ".aterm-speed.gzbc")> "a/b"
+    ; result := <generate-gzbc> ast
+
+  editor-generate-gzbc-local: input@(_, _, ast, path, _) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"gzbc")> path
+    ; result := <generate-gzbc; pp-gzbc> ast

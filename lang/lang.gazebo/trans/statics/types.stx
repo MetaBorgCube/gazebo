@@ -124,6 +124,7 @@ rules
         typeOfInterface(s, membs, bases).
 
     typeOfType(s, TypeBottom()) = BOTTOM().
+    typeOfType(s, TypeVoid()) = VOID().
 
     typeOfType(_, _) = UNK() :-
         try { false } | note $[todo: other types].

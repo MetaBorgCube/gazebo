@@ -6,6 +6,7 @@ imports
     gazebo-core/Decl
     gazebo-core/Function
     gazebo-core/Identifier
+    gazebo-core/Mixin
     gazebo-core/Registry
     gazebo-core/Type
 
@@ -23,13 +24,14 @@ context-free syntax
     Start-C.Start-C = <
         module <IdentFull-C>
 
-        <Tli-C*>
+        <{Tli-C "\n\n"}*>
 
     > // includes final newline
 
 context-free syntax
 
+    Tli-C = Mixin-C
     Tli-C = Function-C
     Tli-C = Decl-C
     Tli-C = Registry-C
-    Tli-C = Type-C
+    Tli-C = TypeDecl-C

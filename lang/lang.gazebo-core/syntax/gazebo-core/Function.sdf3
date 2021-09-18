@@ -9,15 +9,19 @@ imports
 
 context-free sorts
 
+    ParamKind-C
     Param-C
     Signature-C
     Function-C
 
 context-free syntax
 
-    Param-C.Param-C = <<ID> <TypeRef-C>>
+    ParamKind-C.ParamKindConst-C = <const>
+    ParamKind-C.ParamKindVal-C = <val>
 
-    Signature-C.Signature-C = [([{Param-C ", "}*]) -> [TypeRef-C]]
+    Param-C.Param-C = <<ParamKind-C> <ID> <Type-C>>
+
+    Signature-C.Signature-C = [([{Param-C ", "}*]) -> [Type-C]]
 
     Function-C.Function-C = <
         func <ID><Signature-C>

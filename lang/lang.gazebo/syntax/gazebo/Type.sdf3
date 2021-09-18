@@ -40,6 +40,7 @@ context-free syntax
     Type.TypeListDynamic = <[<Type>]>
     Type.TypeListFixedAnonymous = <[<Type>: <INT>]>
     Type.TypeListFixedNamed = <[<Type>: <{ID ", "}+>]>
+
     Type.TypeEnumUntyped = <
         enum
         {
@@ -52,6 +53,7 @@ context-free syntax
             <{EnumTypedMemb ",\n"}*>
         }
     >
+
     Type.TypeInterface = <
         interface
         {
@@ -81,6 +83,7 @@ lexical syntax
 context-free syntax // additional types for internal usage
 
     Type.TypeBottom = <__BOTTOM>
+    Type.TypeVoid = <__VOID>
 
 context-free sorts
 

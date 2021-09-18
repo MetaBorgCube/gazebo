@@ -11,22 +11,20 @@ rules
 
     typeOfSelector : scope * Selector -> TYPE
 
-    // overload to account for optionality of a selector's props
-    typeOfSelector(s, Selector(name, [])) = typeOfSelector(s, Selector(name, [Props([])])).
-
-    typeOfSelector(s, Selector(name, [props])) = SELECTOR(s_sel) :- {s_alias}
+    typeOfSelector(s, Selector(name, props)) = SELECTOR(s_sel) :- {s_alias}
         resolveAlias(s, name) == s_alias,
         new s_sel, s_sel -P-> s, s_sel -A-> s_alias,
         selectorPropsOk(s_sel, props).
 
 rules
 
-    selectorPropsOk : scope * Props
-    selectorPropsOk(s, Props(props)) :-
+    selectorPropsOk : scope * list(Props)
+    selectorPropsOk(_, []).
+    selectorPropsOk(s, [Props(props)]) :-
         selectorPropsInnerOk(s, props).
     selectorPropsInnerOk maps selectorPropOk(*, list(*))
     /**
-     * selector scope * props
+     * selector scope * prop
      * Checks if property is OK for a selector and declares it in the current selector scope.
      * Errors on any unoverridable properties (from parents).
      */

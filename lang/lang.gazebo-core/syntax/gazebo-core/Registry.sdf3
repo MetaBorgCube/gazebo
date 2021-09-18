@@ -35,7 +35,7 @@ context-free syntax
     >
 
     RegistrationMetaEntry-C.RmeProtocolId-C = <protocol_id <INT>>
-    RegistrationMetaEntry-C.RmeData-C = <data <TypeRef-C>>
+    RegistrationMetaEntry-C.RmeData-C = <data <Type-C>>
     RegistrationMetaEntry-C.RmeBlockStates-C = <
         block_states
         {
@@ -44,7 +44,7 @@ context-free syntax
     >
 
     RmeBlockState-C.RmeBlockState-C = <
-        <ID> <TypeRef-C>
+        <ID> <Type-C>
         {
             <{Expr-C ", "}+>
         }

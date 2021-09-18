@@ -42,7 +42,7 @@ rules
 
     inferRegistry : scope * TRIdent -> ((NSIDi * scope) * (NSIDi * scope))
 
-    inferRegistry(s, TRIdentExplicit(id_registry_raw, id_registration_raw)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
+    inferRegistry(s, ident@TRIdentExplicit(id_registry_raw, id_registration_raw)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
         {id_registry} id_registry == nsidi(id_registry_raw),
         {id_registration} id_registration == nsidi(id_registration_raw),
         resolveRegistryRel(s, id_registry) == (id_registry_full, s_registry)
@@ -50,12 +50,16 @@ rules
         @id_registry_raw.ref := id_registry_full,
         resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
         | error $[registration not found in registry]@id_registration_raw,
-        @id_registration_raw.ref := id_registration_full.
+        @id_registration_raw.ref := id_registration_full,
+        @ident.registry_full := id_registry_full,
+        @ident.registration_full := id_registration_full.
 
-    inferRegistry(s, TRIdentAnonymous(id_registration)) =
+    inferRegistry(s, ident@TRIdentAnonymous(id_registration)) =
         res@inferRegistryAnon(s, resolveTinj(s, UNK()), nsidi(id_registration)) :-
-        {id_registration_res} res == (_, (id_registration_res, _)),
-        @id_registration.ref := id_registration_res.
+        {id_registry_res id_registration_res} res == ((id_registry_res, _), (id_registration_res, _)),
+        @id_registration.ref := id_registration_res,
+        @ident.registry_full := id_registry_res,
+        @ident.registration_full := id_registration_res.
 
 rules
 

@@ -1,7 +1,5 @@
 module statics
 
-// see README.md for details on how to switch to multi-file analysis
-
 imports
 
     statics/common

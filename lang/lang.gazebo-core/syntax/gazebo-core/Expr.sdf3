@@ -67,7 +67,7 @@ lexical syntax
 
 context-free syntax
 
-    Expr-C.Selector-C = <@<ID><Props-C>>
+    Expr-C.Selector-C = <@(<{ID ", "}+>, <Props-C>>
 
 ///
 
@@ -129,7 +129,7 @@ context-free syntax
     Compare-C.CmpNotEqual-C = [!=]
     Compare-C.CmpEquiv-C = [eq]
     Compare-C.CmpIs-C = [is]
-    Compare-C.CmpMatchces-C = [matches]
+    Compare-C.CmpMatches-C = [matches]
 
 ///
 
@@ -157,7 +157,7 @@ context-free syntax
 
 context-free syntax
 
-    Expr-C.EnumRef-C = <<TypeRef-C>::<ID>>
+    Expr-C.EnumRef-C = <<Type-C>::<ID>>
 
 ///
 

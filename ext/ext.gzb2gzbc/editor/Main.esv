@@ -10,5 +10,6 @@ menus
 
   menu: "Gazebo Core" (openeditor) (meta) (realtime)
 
-    action: "Generate" = generate-gzbc-shared
-    action: "Generate Local" = generate-gzbc-local
+    action: "Generate" = editor-generate-gzbc-shared
+    action: "Generate (local)" = editor-generate-gzbc-local
+    action: "Desugar (local)" = editor-desugar-gzb-local (source)

@@ -1,0 +1,15 @@
+module gazebo-core/Mixin
+
+imports
+
+    gazebo-core/Common
+    gazebo-core/Identifier
+    gazebo-core/Props
+
+context-free sorts
+
+    Mixin-C
+
+context-free syntax
+
+    Mixin-C.Mixin-C = <mixin <ID> <Props-C>>

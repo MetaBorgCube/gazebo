@@ -1,0 +1,141 @@
+module transform
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  signatures/-
+
+  statix/api
+
+  common
+
+rules // transform-tli :: Tli -> Tli-C
+
+  transform-tli: Alias(Selector(name, _), Selector(_, props)) ->
+    Mixin-C(name, <opt-map(transform-props); opt-unwrap(!Props-C([]))> props)
+
+  // TODO: transform-tli: GlobalAlias(_, _)
+
+  transform-tli: FnBlock(FnSpec(tags, mods, name, sign), block) -> Function-C(name, <transform-sign> sign, /*TODO:*/Block-C([]))
+
+  transform-tli: FnExt(name, sign) -> FunctionExt-C(name, <transform-sign> sign)
+
+  transform-tli: TypeDecl(name, t) -> TypeDecl-C(name, <transform-type> t)
+
+rules // transform-props :: Props -> Props-C
+
+  transform-props: Props(props) -> Props-C(<map(transform-prop)> props)
+
+  transform-prop: KvProp(k, v) -> PropKv-C(k, <transform-expr> v)
+  transform-prop: CmpProp(k, op, r) -> PropCmp-C(k, <transform-compare> op, <transform-expr> r)
+  transform-prop: MapProp(k, entries) -> PropMap-C(k, entries')
+    with
+      entries' := <map(
+        \KvMapProp(k, v) -> PropMapEntryKv-C(k, <transform-expr> v)\
+      + \CmpMapProp(k, op, v) -> PropMapEntryCmp-C(k, <transform-compare> op, <transform-expr> v)\
+      )> entries
+
+rules // transform-sign :: Sign -> Signature-C
+
+  transform-sign: Sign(params, retspec)
+    -> Signature-C(params', <opt-map(?RetSpec(<id>)); opt-unwrap(!TypeVoid()); transform-type> retspec)
+    with
+      params' := <
+        opt-map(?Params(<id>))
+      ; opt-unwrap(![])
+      ; map((\ ParamGroup(params*, t_p) ->
+          <map({p_kind :
+            (\ Param(p_mod, name) ->
+              Param-C(p_kind, name, <transform-type> t_p)
+                with
+                  // from syntax, p_mod is know to be either empty or have the const modifier
+                  if <?[]> p_mod
+                    then !ParamKindVal-C()
+                    else !ParamKindConst-C()
+                  end => p_kind
+            \)
+          })> params*
+        \))
+      ; flatten-list
+      > params
+
+rules // transform-type :: Type -> Type-C
+
+  transform-type: TypeRef(nsid) -> TypeRef-C(<identf-from-nsid> nsid)
+
+  transform-type: TypeString() -> TypeString-C()
+  transform-type: TypeBool() -> TypeBool-C()
+  transform-type: TypeInt() -> TypeInt-C()
+  transform-type: TypeFloat() -> TypeFloat-C()
+
+  transform-type: TypePos(kind, t) -> TypePos-C(kind', <transform-type> t)
+    with
+      kind' := <
+        (PosAbs() -> PosKindAbs-C())
+      + (PosRel() -> PosKindRel-C())
+      + (PosLoc() -> PosKindLoc-C())
+      + (PosAny() -> PosKindAny-C())
+      > kind
+
+  transform-type: TypeResourceRegistry(nsid) -> TypeResourceRegistry-C(<identf-from-nsid> nsid)
+  transform-type: TypeTag() -> TypeTag-C()
+
+  transform-type: TypeSelector() -> TypeSelector-C()
+
+  transform-type: TypeArrayDynamic(t) -> TypeArrayDynamic-C(<transform-type> t)
+  transform-type: TypeArrayFixedAnonymous(t, n) -> TypeArrayFixedAnonymous-C(<transform-type> t, n)
+  transform-type: TypeArrayFixedNamed(t, names) -> TypeArrayFixedNamed-C(<transform-type> t, names)
+  transform-type: TypeListDynamic(t) -> TypeListDynamic-C(<transform-type> t)
+  transform-type: TypeListFixedAnonymous(t, n) -> TypeListFixedAnonymous-C(<transform-type> t, n)
+  transform-type: TypeListFixedNamed(t, names) -> TypeListFixedNamed-C(<transform-type> t, names)
+
+  transform-type: TypeEnumTyped(t, membs) ->
+    TypeEnum-C(<transform-type> t, <map(\EnumTypedMemb(name, e) -> EnumMemb-C(name, <transform-expr> e)\)> membs)
+
+  transform-type: TypeInterfaceCompose(bases, membs) ->
+    TypeInterface-C(<map(transform-type)> bases, <map(\InterfaceMember(name, t) -> InterfaceMemb-C(name, <transform-type> t)\)> membs)
+
+  transform-type: TypeBottom() -> TypeBottom-C()
+  transform-type: TypeVoid() -> TypeVoid-C()
+
+rules // transform-expr :: Expr -> Expr-C
+
+  transform-expr: NBTCompound(kvs) ->
+    NbtCompound-C(<map(\KeyValue(k, v) -> NbtCompoundEntry-C(k, <transform-expr> v)\)> kvs)
+  transform-expr: NBTArrayAnonymous(items) -> NbtArray-C(<map(transform-expr)> items)
+  // TODO: might want to keep the type info?
+  transform-expr: NBTArrayExplicit(_, items) -> NbtArray-C(<map(transform-expr)> items)
+  transform-expr: NBTList(items) -> NbtList-C(<map(transform-expr)> items)
+
+  //transform-expr: sel@Selector(name, props) -> Selector-C()
+
+  // TODO: tag
+
+  transform-expr: ResourceFull(ident, props, payl) -> ResInst-C(ResourcePropsPayl-C(id_registry, id_registration, <transform-props> props, <transform-expr> payl))
+    with
+      a := <stx-get-ast-analysis> ident
+    ; id_registry := <stx-get-ast-property(|a, "registry_full"); identf-from-nsid> ident
+    ; id_registration := <stx-get-ast-property(|a, "registration_full"); identf-from-nsid> ident
+
+  transform-expr: String(str) -> String-C(str)
+  transform-expr: BoolT() -> BoolT-C()
+  transform-expr: BoolF() -> BoolF-C()
+  transform-expr: NumI(v) -> NumI-C(v)
+  transform-expr: NumF(v) -> NumF-C(v)
+
+  // TODO: raw
+
+  // TODO: all regular expressions
+
+rules // transform-compare :: Compare -> Compare-C
+
+  transform-compare: CmpGt() -> CmpGt-C()
+  transform-compare: CmpGte() -> CmpGte-C()
+  transform-compare: CmpLt() -> CmpLt-C()
+  transform-compare: CmpLte() -> CmpLte-C()
+  transform-compare: CmpEqual() -> CmpEqual-C()
+  transform-compare: CmpNotEqual() -> CmpNotEqual-C()
+  transform-compare: CmpEquiv() -> CmpEquiv-C()
+  transform-compare: CmpIs() -> CmpIs-C()
+  transform-compare: CmpMatches() -> CmpMatches-C()

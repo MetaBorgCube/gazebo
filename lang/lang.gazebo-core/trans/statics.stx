@@ -1,0 +1,15 @@
+module statics
+
+imports
+
+    signatures/gazebo-core-sig
+
+rules
+
+    projectOk : scope
+
+    projectOk(s_root).
+
+    fileOk : scope * Start-C
+
+    fileOk(s_root, _).
