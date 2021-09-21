@@ -13,7 +13,7 @@ static registry $<minecraft:block>
     register minecraft:repeater
     {
         protocol_id 50
-        block_states
+        states
         {
             delay Int { 1, 2, 3, 4 }
             facing String { "north", "south", "west" }
@@ -55,7 +55,7 @@ static registry $<gzb:test>
 {
     register gzb:test_item
     {
-        block_states
+        states
         {
             a Int { 1, 2 }
             a Int { 3, 4 }

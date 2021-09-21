@@ -38,10 +38,10 @@ rules
         // TODO: declare actual value type as INT() in regmeta (scope?)
         declareRegmeta(s, "protocol_id", s_meta).
 
-    registryMetaOk(s, RmeBlockStates(bss)) :- {s_bss}
-        new s_bss,
-        blockStatesOk(s, s_bss, bss),
-        declareRegmeta(s, "block_states", s_bss).
+    registryMetaOk(s, RmeStates(ss)) :- {s_ss}
+        new s_ss,
+        statesOk(s, s_ss, ss),
+        declareRegmeta(s, "states", s_ss).
 
     registryMetaOk(s, RmeData(t)) :- {s_data}
         COMPOUND(s_data) == typeOfType(s, t) | error $[data type must be an interface]@t,
@@ -65,15 +65,15 @@ rules
 
 rules
 
-    blockStatesOk maps blockStateOk(*, *, list(*))
-    blockStateOk : scope * scope * RmeBlockState
-    blockStateOk(s, s_bss, RmeBlockState(name, t, options)) :- {T}
+    statesOk maps stateOk(*, *, list(*))
+    stateOk : scope * scope * RmeState
+    stateOk(s, s_ss, RmeState(name, t, options)) :- {T}
         T == typeOfType(s, t),
-        blockStateOptionsOk(s, T, options),
-        declareBlockState(s_bss, name, T).
+        stateOptionsOk(s, T, options),
+        declareState(s_ss, name, T).
 
-    blockStateOptionsOk maps blockStateOptionOk(*, *, list(*))
-    blockStateOptionOk : scope * TYPE * Literal
-    blockStateOptionOk(s, Tbs, lit) :- {Tlit}
+    stateOptionsOk maps stateOptionOk(*, *, list(*))
+    stateOptionOk : scope * TYPE * Literal
+    stateOptionOk(s, Tbs, lit) :- {Tlit}
         Tlit == typeOfLiteral(s, lit),
-        subtype(Tlit, Tbs) | error $[type of option ([Tlit]) is not assignable to the type of block state ([Tbs])]@lit.
+        subtype(Tlit, Tbs) | error $[type of option ([Tlit]) is not assignable to the type of state ([Tbs])]@lit.

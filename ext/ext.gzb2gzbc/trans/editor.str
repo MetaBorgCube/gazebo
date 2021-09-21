@@ -11,7 +11,7 @@ rules
   editor-desugar-gzb-local: input@(_, _, ast, path, _) -> (filename, result)
     with
       filename := <guarantee-extension(|"desugared.gzb")> path
-    ; result := <topdown(try(desugar)); pp-gzb> ast 
+    ; result := <topdown(try(desugar)); pp-gzb> ast
 
 rules
 

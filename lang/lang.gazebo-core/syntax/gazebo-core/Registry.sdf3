@@ -13,7 +13,7 @@ context-free sorts
     Registry-C
     Registration-C
     RegistrationMetaEntry-C
-    RmeBlockState-C
+    RmeState-C
 
 context-free syntax
 
@@ -36,14 +36,14 @@ context-free syntax
 
     RegistrationMetaEntry-C.RmeProtocolId-C = <protocol_id <INT>>
     RegistrationMetaEntry-C.RmeData-C = <data <Type-C>>
-    RegistrationMetaEntry-C.RmeBlockStates-C = <
-        block_states
+    RegistrationMetaEntry-C.RmeStates-C = <
+        states
         {
-            <{RmeBlockState-C "\n"}+>
+            <{RmeState-C "\n"}+>
         }
     >
 
-    RmeBlockState-C.RmeBlockState-C = <
+    RmeState-C.RmeState-C = <
         <ID> <Type-C>
         {
             <{Expr-C ", "}+>

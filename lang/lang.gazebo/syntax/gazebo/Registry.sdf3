@@ -14,7 +14,7 @@ context-free sorts
     RegistryName
     RegistryMeta
     RegistryMetaEntry
-    RmeBlockState
+    RmeState
 
 context-free syntax // common
 
@@ -40,17 +40,17 @@ context-free syntax // meta
         }
     >
     RegistryMetaEntry.RmeProtocolId = <protocol_id <INT>>
-    RegistryMetaEntry.RmeBlockStates = <
-        block_states
+    RegistryMetaEntry.RmeStates = <
+        states
         {
-            <{RmeBlockState "\n"}*>
+            <{RmeState "\n"}*>
         }
     >
     RegistryMetaEntry.RmeData = <data <Type>>
 
 context-free syntax // meta specifics
 
-    RmeBlockState.RmeBlockState = <<ID_UNRESTR> <Type> { <{Literal ", "}+> }>
+    RmeState.RmeState = <<ID_UNRESTR> <Type> { <{Literal ", "}+> }>
 
 template options
 

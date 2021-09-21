@@ -299,7 +299,7 @@ def _reg_aux_block(registration_name: str, mcdata: McData, nbtdoc: NbtDoc, write
         """)
     block_states = "\n".join(block_states)
     return f"""
-    block_states
+    states
     {{
         {block_states}
     }}

@@ -21,6 +21,6 @@ rules
   generate-gzbc: StartInject(mod, uses, tlis) -> <generate-gzbc> StartModule(mod /*NSIDi->NSID, safe here*/, uses, tlis)
   generate-gzbc: StartModule(mod, _, tlis) -> Start-C(<identf-from-nsid> mod, transformed)
     with // the implicate-injections-gazebo is a temporary workaround for it not working correctly in Statix runtime
-      tlis' := <map(implicate-injections-gazebo); filter(relevant-tli)> tlis 
+      tlis' := <map(implicate-injections-gazebo); filter(relevant-tli)> tlis
     ; desugared := <map(topdown(try(desugar)))> tlis'
     ; transformed := <map(transform-tli)> desugared

@@ -7,7 +7,7 @@ static registry $<minecraft:block>
 {
     register minecraft:repeater
     {
-        block_states
+        states
         {
             delay Int { 1, 2, 3, 4 }
             facing String { "north", "south", "west" }

@@ -82,13 +82,13 @@ rules
 
     resourcePropsOk maps resourcePropOk(*, *, list(*))
     resourcePropOk : scope * scope * Prop
-    resourcePropOk(s, s_reg, KvProp(k, v)) :- {s_bss k' Tbs Te}
+    resourcePropOk(s, s_reg, KvProp(k, v)) :- {s_ss k' Tbs Te}
         // TODO: disallow repeat keys
-        s_bss == resolveRegmeta(s_reg, "block_states") | error $[resource does not define any block states],
-        (k', Tbs) == resolveBlockState(s_bss, k) | error $[undefined block state for this resource]@k,
+        s_ss == resolveRegmeta(s_reg, "states") | error $[resource does not define any states],
+        (k', Tbs) == resolveState(s_ss, k) | error $[undefined state for this resource]@k,
         @k.ref := k',
         Te == typeOfExpr(withTypeInject(s, Tbs), v),
-        subtype(Te, Tbs) | error $[value not assignable to blocks state with value type [Tbs]]@v.
+        subtype(Te, Tbs) | error $[value not assignable to state with value type [Tbs]]@v.
     resourcePropOk(_, _, prop) :-
         false | error $[property type not supported]@prop.
 
