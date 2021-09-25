@@ -17,9 +17,9 @@ rules
     rawPartsOk maps rawPartOk(*, list(*))
     rawPartOk : scope * RawPart
 
-    rawPartOk(s, InterpolateID(id)) :-
-        _ == typeOfExpr(s, Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart(id)]))))),
-        try { false } | note $[TODO: check suitability]@id.
+    rawPartOk(s, InterpolateID(ref)) :-
+        _ == typeOfExpr(s, Ref2Expr(ref)),
+        try { false } | note $[TODO: check suitability]@ref.
 
     rawPartOk(s, InterpolateExpr(e)) :-
         _ == typeOfExpr(s, e),

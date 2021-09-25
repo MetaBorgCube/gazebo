@@ -21,7 +21,7 @@ syntax
 
 context-free syntax
 
-    RawPart.InterpolateID = <%<ID>>
+    RawPart.InterpolateID = <%<Ref>>
     RawPart.InterpolateExpr = <%(<Expr>)>
     RawPart.InterpolateConfigured = <%(<ID_UNRESTR> <Expr>)>
     RawPart.RawPart = RawChars
