@@ -4,7 +4,7 @@ language
 
   context  : none
   provider : target/metaborg/stratego.ctree
-  on save  : generate-gzbc-shared
+  on save  : editor-generate-gzbc-shared
 
 menus
 
