@@ -67,7 +67,7 @@ lexical syntax
 
 context-free syntax
 
-    Expr-C.Selector-C = <@(<{ID ", "}+>, <Props-C>>
+    Expr-C.Selector-C = <@(<{ID ", "}+>, <Props-C>)>
 
 ///
 
