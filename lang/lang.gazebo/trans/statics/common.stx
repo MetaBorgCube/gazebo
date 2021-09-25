@@ -159,5 +159,4 @@ rules
 
     storeTliFullName(s, name) :- {full}
         full == absoluteInCurrMod(s, name),
-        @name.full := full,
-        try { false } | note $[storing full name: [full]]@name.
+        @name.full := full.
