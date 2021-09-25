@@ -29,3 +29,10 @@ rules
   desugar: ResourceBare(ident) -> ResourceFull(ident, Props([]), NBTCompound([]))
   desugar: ResourceProps(ident, props) -> ResourceFull(ident, props, NBTCompound([]))
   desugar: ResourceNBT(ident, payl) -> ResourceFull(ident, Props([]), payl)
+
+rules
+
+  desugar: ForInfinite(block) -> ForWhile(BoolT(), block)
+
+  desugar: If(e, b, ElseIf(elseif)) -> If(e, b, ElseBlock(elseif))
+  desugar: If(e, b, NoElse()) -> If(e, b, ElseBlock(Block([])))

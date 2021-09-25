@@ -17,9 +17,12 @@ rules // transform-tli :: Tli -> Tli-C
 
   // TODO: transform-tli: GlobalAlias(_, _)
 
-  transform-tli: FnBlock(FnSpec(tags, mods, name, sign), block) -> Function-C(name, <transform-sign> sign, /*TODO:*/Block-C([]))
+  transform-tli: FnBlock(FnSpec(tags, mods, name, sign), block) -> Function-C(name, <transform-sign> sign, <transform-block> block)
 
   transform-tli: FnExt(name, sign) -> FunctionExt-C(name, <transform-sign> sign)
+
+  // using known case for Decl in transform-stmt, so casting is OK
+  transform-tli: decl@Decl(_, _, _) -> <transform-stmt> decl
 
   transform-tli: TypeDecl(name, t) -> TypeDecl-C(name, <transform-type> t)
 
@@ -151,7 +154,84 @@ rules // transform-expr :: Expr -> Expr-C
       ; !RefLocal-C(IdentLocal-C(<id>))
      > nsid
 
-  // TODO: all regular expressions
+  transform-expr: FindIndex(e, i) -> FindIndex-C(<transform-expr> e, <transform-expr> i)
+  transform-expr: FindPath(e, memb) -> FindPath(<transform-expr> e, memb)
+
+  // TODO: invoke
+
+  transform-expr: Mul(l, r) -> Mul-C(<transform-expr> l, <transform-expr> r)
+  transform-expr: Div(l, r) -> Div-C(<transform-expr> l, <transform-expr> r)
+  transform-expr: Mod(l, r) -> Mod-C(<transform-expr> l, <transform-expr> r)
+  transform-expr: Add(l, r) -> Add-C(<transform-expr> l, <transform-expr> r)
+  transform-expr: Sub(l, r) -> Sub-C(<transform-expr> l, <transform-expr> r)
+
+  transform-expr: And(l, r) -> And-C(<transform-expr> l, <transform-expr> r)
+  transform-expr: Or(l, r) -> Or-C(<transform-expr> l, <transform-expr> r)
+  transform-expr: Not(e) -> Not-C(<transform-expr> e)
+  transform-expr: Cmp(l, op, r) -> Cmp-C(<transform-expr> l, <transform-compare> op, <transform-expr> r)
+
+  transform-expr: RangeFull(l, h) -> Range-C(<transform-expr> l, <transform-expr> h)
+
+  transform-expr: Vec(x, y, z) -> Position-C(kind, <transform-vec-elem> x, <transform-vec-elem> y, <transform-vec-elem> z)
+    with
+      switch ![x, y, z]
+        case fetch(?VecElemRel(_)): !PositionKindRel-C()
+        case fetch(?VecElemLoc(_)): !PositionKindLoc-C()
+        otherwise: !PositionKindAbs-C()
+      end => kind
+
+  transform-expr: ConstructExplicit(t, ConstructEnum(key)) -> EnumRef-C(<transform-type> t, key)
+  //transform-expr: ConstructInfer(ConstructEnum(key)) -> EnumRef-C(t, key)
+  // TODO: Construct#_(_#, ConstructNbt(nbt))
+
+rules // transform-block :: Block -> Block-C
+
+  transform-block: Block(stmt*) -> Block-C(<filter(not(?Noop())); map(transform-stmt)> stmt*)
+
+rules // transform-stmt :: Statement -> Statement-C
+
+  transform-stmt =
+    (?ExecChain(_, _) + ?ExecFin(_, _))
+  ; rec x(
+      \ExecChain(frag, next) -> [<transform-exec-frag> frag | <x> next]\
+    + \ExecFin(frag, block) -> [<transform-exec-frag> frag] with fin_block := block\
+    )
+  ; !ExecuteStmt-C(<id>, <transform-block> fin_block)
+
+  transform-stmt: InvokeStmt(ivk) -> DiscardStmt-C(<transform-expr> ivk)
+
+  transform-stmt: Decl(mod*, name, e) -> Decl-C(kind, name, <transform-expr> e)
+    with
+      switch !mod*
+        case fetch(?DmodMut()): !DeclKindVar-C()
+        case fetch(?DmodConst()): !DeclKindConst-C()
+        otherwise: !DeclKindVal-C()
+      end => kind
+
+  transform-stmt: ForWhile(cond, block) -> LoopStmt-C(<transform-expr> cond, <transform-block> block)
+  transform-stmt: ForIn(dst*, src, block) -> IterateStmt-C(<transform-expr> src, dst*, <transform-block> block)
+  transform-stmt: Break() -> BreakStmt-C()
+
+  transform-stmt: If(cond, b_true, ElseBlock(b_false)) -> IfStmt-C(<transform-expr> cond, <transform-block> b_true, <transform-block> b_false)
+
+  transform-stmt: Match(subj, case*) ->
+    MatchStmt-C(
+      <transform-expr> subj, 
+      <filter(?Case(_, _)); map(\Case(e, block) -> MatchCase-C(<transform-expr> e, <transform-block> block)\)> case*,
+      <getfirst(?CaseDefault(<transform-block>)) <+ !Block-C([])> case*
+    )
+
+  transform-stmt: ReturnEmpty() -> ReturnVoidStmt-C()
+  transform-stmt: ReturnValue(e) -> ReturnExprStmt-C(<transform-expr> e)
+
+  transform-stmt: AssignEq(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorEq(), <transform-expr> e)
+  transform-stmt: AssignAdd(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorAdd(), <transform-expr> e)
+  transform-stmt: AssignSub(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorSub(), <transform-expr> e)
+  transform-stmt: AssignMul(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorMul(), <transform-expr> e)
+  transform-stmt: AssignDiv(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorDiv(), <transform-expr> e)
+  transform-stmt: AssignMod(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorMod(), <transform-expr> e)
+
+  transform-stmt: RawStmt(raw) -> DiscardStmt-C(<transform-expr> raw)
 
 rules // transform-compare :: Compare -> Compare-C
 
@@ -164,3 +244,19 @@ rules // transform-compare :: Compare -> Compare-C
   transform-compare: CmpEquiv() -> CmpEquiv-C()
   transform-compare: CmpIs() -> CmpIs-C()
   transform-compare: CmpMatches() -> CmpMatches-C()
+
+rules // transform-vec-elem :: VecElem -> PositionCoord-C
+
+  transform-vec-elem: VecElemAbs(e) -> PositionCoord-C(PositionCoordKindAbs-C(), <transform-expr> e)
+  transform-vec-elem: VecElemRel(e) -> PositionCoord-C(PositionCoordKindDyn-C(), <transform-expr> e)
+
+rules // transform-exec-anchor :: ExecAnchor -> ExecuteAnchor-C
+
+  transform-exec-anchor: AnchorEyes() -> AnchorEyes-C()
+  transform-exec-anchor: AnchorFeet() -> AnchorFeet-C()
+
+rules // transform-exec-frag :: ExecFrag -> ExecuteFragment-C
+
+  transform-exec-frag: ExecAlign(e) -> ExecuteAlign-C(<transform-expr> e)
+  transform-exec-frag: ExecAnchored(anchor) -> ExecuteAnchored-C(<transform-exec-anchor> anchor)
+  // TODO: other exec frags

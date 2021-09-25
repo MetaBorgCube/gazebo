@@ -12,4 +12,5 @@ rules
 
     typeDeclOk(s, TypeDecl(name, type)) :- {T}
         T == typeOfType(s, type),
-        declareMemb(s, name, MEMB_TYPE(), T).
+        declareMemb(s, name, MEMB_TYPE(), T),
+        storeTliFullName(s, name).

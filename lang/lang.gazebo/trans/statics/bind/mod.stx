@@ -35,10 +35,10 @@ rules
 
 rules
 
-    resolveMod : scope * NSID -> TYPE
+    resolveMod : scope * NSIDi -> TYPE
 
     resolveMod(s, name) = T :- {p p' name'}
-        queryMod(s, nsidi(name)) == p,
+        queryMod(s, name) == p,
         p == [(p', (name', T))] | error $[module [name] not resolved],
         T == MOD(_),
         @name.ref := name'.

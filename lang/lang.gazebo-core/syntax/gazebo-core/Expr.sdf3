@@ -144,9 +144,9 @@ context-free syntax
 
     Expr-C.Position-C = <`<PositionKind-C>(<PositionCoord-C>, <PositionCoord-C>, <PositionCoord-C>)>
 
-    PositionKind-C.PositionKindAbs = <abs>
-    PositionKind-C.PositionKindLoc = <loc>
-    PositionKind-C.PositionKindRel = <rel>
+    PositionKind-C.PositionKindAbs-C = <abs>
+    PositionKind-C.PositionKindLoc-C = <loc>
+    PositionKind-C.PositionKindRel-C = <rel>
 
     PositionCoordKind-C.PositionCoordKindAbs-C = <abs>
     PositionCoordKind-C.PositionCoordKindDyn-C = <dyn>
@@ -167,4 +167,4 @@ context-free syntax
     Expr-C.Raw-C = <|(<{RawPart-C ", "}+>)>
 
     RawPart-C.RawText-C = <text <STRING>>
-    RawPart-C.RawFormat-C = <format(<ID>) <Expr-C>>
+    RawPart-C.RawFormat-C = <format(<ID?>) <Expr-C>>

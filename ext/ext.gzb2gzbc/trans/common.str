@@ -97,6 +97,7 @@ strategies
   + ?FnBlock(_, _)
   + ?FnExpr(_, _)
   + ?FnExt(_, _)
+  + ?Decl(_, _, _)
   + ?TypeDecl(_, _)
   // TODO: add more as more transformations are implemented
 
