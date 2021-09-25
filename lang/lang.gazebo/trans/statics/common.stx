@@ -41,6 +41,7 @@ signature
 
     relations
 
+        name_rel : -> string
         mod : NSIDi -> TYPE
         currmod : -> (NSIDi * TYPE)
         memb : (string * MEMB_KIND) -> TYPE

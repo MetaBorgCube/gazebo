@@ -14,6 +14,7 @@ rules
     typeOfSelector(s, Selector(name, props)) = SELECTOR(s_sel) :- {s_alias}
         resolveAlias(s, name) == s_alias,
         new s_sel, s_sel -P-> s, s_sel -A-> s_alias,
+        !name_rel[name] in s_sel,
         selectorPropsOk(s_sel, props).
 
 rules

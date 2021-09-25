@@ -21,7 +21,9 @@ rules
 
     typeOfExpr : scope * Expr -> TYPE
 
-    typeOfExpr(s, e) = T@typeOfExprImpl(s, e) /*:- @e.type := T*/.
+    typeOfExpr(s, e) = T@typeOfExprImpl(s, e) :-
+        // set type for 'normal' (i.e. non-implicit) expressions
+        try { @e.type := T }.
 
     /** do not refer directly, use typeOfExpr */
     typeOfExprImpl : scope * Expr -> TYPE
@@ -37,40 +39,48 @@ rules // NBT
 rules // selector
 
     typeOfExprImpl(s, Selector2Expr(sel)) = T :-
-        typeOfSelector(s, sel) == T.
+        typeOfSelector(s, sel) == T,
+        @sel.type := T.
 
 rules // tag & resource
 
     typeOfExprImpl(s, Resource2Expr(res)) = T :-
-        typeOfResource(s, res) == T.
+        typeOfResource(s, res) == T,
+        @res.type := T.
 
     typeOfExprImpl(s, Tag2Expr(tag)) = T :-
-        typeOfTag(s, tag) == T.
+        typeOfTag(s, tag) == T,
+        @tag.type := T.
 
 rules // literal
 
     typeOfExprImpl(s, Literal2Expr(lit)) = T :-
-        typeOfLiteral(s, lit) == T.
+        typeOfLiteral(s, lit) == T,
+        @lit.type := T.
 
 rules // ref
 
     typeOfExprImpl(s, Ref2Expr(ref)) = T :-
-        typeOfRef(s, ref) == T.
+        typeOfRef(s, ref) == T,
+        @ref.type := T.
 
 rules // find
 
     typeOfExprImpl(s, Find2Expr(find)) = T :-
-        typeOfFind(s, find) == T.
+        typeOfFind(s, find) == T,
+        @find.type := T.
 
 rules // invoke
 
     typeOfExprImpl(s, Invoke2Expr(i)) = T :-
-        typeOfInvoke(s, i) == T.
+        typeOfInvoke(s, i) == T,
+        @i.type := T.
 
 rules // arithmetic
 
     typeOfExprImpl(s, Arith2Expr(arith)) = T :-
-        typeOfArith(s, arith) == T.
+        typeOfArith(s, arith) == T,
+        @arith.type := T.
 
 rules // compare (boolean logic)
 
@@ -98,12 +108,14 @@ rules // compare (boolean logic)
 rules // range
 
     typeOfExprImpl(s, Range2Expr(range)) = T :-
-        T == typeOfRange(s, range).
+        T == typeOfRange(s, range),
+        @range.type := T.
 
 rules // vector (position)
 
     typeOfExprImpl(s, Vec2Expr(vec)) = T :-
-        T == typeOfVec(s, vec).
+        T == typeOfVec(s, vec),
+        @vec.type := T.
 
 rules // lambda
 
@@ -113,9 +125,11 @@ rules // lambda
 rules // construct
 
     typeOfExprImpl(s, Construct2Expr(constr)) = T :-
-        T == typeOfConstruct(s, constr).
+        T == typeOfConstruct(s, constr),
+        @constr.type := T.
 
 rules // raw
 
     typeOfExprImpl(s, Raw2Expr(raw)) = T :-
-        T == typeOfRaw(s, raw).
+        T == typeOfRaw(s, raw),
+        @raw.type := T.

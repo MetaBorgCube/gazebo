@@ -108,7 +108,16 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: NBTArrayExplicit(_, items) -> NbtArray-C(<map(transform-expr)> items)
   transform-expr: NBTList(items) -> NbtList-C(<map(transform-expr)> items)
 
-  //transform-expr: sel@Selector(name, props) -> Selector-C()
+  transform-expr: sel@Selector(base, props) ->
+    Selector-C(bases, <opt-map(transform-props); opt-unwrap(!Props-C([]))> props)
+    with
+      a := <stx-get-ast-analysis> sel
+    ; s_sel := <stx-get-ast-type(|a); ?SELECTOR(<id>)> sel
+    // TODO: stop when a global alias is reached
+    ; bases := <rec x(\s -> [
+                  <stx-get-scopegraph-data(|a, "statics/common!name_rel"); ?[<id>]> s
+                | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
+              ]\); reverse> s_sel
 
   // TODO: tag
 

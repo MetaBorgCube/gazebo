@@ -23,6 +23,7 @@ signature
   sorts
 
     NSIDi
+    TYPE
 
   constructors
 
@@ -31,6 +32,9 @@ signature
     NSIDiRel   :          List(string) -> NSIDi
 
     StartInject : NSIDi * List(Use) * List(Tli) -> Start
+
+    /** Statix spec types */
+    SELECTOR : Stx-Scope -> TYPE
 
 strategies
 

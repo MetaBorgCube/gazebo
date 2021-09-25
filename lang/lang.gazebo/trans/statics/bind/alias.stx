@@ -18,7 +18,7 @@ rules
 
     queryAlias(s, name) = p :-
         query alias
-            filter (P* M?) | A* and { x :- x == name}
+            filter (P* M?) | A* and { x :- x == name }
             min $ < P, $ < M and false
             in s |-> p.
 

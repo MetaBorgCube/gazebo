@@ -19,6 +19,7 @@ rules
     /** special case for root selector declaration (e.g. "@e = @e" to define @e as a root selector, i.e. no A-edge) */
     aliasOk(s_root, s, GlobalAlias(Selector(name, []), Selector(name, []))) :- {s_sel_root}
         new s_sel_root,
+        !name_rel[name] in s_sel_root,
         declareAlias(s_root, name, s_sel_root).
 
 rules
