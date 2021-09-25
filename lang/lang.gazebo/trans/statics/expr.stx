@@ -23,7 +23,7 @@ rules
 
     typeOfExpr(s, e) = T@typeOfExprImpl(s, e) :-
         // set type for 'normal' (i.e. non-implicit) expressions
-        try { @e.type := T }.
+        @e.type := T.
 
     /** do not refer directly, use typeOfExpr */
     typeOfExprImpl : scope * Expr -> TYPE
@@ -34,7 +34,8 @@ rules // NBT
         // explicitly disacard any possibility of a type hint,
         // because NBT can only be used with a hint if explicitly requested to do so,
         // using the constructor syntax
-        typeOfNBT(s, nbt, UNK()) == T.
+        typeOfNBT(s, nbt, UNK()) == T,
+        @nbt.type := T.
 
 rules // selector
 

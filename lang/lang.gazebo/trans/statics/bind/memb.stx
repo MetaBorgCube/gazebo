@@ -59,9 +59,9 @@ rules
 
 rules
 
-    resolveMemb : scope * ID * MEMB_KIND -> TYPE
+    resolveMemb : scope * ID * MEMB_KIND -> (ID * TYPE)
 
-    resolveMemb(s, name, kind) = T :- {p name'}
+    resolveMemb(s, name, kind) = (name', T) :- {p}
         queryMemb(s, name, kind) == p,
         (name', T) == matchMemb(p),
         @name.ref := name',
@@ -69,9 +69,9 @@ rules
 
 rules
 
-    resolveMembLocal : scope * ID * MEMB_KIND -> TYPE
+    resolveMembLocal : scope * ID * MEMB_KIND -> (ID * TYPE)
 
-    resolveMembLocal(s, name, kind) = T :- {p name'}
+    resolveMembLocal(s, name, kind) = (name', T) :- {p}
         queryMembLocal(s, name, kind) == p,
         (name', T) == matchMemb(p),
         @name.ref := name',
@@ -79,30 +79,36 @@ rules
 
 rules
 
-    resolveMembRef : scope * NSIDi * MEMB_KIND -> TYPE
+    resolveMembRef : scope * NSID * MEMB_KIND -> TYPE
+
+    resolveMembRef(s, nsid, kind) = T :- {name'}
+        resolveMembRef_i(s, nsidi(nsid), kind) == (name', T),
+        @nsid.ref := name'.
+
+    resolveMembRef_i : scope * NSIDi * MEMB_KIND -> (ID * TYPE)
 
     // overload to account for syntactic sugar
-    resolveMembRef(s, NSIDiShort(name), kind) = resolveMembRef(s, NSIDiFull(curr_ns, name), kind) :-
+    resolveMembRef_i(s, NSIDiShort(name), kind) = resolveMembRef_i(s, NSIDiFull(curr_ns, name), kind) :-
         currentMod(s) == (NSIDiFull(curr_ns, _), _).
 
     // case: relative NSID with 1 name element
     // simplest rule
-    resolveMembRef(s, nsid@NSIDiRel([name]), kind) = T :-
-        T == resolveMemb(s, name, kind) | error $[no member found with name [name]]@nsid.
+    resolveMembRef_i(s, nsid@NSIDiRel([name]), kind) = memb :-
+        memb == resolveMemb(s, name, kind) | error $[no member found with name [name]]@nsid.
 
     // case: relative NSID with 2 name elements
     // name part of this NSIDRel should be at least of length 2, because earlier rule captures 1-length
-    resolveMembRef(s, nsid@NSIDiRel([name_mod, name_memb]), kind) = Tmemb :- {Tmod s_mod}
+    resolveMembRef_i(s, nsid@NSIDiRel([name_mod, name_memb]), kind) = memb :- {Tmod s_mod}
         Tmod == resolveMemb(s, name_mod, kind),
-        Tmod == MOD(s_mod),
-        Tmemb == resolveMemb(s_mod, name_memb, kind) | error $[[name_memb] is not a member of module [name_mod]]@name_memb.
+        Tmod == (_, MOD(s_mod)),
+        memb == resolveMemb(s_mod, name_memb, kind) | error $[[name_memb] is not a member of module [name_mod]]@name_memb.
 
     // case: absolute NSID with 2 or more name elements
-    resolveMembRef(s, nsid@NSIDiFull(ns, name), kind) = Tmemb :- {nsid_init Tmod s_mod name_last}
+    resolveMembRef_i(s, nsid@NSIDiFull(ns, name), kind) = memb :- {nsid_init Tmod s_mod name_last}
         nsid_init == NSIDiFull(ns, stringListInit(name)),
         Tmod == resolveMod(s, nsid_init) | error $[module not found]@nsid,
         Tmod == MOD(s_mod),
-        Tmemb == resolveMemb(s_mod, name_last@stringListLast(name), kind) | error $[[name_last] is not a member of the module]@name_last.
+        memb == resolveMemb(s_mod, name_last@stringListLast(name), kind) | error $[[name_last] is not a member of the module]@name_last.
 
-    resolveMembRef(s, nsid, _) = UNK() :-
+    resolveMembRef_i(s, nsid, _) = ("$?", UNK()) :-
         false | error $[don't know how to resolve reference]@nsid.

@@ -108,10 +108,15 @@ rules
 
   identf-from-nsid: NSIDiFull(ns, names) -> IdentFull-C(ns, names)
   identf-from-nsid: NSID(ns, name) -> IdentFull-C(ns, <nsid-name-list> name)
-  identf-from-nsid: other -> <identf-from-nsid> ref
-    with
-      analysis := <stx-get-ast-analysis> other
-    ; ref := <stx-get-ast-ref(|analysis)> other
+  identf-from-nsid: other -> identf
+    where
+      analysis := <stx-get-ast-analysis>
+    ; identf := <
+        stx-get-ast-ref(|analysis)
+      ; identf-from-nsid
+     <+ stx-get-ast-property(|analysis, "full")
+      ; identf-from-nsid
+      > other
 
 strategies // is-simple-type :: Type -> id
 

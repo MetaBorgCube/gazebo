@@ -133,7 +133,23 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: NumI(v) -> NumI-C(v)
   transform-expr: NumF(v) -> NumF-C(v)
 
-  // TODO: raw
+  transform-expr: Raw(parts) -> Raw-C(parts')
+    with
+      parts' := <map(
+        \InterpolateID(ref) -> RawFormat-C(None(), <transform-expr> ref)\
+      + \InterpolateExpr(e) -> RawFormat-C(None(), <transform-expr> e)\
+      + \InterpolateConfigured(config, e) -> RawFormat-C(Some(config), <transform-expr> e)\
+      + \RawPart(str) -> RawText-C(<string-denorm> str)\
+      )> parts
+
+  transform-expr: Ref(nsid) -> ref'
+    with
+      ref' := <
+        identf-from-nsid
+      ; !RefFull-C(<id>)
+     <+ ?NSIDRel(NSIDName([NSIDNamePart(<id>)]))
+      ; !RefLocal-C(IdentLocal-C(<id>))
+     > nsid
 
   // TODO: all regular expressions
 

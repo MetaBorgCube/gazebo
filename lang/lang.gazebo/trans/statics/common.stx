@@ -145,3 +145,19 @@ rules
     /** bad: misc */
     absolute(rel@NSIDiRel(name), base) = rel :-
         false | error $[cannot compute absolute NSID of [name] relative to [base]].
+
+rules
+
+    absoluteInCurrMod : scope * string -> NSIDi
+
+    absoluteInCurrMod(s, name) = NSIDiFull(ns, stringListConcat(names, [name])) :-
+        currentMod(s) == (NSIDiFull(ns, names), _).
+
+rules
+
+    storeTliFullName : scope * ID
+
+    storeTliFullName(s, name) :- {full}
+        full == absoluteInCurrMod(s, name),
+        @name.full := full,
+        try { false } | note $[storing full name: [full]]@name.

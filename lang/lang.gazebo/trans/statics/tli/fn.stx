@@ -23,7 +23,7 @@ rules
         !ret[Tret] in s_body,
         blockOk(s_body, body),
 
-        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
+        fnOk_common(s, name, Tparams, Tret).
 
     fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_params s_body Te Tparams Tret}
         (Tparams, Tret) == typeOfSign(s, signature),
@@ -35,11 +35,17 @@ rules
         typeOfExpr(withTypeInject(s_body, Tret), e) == Te,
         subtype(Te, Tret) | error $[actual returned type does not conform to the spec ([Tret])]@e,
 
-        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
+        fnOk_common(s, name, Tparams, Tret).
 
     fnOk(s, FnExt(name, signature)) :- {Tparams Tret}
         (Tparams, Tret) == typeOfSign(s, signature),
-        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)).
+        fnOk_common(s, name, Tparams, Tret).
+
+    fnOk_common : scope * ID * list((string * TYPE)) * TYPE
+
+    fnOk_common(s, name, Tparams, Tret) :-
+        declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)),
+        storeTliFullName(s, name).
 
 rules
 

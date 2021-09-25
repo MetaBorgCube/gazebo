@@ -21,8 +21,10 @@ rules
     tliOk(_, s, Fn2Tli(fn)) :-
         fnOk(s, fn).
 
-    tliOk(_, s, Decl2Tli(decl)) :-
-        declOk(s, decl).
+    tliOk(_, s, Decl2Tli(decl@Decl(_, name, _))) :-
+        declOk(s, decl),
+        // ensure full name store here already, because Decl is not a tli-only statement
+        storeTliFullName(s, name).
 
     tliOk(s_root, s_mod, Registry2Tli(reg)) :-
         registryOk(s_root, s_mod, reg).
