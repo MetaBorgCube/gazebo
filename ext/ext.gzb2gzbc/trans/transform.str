@@ -255,8 +255,25 @@ rules // transform-exec-anchor :: ExecAnchor -> ExecuteAnchor-C
   transform-exec-anchor: AnchorEyes() -> AnchorEyes-C()
   transform-exec-anchor: AnchorFeet() -> AnchorFeet-C()
 
+rules // transform-rotation :: Rotation -> Rotation-C
+
+  transform-rotation: Rotation(yaw, pitch) -> Rotation-C(yaw'-kind, yaw'-e, pitch'-kind, pitch'-e)
+    with
+      ((yaw'-kind, yaw'-e), (pitch'-kind, pitch'-e)) := <all(
+        \RotAbs(e) -> (RotationKindAbs-C(), <transform-expr> e)\
+      + \RotRel(e) -> (RotationKindRel-C(), <transform-expr> e)\
+      )> (yaw, pitch)
+
 rules // transform-exec-frag :: ExecFrag -> ExecuteFragment-C
 
   transform-exec-frag: ExecAlign(e) -> ExecuteAlign-C(<transform-expr> e)
   transform-exec-frag: ExecAnchored(anchor) -> ExecuteAnchored-C(<transform-exec-anchor> anchor)
-  // TODO: other exec frags
+  transform-exec-frag: ExecAs(e) -> ExecuteAs-C(<transform-expr> e)
+  transform-exec-frag: ExecAt(e) -> ExecuteAt-C(<transform-expr> e)
+  transform-exec-frag: ExecFacingPos(e) -> ExecuteFacingPos-C(<transform-expr> e)
+  transform-exec-frag: ExecFacingEntity(e, anchor) -> ExecuteFacingEntity-C(<transform-expr> e, <transform-exec-anchor> anchor)
+  transform-exec-frag: ExecIn(e) -> ExecuteIn-C(<transform-expr> e)
+  transform-exec-frag: ExecPositionedPos(e) -> ExecutePositionedPos-C(<transform-expr> e)
+  transform-exec-frag: ExecPositionedAs(e) -> ExecutePositionedAs-C(<transform-expr> e)
+  transform-exec-frag: ExecRotated(rot) -> ExecuteRotated-C(<transform-rotation> rot)
+  transform-exec-frag: ExecRotatedAs(e) -> ExecuteRotatedAs-C(<transform-expr> e)

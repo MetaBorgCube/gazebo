@@ -23,7 +23,7 @@ context-free syntax
 
 ///
 
-context-free sorts ExecuteAnchor-C ExecuteFragment-C
+context-free sorts ExecuteAnchor-C ExecuteFragment-C Rotation-C RotationKind-C
 context-free syntax
 
     ExecuteAnchor-C.AnchorEyes-C = <eyes>
@@ -31,8 +31,19 @@ context-free syntax
 
     ExecuteFragment-C.ExecuteAlign-C = <align(<Expr-C>)>
     ExecuteFragment-C.ExecuteAnchored-C = <anchored(<ExecuteAnchor-C>)>
+    ExecuteFragment-C.ExecuteAs-C = <as(<Expr-C>)>
+    ExecuteFragment-C.ExecuteAt-C = <at(<Expr-C>)>
+    ExecuteFragment-C.ExecuteFacingPos-C = <facing(<Expr-C>)>
+    ExecuteFragment-C.ExecuteFacingEntity-C = <facing_entity(<Expr-C>, <ExecuteAnchor-C>)>
+    ExecuteFragment-C.ExecuteIn-C = <in(<Expr-C>)>
+    ExecuteFragment-C.ExecutePositionedPos-C = <positioned(<Expr-C>)>
     ExecuteFragment-C.ExecutePositionedAs-C = <positioned_as(<Expr-C>)>
-    // TODO: etc...
+    ExecuteFragment-C.ExecuteRotated-C = <rotated(<Rotation-C>)>
+    ExecuteFragment-C.ExecuteRotatedAs-C = <rotated_as(<Expr-C>)>
+
+    Rotation-C.Rotation-C = <(<RotationKind-C> <Expr-C>, <RotationKind-C> <Expr-C>)>
+    RotationKind-C.RotationKindAbs-C = <abs>
+    RotationKind-C.RotationKindRel-C = <rel>
 
     Statement-C.ExecuteStmt-C = <
         execute <{ExecuteFragment-C ", "}+>
