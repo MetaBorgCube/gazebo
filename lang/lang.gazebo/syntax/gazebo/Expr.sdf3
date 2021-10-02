@@ -60,17 +60,17 @@ context-free syntax
 /**
  * Invoke
  */
-context-free sorts Invoke Args Kwargs Kwarg
+context-free sorts Invoke Args /* Kwargs Kwarg */
 context-free syntax
 
     Expr = Invoke
     Invoke.InvokeNone = <<Expr-I>()>
     Invoke.InvokeArgs = <<Expr-I>(<Args>)>
-    Invoke.InvokeArgsKwargs = <<Expr-I>(<Args>, <Kwargs>)>
-    Invoke.InvokeKwargs = <<Expr-I>(<Kwargs>)>
+    //Invoke.InvokeArgsKwargs = <<Expr-I>(<Args>, <Kwargs>)>
+    //Invoke.InvokeKwargs = <<Expr-I>(<Kwargs>)>
     Args.Args = <<{Expr-I ", "}+>>
-    Kwargs.Kwargs = <<{Kwarg ", "}+>>
-    Kwarg.Kwarg = <<ID>=<Expr-I>>
+    //Kwargs.Kwargs = <<{Kwarg ", "}+>>
+    //Kwarg.Kwarg = <<ID>=<Expr-I>>
 
 /**
  * Arithmetic

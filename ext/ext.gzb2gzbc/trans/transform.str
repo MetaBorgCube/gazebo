@@ -122,7 +122,7 @@ rules // transform-expr :: Expr -> Expr-C
                 | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
               ]\); reverse> s_sel
 
-  // TODO: tag
+  transform-expr: Tag(nsid) -> TagInst-C(Tag-C(<identf-from-nsid> nsid))
 
   transform-expr: ResourceFull(ident, props, payl) -> ResInst-C(ResourcePropsPayl-C(id_registry, id_registration, <transform-props> props, <transform-expr> payl))
     with
@@ -157,7 +157,7 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: FindIndex(e, i) -> FindIndex-C(<transform-expr> e, <transform-expr> i)
   transform-expr: FindPath(e, memb) -> FindPath(<transform-expr> e, memb)
 
-  // TODO: invoke
+  transform-expr: InvokeArgs(e, Args(args)) -> Invoke-C(<transform-expr> e, <map(transform-expr)> args)
 
   transform-expr: Mul(l, r) -> Mul-C(<transform-expr> l, <transform-expr> r)
   transform-expr: Div(l, r) -> Div-C(<transform-expr> l, <transform-expr> r)

@@ -32,6 +32,10 @@ rules
 
 rules
 
+  desugar: InvokeNone(e) -> InvokeArgs(e, Args([]))
+
+rules
+
   desugar: ForInfinite(block) -> ForWhile(BoolT(), block)
 
   desugar: If(e, b, ElseIf(elseif)) -> If(e, b, ElseBlock(elseif))
