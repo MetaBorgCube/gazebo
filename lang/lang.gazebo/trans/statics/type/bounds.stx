@@ -73,8 +73,16 @@ rules
     lub(FLOAT(), INT()) = FLOAT().
     lub(INT(), FLOAT()) = FLOAT().
 
-    // TODO: LUB of kinds
-    lub(POS(k_a, Ta), POS(k_b, Tb)) = POS(POS_ANY(), lub(Ta, Tb)).
+    lub(POS(k_a, Ta), POS(k_b, Tb)) = POS(lubPosKind(k_a, k_b), lub(Ta, Tb)).
+    lubPosKind : POS_KIND * POS_KIND -> POS_KIND
+    lubPosKind(POS_ABS(), POS_ANY()) = POS_ABS().
+    lubPosKind(POS_ANY(), POS_ABS()) = POS_ABS().
+    lubPosKind(POS_REL(), POS_ANY()) = POS_REL().
+    lubPosKind(POS_ANY(), POS_REL()) = POS_REL().
+    lubPosKind(POS_LOC(), POS_ANY()) = POS_LOC().
+    lubPosKind(POS_ANY(), POS_LOC()) = POS_LOC().
+    lubPosKind(k, k) = k.
+
     lub(RANGE(a), RANGE(b)) = RANGE(lub(a, b)).
 
     lub(ITER(a), ITER(b)) = ITER(lub(a, b)).
@@ -105,8 +113,12 @@ rules
     llb(FLOAT(), INT()) = INT().
     llb(INT(), FLOAT()) = INT().
 
-    // TODO: LLB of kinds
-    llb(POS(k_a, Ta), POS(k_b, Tb)) = POS(POS_ANY(), llb(Ta, Tb)).
+    llb(POS(k_a, Ta), POS(k_b, Tb)) = POS(llbPosKind(k_a, k_b), llb(Ta, Tb)).
+    llbPosKind : POS_KIND * POS_KIND -> POS_KIND
+    llbPosKind(POS_ANY(), _) = POS_ANY().
+    llbPosKind(_, POS_ANY()) = POS_ANY().
+    llbPosKind(k, k) = k.
+
     llb(RANGE(a), RANGE(b)) = RANGE(llb(a, b)).
 
     llb(ITER(a), ITER(b)) = ITER(llb(a, b)).
