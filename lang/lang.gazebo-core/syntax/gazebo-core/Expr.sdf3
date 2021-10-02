@@ -6,7 +6,7 @@ imports
     gazebo-core/Identifier
     gazebo-core/Type
     gazebo-core/Props
-    gazebo-core/Resource
+    gazebo-core/TagResource
 
 context-free sorts
 
@@ -74,6 +74,7 @@ context-free syntax
 context-free syntax
 
     Expr-C.ResInst-C = Resource-C
+    Expr-C.TagInst-C = Tag-C
 
 ///
 
@@ -107,8 +108,6 @@ context-free syntax
 
     Expr-C.Add-C = <<Expr-C> + <Expr-C>> {left}
     Expr-C.Sub-C = <<Expr-C> - <Expr-C>> {left}
-    
-    // TODO: prio
 
 ///
 
@@ -168,3 +167,36 @@ context-free syntax
 
     RawPart-C.RawText-C = <text <STRING>>
     RawPart-C.RawFormat-C = <format(<ID?>) <Expr-C>>
+
+////
+
+context-free priorities
+
+    {
+        Expr-C.FindIndex-C
+        Expr-C.FindKey-C
+    } > {
+        Expr-C.Invoke-C
+    } > {
+        left:
+        Expr-C.Range-C
+    } > {
+        left:
+        Expr-C.Mul-C
+        Expr-C.Div-C
+        Expr-C.Mod-C
+    } > {
+        Expr-C.Not-C
+    } > {
+        left:
+        Expr-C.Add-C
+        Expr-C.Sub-C
+    } > {
+        Expr-C.Cmp-C
+    } > {
+        left:
+        Expr-C.And-C
+    } > {
+        left:
+        Expr-C.Or-C
+    }

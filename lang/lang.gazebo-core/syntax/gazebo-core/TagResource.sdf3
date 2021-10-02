@@ -1,4 +1,4 @@
-module gazebo-core/Resource
+module gazebo-core/TagResource
 
 imports
 
@@ -9,9 +9,12 @@ imports
 
 context-free sorts
 
+    Tag-C
     Resource-C
 
 context-free syntax
+
+    Tag-C.Tag-C = <#(<IdentFull-C>)>
 
     Resource-C.ResourceBare-C = <$(<IdentFull-C>, <IdentFull-C>)>
     Resource-C.ResourcePropsPayl-C = <$(<IdentFull-C>, <IdentFull-C>, <Props-C>, <Expr-C>)>
