@@ -98,6 +98,8 @@ strategies
   + ?FnExpr(_, _)
   + ?FnExt(_, _)
   + ?Decl(_, _, _)
+  + ?DynamicRegistry(_)
+  + ?StaticRegistry(_, _)
   + ?TypeDecl(_, _)
   // TODO: add more as more transformations are implemented
 

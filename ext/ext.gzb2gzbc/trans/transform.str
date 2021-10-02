@@ -24,6 +24,21 @@ rules // transform-tli :: Tli -> Tli-C
   // using known case for Decl in transform-stmt, so casting is OK
   transform-tli: decl@Decl(_, _, _) -> <transform-stmt> decl
 
+  transform-tli: DynamicRegistry(RegistryName(name)) -> Registry-C(RegistryKindDynamic-C(), <identf-from-nsid> name, [])
+  transform-tli: StaticRegistry(RegistryName(name), RegistryMeta(entries)) -> Registry-C(RegistryKindStatic-C(), <identf-from-nsid> name, entries')
+    with
+      entries' := <map(\RmeRegistration(nsid, RegistryMeta(meta*)) ->
+        Registration-C(
+          <identf-from-nsid> nsid,
+          <map(
+            \RmeProtocolId(pid) -> RmeProtocolId-C(pid)\
+          + \RmeStates(states) ->
+              RmeStates-C(<map(\RmeState(name, t, v*) -> RmeState-C(name, <transform-type> t, <map(transform-expr)> v*)\)> states)\
+          + \RmeData(t) -> RmeData-C(<transform-type> t)\
+          )> meta*
+        )
+      \)> entries
+
   transform-tli: TypeDecl(name, t) -> TypeDecl-C(name, <transform-type> t)
 
 rules // transform-props :: Props -> Props-C
@@ -118,8 +133,8 @@ rules // transform-expr :: Expr -> Expr-C
     ; s_sel := <stx-get-ast-type(|a); ?SELECTOR(<id>)> sel
     // TODO: stop when a global alias is reached
     ; bases := <rec x(\s -> [
-                  <stx-get-scopegraph-data(|a, "statics/common!name_rel"); ?[<id>]> s
-                | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
+                <stx-get-scopegraph-data(|a, "statics/common!name_rel"); ?[<id>]> s
+              | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
               ]\); reverse> s_sel
 
   transform-expr: Tag(nsid) -> TagInst-C(Tag-C(<identf-from-nsid> nsid))

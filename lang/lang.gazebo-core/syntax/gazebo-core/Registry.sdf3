@@ -23,7 +23,7 @@ context-free syntax
     Registry-C.Registry-C = <
         registry <RegistryKind-C> <IdentFull-C>
         {
-            <{Registration-C "\n"}+>
+            <{Registration-C "\n"}*>
         }
     >
 
