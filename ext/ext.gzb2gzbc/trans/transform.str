@@ -180,9 +180,12 @@ rules // transform-expr :: Expr -> Expr-C
         otherwise: !PositionKindAbs-C()
       end => kind
 
-  transform-expr: ConstructExplicit(t, ConstructEnum(key)) -> EnumRef-C(<transform-type> t, key)
-  //transform-expr: ConstructInfer(ConstructEnum(key)) -> EnumRef-C(t, key)
-  // TODO: Construct#_(_#, ConstructNbt(nbt))
+  transform-expr: ConstructExplicit(t, ConstructEnum(key)) -> EnumRefExplicit-C(<transform-type> t, key)
+  transform-expr: ConstructInfer(ConstructEnum(key)) -> EnumRefImplicit-C(key)
+
+  // explicit type hint for NBT is only relevant during first analysis because hints need to be propagated, but this information is not relevant later on
+  transform-expr: ConstructExplicit(_, ConstructNBT(nbt)) -> <transform-expr> nbt
+  transform-expr: ConstructInfer(ConstructNBT(nbt)) -> <transform-expr> nbt
 
 rules // transform-block :: Block -> Block-C
 

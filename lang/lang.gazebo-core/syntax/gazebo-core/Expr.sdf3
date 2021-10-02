@@ -156,7 +156,8 @@ context-free syntax
 
 context-free syntax
 
-    Expr-C.EnumRef-C = <<Type-C>::<ID>>
+    Expr-C.EnumRefExplicit-C = <<Type-C>::<ID>>
+    Expr-C.EnumRefImplicit-C = <::<ID>>
 
 ///
 
