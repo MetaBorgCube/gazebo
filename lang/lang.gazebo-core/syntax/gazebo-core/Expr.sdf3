@@ -166,7 +166,7 @@ context-free syntax
 
     Expr-C.Raw-C = <|(<{RawPart-C ", "}+>)>
 
-    RawPart-C.RawText-C = <text <STRING>>
+    RawPart-C.RawText-C = <<STRING>>
     RawPart-C.RawFormat-C = <format(<ID?>) <Expr-C>>
 
 ////
