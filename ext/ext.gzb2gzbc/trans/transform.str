@@ -24,10 +24,17 @@ rules // transform-tli :: Tli -> Tli-C
   // using known case for Decl in transform-stmt, so casting is OK
   transform-tli: decl@Decl(_, _, _) -> <transform-stmt> decl
 
-  transform-tli: DynamicRegistry(RegistryName(name)) -> Registry-C(RegistryKindDynamic-C(), <identf-from-nsid> name, [])
-  transform-tli: StaticRegistry(RegistryName(name), RegistryMeta(entries)) -> Registry-C(RegistryKindStatic-C(), <identf-from-nsid> name, entries')
+  transform-tli: DynamicRegistry(RegistryName(name)) -> Registry-C(RegistryKindDynamic-C(), <identf-from-nsid> name, None(), [])
+  transform-tli: StaticRegistry(RegistryName(name), RegistryMeta(entries)) ->
+    Registry-C(RegistryKindStatic-C(), <identf-from-nsid> name, registryProtocolId, entries')
     with
-      entries' := <map(\RmeRegistration(nsid, RegistryMeta(meta*)) ->
+      registryProtocolId := <
+        fetch(?RmeProtocolId(_))
+      ; ?RmeProtocolId(<id>)
+      ; !Some(RegistryProtocolId-C(<id>))
+     <+ !None()
+       > entries
+    ; entries' := <filter(?RmeRegistration(_, _)); map(\RmeRegistration(nsid, RegistryMeta(meta*)) ->
         Registration-C(
           <identf-from-nsid> nsid,
           <map(

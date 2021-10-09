@@ -1,6 +1,7 @@
 package nl.jochembroekhoff.gazebo.standalone.cli
 
 import nl.jochembroekhoff.gazebo.standalone.lib.*
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitStxLib
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.resource.IResourceService
 import org.metaborg.util.log.LoggerUtils
@@ -29,6 +30,13 @@ class CLIApplication : Callable<Int> {
     )
     var languageArchives: List<File> = listOf()
 
+    @Option(
+        names = ["--internal-action"],
+        arity = "0..1",
+        hidden = true,
+    )
+    var internalAction: InternalAction = InternalAction.DEFAULT
+
     private fun languageArchiveProvider(resourceService: IResourceService): Collection<FileObject> {
         return if (languageArchives.isNotEmpty()) {
             languageArchives.map(resourceService::resolve)
@@ -49,9 +57,31 @@ class CLIApplication : Callable<Int> {
 
         val runnerConfig = createRunnerConfiguration()
 
-        GazeboSpoofaxFactory.createGazeboSpoofax().use { spoofax ->
-            GazeboRunner(runnerConfig).run(spoofax)
-            // TODO: get error messages and print them here, instead of letting GazeboRunner do it
+        when (internalAction) {
+            InternalAction.DEFAULT -> {
+                GazeboSpoofaxFactory.createGazeboSpoofax(
+                    GazeboProjectConfigServiceConfig(
+                        libs = setOf("std.mcje.1.17.1+0")
+                    )
+                ).use { spoofax ->
+                    GazeboRunner(runnerConfig).run(spoofax)
+                    // TODO: get error messages and print them here, instead of letting GazeboRunner do it
+                }
+            }
+            InternalAction.STDLIB -> {
+                GazeboSpoofaxFactory.createGazeboSpoofax(
+                    GazeboProjectConfigServiceConfig(
+                        languages = setOf(GazeboLang.GZB, GazeboLang.GZBC),
+                        extensions = setOf(GazeboExt.GZB2GZBC)
+                    )
+                ).use { spoofax ->
+                    GazeboRunner(runnerConfig)
+                        .withAdditionalTask(EmitStxLib(GazeboLang.GZB))
+                        .withAdditionalTask(EmitStxLib(GazeboLang.GZBC))
+                        .run(spoofax)
+                    // TODO: get error messages and print them here, instead of letting GazeboRunner do it
+                }
+            }
         }
 
         val sec = timer.stop() / 1e9

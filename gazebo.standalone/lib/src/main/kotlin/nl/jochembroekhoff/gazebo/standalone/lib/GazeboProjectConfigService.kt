@@ -6,7 +6,7 @@ import org.metaborg.core.project.IProject
 import org.metaborg.spoofax.core.config.ISpoofaxProjectConfig
 import org.metaborg.spoofax.core.config.ISpoofaxProjectConfigService
 
-class GazeboProjectConfigService : ISpoofaxProjectConfigService {
+class GazeboProjectConfigService(private val config: GazeboProjectConfigServiceConfig) : ISpoofaxProjectConfigService {
     override fun available(rootFolder: FileObject?): Boolean {
         // there is always a configuration available
         return true
@@ -22,6 +22,10 @@ class GazeboProjectConfigService : ISpoofaxProjectConfigService {
     }
 
     override fun defaultConfig(rootFolder: FileObject?): GazeboProjectConfig {
-        return GazeboProjectConfig()
+        return GazeboProjectConfig(
+            config.languages ?: GazeboLang.values().toSet(),
+            config.extensions ?: GazeboExt.values().toSet(),
+            config.libs ?: setOf(),
+        )
     }
 }

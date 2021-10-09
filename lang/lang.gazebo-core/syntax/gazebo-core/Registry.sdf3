@@ -23,9 +23,12 @@ context-free syntax
     Registry-C.Registry-C = <
         registry <RegistryKind-C> <IdentFull-C>
         {
+            <RegistryProtocolId-C?>
             <{Registration-C "\n"}*>
         }
     >
+
+    RegistryProtocolId-C.RegistryProtocolId-C = <protocol_id <INT>>
 
     Registration-C.Registration-C = <
         register <IdentFull-C>

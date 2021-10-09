@@ -4,7 +4,11 @@ import com.google.inject.util.Modules
 import org.metaborg.spoofax.core.Spoofax
 
 object GazeboSpoofaxFactory {
-    fun createGazeboSpoofax(): Spoofax {
-        return Spoofax(EmptySpoofaxModule(), Modules.override(GazeboModule()).with(GazeboOverridesModule()))
+    fun createGazeboSpoofax(projectConfigServiceConfig: GazeboProjectConfigServiceConfig): Spoofax {
+        return Spoofax(
+            EmptySpoofaxModule(),
+            Modules.override(GazeboModule(projectConfigServiceConfig))
+                .with(GazeboOverridesModule())
+        )
     }
 }

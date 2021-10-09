@@ -11,7 +11,9 @@ rules
     typeOfRef : scope * Ref -> TYPE
 
     // case: absolute NSID with 1 name element
-    typeOfRef(s, Ref(nsid@NSID(_, NSIDName([_])))) = resolveMod(s, nsidi(nsid)).
+    typeOfRef(s, Ref(nsid@NSID(_, NSIDName([_])))) = Tmod :- {name_mod}
+        (Tmod, name_mod) == resolveMod(s, nsidi(nsid)),
+        @nsid.ref := name_mod.
 
     // dispatch all other cases to the common ref resolving rule
     typeOfRef(s, Ref(nsid)) = resolveMembRef(s, nsid, MEMB_MODVARFN()).

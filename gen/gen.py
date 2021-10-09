@@ -3,7 +3,7 @@ import json
 import pathlib
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import Any, Union, Iterable
 
 Paths = dict[int, list[str]]
 
@@ -339,7 +339,10 @@ def create_registrations(registry_name: str, registry_entries, mcdata: McData, n
     return res
 
 
-def main():
+def run(input_dir: pathlib.Path, output_dir: pathlib.Path, overlay_dirs: Iterable[pathlib.Path]):
+    in_nbtdoc = input_dir / "mc-nbtdoc"
+    in_mcdata = input_dir / "mcdata"
+
     outfiles = defaultdict(lambda: [])
     write_context = WriteContext(outfiles, {}, {}, {})
 
@@ -347,7 +350,7 @@ def main():
     # process mc-nbtdoc
     #
 
-    with open("input/mc-nbtdoc/build/generated.json", "r") as f:
+    with (in_nbtdoc / "build" / "generated.json").open("r") as f:
         nbtdoc_raw = json.load(f)
     nbtdoc = NbtDoc(
         registries=nbtdoc_raw["registries"],
@@ -372,9 +375,9 @@ def main():
     # process mcdata
     #
 
-    with open("input/mcdata/generated/reports/registries.json") as f:
+    with (in_mcdata / "generated" / "reports" / "registries.json").open("r") as f:
         mcdata_registries = json.load(f)
-    with open("input/mcdata/processed/reports/blocks/simplified/data.min.json") as f:
+    with (in_mcdata / "processed" / "reports" / "blocks" / "simplified" / "data.min.json").open("r") as f:
         mcdata_siplified_blocks = json.load(f)
     mcdata = McData(mcdata_registries, mcdata_siplified_blocks)
 
@@ -398,7 +401,6 @@ def main():
     # output
     #
 
-    output_dir = pathlib.Path("output")
     for fident, content in outfiles.items():
         path = (output_dir / file_ident_to_filename(fident))
         _mkdirs(path.parent)
@@ -413,15 +415,16 @@ def main():
     # overlay
     #
 
-    overlay_dir = pathlib.Path("input/overlay")
+    def apply_overlay(p: pathlib.Path, *, current_root=None):
+        if current_root is None:
+            current_root = p
 
-    def apply_overlay(p: pathlib.Path):
         if p.is_dir():
             for entry in p.iterdir():
-                apply_overlay(entry)
+                apply_overlay(entry, current_root=current_root)
             return
 
-        p_rel = p.relative_to(overlay_dir)
+        p_rel = p.relative_to(current_root)
         p_base = output_dir / p_rel
         _mkdirs(p_base.parent)
         # delete if overlay content was written to a new file previously (instead of actually overlaying)
@@ -439,7 +442,8 @@ def main():
                     f_out.write(f"/*inject*/ module {file_ident_to_nsid(rel_filename_to_file_ident(p_rel))}\n\n")
                 f_out.write(f_in.read())
 
-    apply_overlay(overlay_dir)
+    for overlay_dir in overlay_dirs:
+        apply_overlay(overlay_dir)
 
     #
     # warn
@@ -450,4 +454,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run(pathlib.Path("./input"), pathlib.Path("./output"), [pathlib.Path("./overlay")])

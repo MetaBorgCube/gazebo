@@ -6,13 +6,17 @@ import org.metaborg.core.editor.IEditorRegistry
 import org.metaborg.core.editor.NullEditorRegistry
 import org.metaborg.spoofax.core.SpoofaxModule
 import org.metaborg.spoofax.core.config.ISpoofaxProjectConfigService
+import javax.inject.Provider
 
-class GazeboModule : SpoofaxModule() {
+class GazeboModule(private val projectConfigServiceConfig: GazeboProjectConfigServiceConfig) : SpoofaxModule() {
+
+    private fun projectServiceFactory(): GazeboProjectConfigService {
+        return GazeboProjectConfigService(projectConfigServiceConfig)
+    }
 
     override fun bindProjectConfig() {
-        bind(GazeboProjectConfigService::class.java).`in`(Singleton::class.java)
-        bind(IProjectConfigService::class.java).to(GazeboProjectConfigService::class.java)
-        bind(ISpoofaxProjectConfigService::class.java).to(GazeboProjectConfigService::class.java)
+        bind(IProjectConfigService::class.java).toProvider(Provider { projectServiceFactory() })
+        bind(ISpoofaxProjectConfigService::class.java).toProvider(Provider { projectServiceFactory() })
 
         // not bound: IProjectConfigWriter, IProjectConfigBuilder
     }

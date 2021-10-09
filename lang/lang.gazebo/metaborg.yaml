@@ -47,9 +47,6 @@ exports:
   directory: src-gen
   includes: "**/*.str"
   excludes: "nabl2/**/*.str"
-- language: gazebo
-  directory: ./gen/output
-  includes: "**/*.gzb"
 build:
   useBuildSystemSpec: true
 runtime:

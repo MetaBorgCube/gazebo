@@ -35,13 +35,13 @@ rules
 
 rules
 
-    resolveMod : scope * NSIDi -> TYPE
+    /** caller is responsible for setting the .ref AST prop */
+    resolveMod : scope * NSIDi -> (TYPE * NSIDi)
 
-    resolveMod(s, name) = T :- {p p' name'}
+    resolveMod(s, name) = (T, name') :- {p p'}
         queryMod(s, name) == p,
         p == [(p', (name', T))] | error $[module [name] not resolved],
-        T == MOD(_),
-        @name.ref := name'.
+        T == MOD(_).
 
 rules
 

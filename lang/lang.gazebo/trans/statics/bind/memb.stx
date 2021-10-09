@@ -106,7 +106,7 @@ rules
     // case: absolute NSID with 2 or more name elements
     resolveMembRef_i(s, nsid@NSIDiFull(ns, name), kind) = memb :- {nsid_init Tmod s_mod name_last}
         nsid_init == NSIDiFull(ns, stringListInit(name)),
-        Tmod == resolveMod(s, nsid_init) | error $[module not found]@nsid,
+        (Tmod, _) == resolveMod(s, nsid_init) | error $[module not found]@nsid,
         Tmod == MOD(s_mod),
         memb == resolveMemb(s_mod, name_last@stringListLast(name), kind) | error $[[name_last] is not a member of the module]@name_last.
 

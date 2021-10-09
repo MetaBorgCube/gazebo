@@ -49,6 +49,12 @@ strategies
     ?None(); fallback
   <+ ?Some(<id>)
 
+rules // intersperse(|elem:T) :: [T] -> [T]
+
+  intersperse(|elem) : [] -> []
+  intersperse(|elem) : [x] -> [x]
+  intersperse(|elem) : [x|xs] -> [x, elem | <intersperse(|elem)> xs]
+
 rules
 
   get-filename: s -> s'

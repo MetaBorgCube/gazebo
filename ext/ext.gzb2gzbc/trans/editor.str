@@ -17,8 +17,9 @@ rules
 
   editor-generate-gzbc-shared: input@(selected, _, ast, path, project-path) -> (filename, result)
     where
-      filename := <get-src-gen(|project-path, "gzb-interm", ".aterm-speed.gzbc")> "a/b"
-    ; result := <generate-gzbc; strip-annos> ast
+      result := <generate-gzbc; strip-annos> ast
+    ; <?Start-C(IdentFull-C(ns, name*), _)> result
+    ; filename := <intersperse(|"/"); concat-strings; get-src-gen(|project-path, "gzb-interm", ".aterm-speed.gzbc")> [ns, "gzbc" | name*]
 
   editor-generate-gzbc-local: input@(_, _, ast, path, _) -> (filename, result)
     with
