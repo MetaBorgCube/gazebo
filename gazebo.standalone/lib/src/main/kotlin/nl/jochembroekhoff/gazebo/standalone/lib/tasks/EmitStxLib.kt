@@ -32,7 +32,7 @@ class EmitStxLib(targetLang: GazeboLang) : AdditionalTask<Future<FileObject>>("e
         val stxlibGoal = cli.getNamedTransformAction("Make project library", langImpl)
 
         val stxlibTimer = Timer(true)
-        val firstAnalysis = output.analysisResults().first()
+        val firstAnalysis = output.analysisResults().first { it.context().language().belongsTo().name() == targetLangName }
         val res = cli.transform(firstAnalysis, stxlibGoal, firstAnalysis.context())
         logger.info("created stxlib in {} seconds", stxlibTimer.stop() / 1e9)
 
