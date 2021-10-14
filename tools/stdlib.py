@@ -3,6 +3,7 @@ import pathlib
 import subprocess
 import tempfile
 import zipfile
+from typing import Optional
 from xml.etree import ElementTree
 
 from gen.gen import run as run_gen
@@ -64,6 +65,23 @@ exports:
 """
 
 
+def write_dir_to_zip(zf: zipfile.ZipFile, root: pathlib.Path, *, prefix: Optional[str]):
+    def iter(path: pathlib.Path):
+        if path.is_dir():
+            for item in path.iterdir():
+                iter(item)
+        if path.is_file():
+            arcname = path.relative_to(root).as_posix()
+            if prefix is not None:
+                arcname = f"{prefix}/{arcname}"
+            zf.write(path, arcname)
+
+    root = root.resolve()
+    if not root.is_dir():
+        return
+    iter(root)
+
+
 def spoofax_language(root: pathlib.Path, gzb_rev: str, cat: str, name: str):
     return root / cat / f"{cat}.{name}" / "target" / f"{cat}.{name}-{gzb_rev}.spoofax-language"
 
@@ -104,11 +122,13 @@ def gen_stdlib(ver: str, root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pat
         f.writestr("src-gen/metaborg.component.yaml", MB_COMP_TEMPLATE_GZB.format(metaborgVersion=mb_ver, gazeboVersion=gzb_rev))
         f.writestr("lib/stxlibs", '["std-gzb"]')
         f.write(stxlib_gzb, "lib/std-gzb.stxlib")
+        write_dir_to_zip(f, proj_wd / "data", prefix="data")
 
     with zipfile.ZipFile(out_gzbc, "w", zipfile.ZIP_DEFLATED) as f:
         f.writestr("src-gen/metaborg.component.yaml", MB_COMP_TEMPLATE_GZBC.format(metaborgVersion=mb_ver, gazeboVersion=gzb_rev))
         f.writestr("lib/stxlibs", '["std-gzbc"]')
         f.write(stxlib_gzbc, "lib/std-gzbc.stxlib")
+        write_dir_to_zip(f, proj_wd / "src-gen" / "gzb-interm", prefix="src-gen/gzb-interm")
 
 
 if __name__ == "__main__":
