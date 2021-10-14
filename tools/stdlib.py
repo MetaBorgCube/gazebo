@@ -86,8 +86,8 @@ def spoofax_language(root: pathlib.Path, gzb_rev: str, cat: str, name: str):
     return root / cat / f"{cat}.{name}" / "target" / f"{cat}.{name}-{gzb_rev}.spoofax-language"
 
 
-def gen_stdlib(ver: str, root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pathlib.Path, out_gzbc: pathlib.Path):
-    gzb_rev, mb_ver = read_pom_props(root / "pom.xml")
+def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pathlib.Path, out_gzbc: pathlib.Path):
+    ver, gzb_rev, mb_ver = ver
 
     spoofax_languages = [
         spoofax_language(root, gzb_rev, "lang", "gazebo"),
@@ -118,25 +118,31 @@ def gen_stdlib(ver: str, root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pat
     stxlib_gzb = stxlib_out_base / "gazebo.stxlib"
     stxlib_gzbc = stxlib_out_base / "gazebo-core.stxlib"
 
-    with zipfile.ZipFile(out_gzb, "w", zipfile.ZIP_DEFLATED) as f:
+    with zipfile.ZipFile(out_gzb, "w", zipfile.ZIP_DEFLATED, strict_timestamps=) as f:
         f.writestr("src-gen/metaborg.component.yaml", MB_COMP_TEMPLATE_GZB.format(metaborgVersion=mb_ver, gazeboVersion=gzb_rev))
-        f.writestr("lib/stxlibs", '["std-gzb"]')
-        f.write(stxlib_gzb, "lib/std-gzb.stxlib")
+        f.writestr("lib/stxlibs", f'["std-gzb-{ver}"]')
+        f.write(stxlib_gzb, f"lib/std-gzb-{ver}.stxlib")
         write_dir_to_zip(f, proj_wd / "data", prefix="data")
 
     with zipfile.ZipFile(out_gzbc, "w", zipfile.ZIP_DEFLATED) as f:
         f.writestr("src-gen/metaborg.component.yaml", MB_COMP_TEMPLATE_GZBC.format(metaborgVersion=mb_ver, gazeboVersion=gzb_rev))
-        f.writestr("lib/stxlibs", '["std-gzbc"]')
-        f.write(stxlib_gzbc, "lib/std-gzbc.stxlib")
+        f.writestr("lib/stxlibs", f'["std-gzbc-{ver}"]')
+        f.write(stxlib_gzbc, f"lib/std-gzbc-{ver}.stxlib")
         write_dir_to_zip(f, proj_wd / "src-gen" / "gzb-interm", prefix="src-gen/gzb-interm")
 
 
 if __name__ == "__main__":
 
+    mc_rev = "1.17.1+0"
     root = pathlib.Path(__file__).parent.parent
+    gzb_rev, mb_ver = read_pom_props(root / "pom.xml")
+    ver = mc_rev, gzb_rev, mb_ver
+
+    out_gzb = pathlib.Path(f"./lib.std.mcje.gzb-{mc_rev}-{gzb_rev}.spoofax-language")
+    out_gzbc = pathlib.Path(f"./lib.std.mcje.gzbc-{mc_rev}-{gzb_rev}.spoofax-language")
 
     with tempfile.TemporaryDirectory() as tmp_proj:
         tmp_proj = pathlib.Path(tmp_proj)
-        gen_stdlib("1.17.1+0", root, tmp_proj, pathlib.Path("./out-gzb.spoofax-language"), pathlib.Path("./out-gzbc.spoofax-language"))
+        gen_stdlib(ver, root, tmp_proj, out_gzb, out_gzbc)
 
-    # gen_stdlib("1.17.1+0", root, pathlib.Path("./proj_wd").resolve(), pathlib.Path("./out-gzb.spoofax-language"), pathlib.Path("./out-gzbc.spoofax-language"))
+    # gen_stdlib(ver, root, pathlib.Path("./proj_wd").resolve(), out_gzb, out_gzbc)
