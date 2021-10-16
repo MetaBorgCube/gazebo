@@ -11,33 +11,20 @@ rules
 
     typeOfInvoke : scope * Invoke -> TYPE
 
-    typeOfInvoke(s, InvokeNone(e)) =
-        typeOfInvoke(s, InvokeArgsKwargs(e, Args([]), Kwargs([]))).
-
-    typeOfInvoke(s, InvokeArgs(e, a)) =
-        typeOfInvoke(s, InvokeArgsKwargs(e, a, Kwargs([]))).
-
-    typeOfInvoke(s, InvokeKwargs(e, k)) =
-        typeOfInvoke(s, InvokeArgsKwargs(e, Args([]), k)).
-
-    typeOfInvoke(s, InvokeArgsKwargs(Expr2Expr-I(e), a, k)) = Tr :- {Tfn Tpar}
+    typeOfInvoke(s, InvokeNone(Expr2Expr-I(e))) = Tr :- {Tfn}
         typeOfExpr(s, e) == Tfn,
-        typeOfInvoke_internal(s, Tfn, a, k) == Tr | error $[cannot invoke, type [Tfn] is not a function]@e.
+        typeOfInvoke_internal(s, Tfn, Args([])) == Tr | error $[cannot invoke, type [Tfn] is not a function]@e.
+
+    typeOfInvoke(s, InvokeArgs(Expr2Expr-I(e), a)) = Tr :- {Tfn}
+        typeOfExpr(s, e) == Tfn,
+        typeOfInvoke_internal(s, Tfn, a) == Tr | error $[cannot invoke, type [Tfn] is not a function]@e.
 
 rules
 
-    typeOfInvoke_internal : scope * TYPE * Args * Kwargs -> TYPE
+    typeOfInvoke_internal : scope * TYPE * Args -> TYPE
 
-    typeOfInvoke_internal(s, FUNC(Tparams, Tr), a, k) = Tr :- {Tparams_remaining}
-        funcArgsOk(s, Tparams, a) == Tparams_remaining,
-        funcKwargsOk(s, Tparams_remaining, k).
-
-    typeOfInvoke_internal(s, TAG(), Args(a), Kwargs(k)) = VOID() :-
-        a == [] | error $[a tag can only be invoked without arguments],
-        k == [] | error $[a tag can only be invoked without arguments].
-
-    typeOfInvoke_internal(_, _, _, _) = UNK() :-
-        false.
+    typeOfInvoke_internal(s, FUNC(Tparams, Tr), a) = Tr :- {Tparams_remaining}
+        funcArgsOk(s, Tparams, a) == Tparams_remaining.
 
 rules
 
@@ -51,18 +38,3 @@ rules
     funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = funcArgsOk(s, xs, Args(ys)) :- {Te}
         Te == typeOfExpr(withTypeInject(s, Tpar), e),
         subtype(Te, Tpar) | error $[expression type not suitable for parameter of type [Tpar]]@e.
-
-rules
-
-    funcKwargsOk : scope * list((ID * TYPE)) * Kwargs
-
-    funcKwargsOk(s, [], Kwargs([])).
-
-    funcKwargsOk(s, [], Kwargs(kwargs@[_|_])) :-
-        false | error $[too many keyword arguments given]@kwargs.
-
-    funcKwargsOk(_, params@[_|_], Kwargs([])) :-
-        false | error $[too few arguments]@params.
-
-    funcKwargsOk(_, _, _) :-
-        try { false } | note $[TODO: implement kwargs (using scopes)].

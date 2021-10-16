@@ -39,10 +39,6 @@ class GazeboProjectConfig(
         }
     }
 
-    init {
-
-    }
-
     override fun metaborgVersion(): String {
         return MetaborgConstants.METABORG_VERSION
     }
@@ -56,12 +52,12 @@ class GazeboProjectConfig(
     }
 
     override fun compileDeps(): Collection<LanguageIdentifier> {
-        return (languages.map(::gazeboProjectIdentifier) + extensions.map(::gazeboProjectIdentifier)).map(LanguageIdentifier::parse)
+        return (languages.map(::gazeboProjectIdentifier) + extensions.map(::gazeboProjectIdentifier))
+            .map(LanguageIdentifier::parse)
     }
 
     override fun sourceDeps(): Collection<LanguageIdentifier> {
-        return languages
-            .map(::gazeboProjectIdentifier)
+        return (languages.map(::gazeboProjectIdentifier) + libs.map { "lib.$it" }.map(::gazeboProjectIdentifier))
             .map(LanguageIdentifier::parse)
     }
 

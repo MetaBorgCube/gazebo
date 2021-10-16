@@ -11,6 +11,7 @@ context-free sorts
 
     RegistryKind-C
     Registry-C
+    RegistryProtocolId-C
     Registration-C
     RegistrationMetaEntry-C
     RmeState-C

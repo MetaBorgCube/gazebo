@@ -61,7 +61,7 @@ class CLIApplication : Callable<Int> {
             InternalAction.DEFAULT -> {
                 GazeboSpoofaxFactory.createGazeboSpoofax(
                     GazeboProjectConfigServiceConfig(
-                        libs = setOf("std.mcje.1.17.1+0")
+                        libs = setOf("std.mcje.gzb", "std.mcje.gzbc")
                     )
                 ).use { spoofax ->
                     GazeboRunner(runnerConfig).run(spoofax)

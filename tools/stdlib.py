@@ -99,7 +99,7 @@ def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.P
     proj_data.mkdir(parents=True, exist_ok=True)
     run_gen(root / "gen" / "input", proj_data, [root / "gen" / "overlay"])
 
-    subprocess.run([
+    cmd = [
         str(root / "gazebo.standalone" / "run.sh"),
         str(proj_wd),
         *itertools.chain(*zip(
@@ -107,7 +107,9 @@ def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.P
             spoofax_languages
         )),
         "--internal-action=STDLIB"
-    ])
+    ]
+    print("calling gazebo standalone as follows:", " ".join(map(str, cmd)))
+    subprocess.run(cmd)
 
     # TODO: LEFTOFF: package into .spoofax-language
     #       make sure that the different .stxlib files are not used by both languages! might not be possible at all
@@ -118,7 +120,7 @@ def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.P
     stxlib_gzb = stxlib_out_base / "gazebo.stxlib"
     stxlib_gzbc = stxlib_out_base / "gazebo-core.stxlib"
 
-    with zipfile.ZipFile(out_gzb, "w", zipfile.ZIP_DEFLATED, strict_timestamps=) as f:
+    with zipfile.ZipFile(out_gzb, "w", zipfile.ZIP_DEFLATED) as f:
         f.writestr("src-gen/metaborg.component.yaml", MB_COMP_TEMPLATE_GZB.format(metaborgVersion=mb_ver, gazeboVersion=gzb_rev))
         f.writestr("lib/stxlibs", f'["std-gzb-{ver}"]')
         f.write(stxlib_gzb, f"lib/std-gzb-{ver}.stxlib")

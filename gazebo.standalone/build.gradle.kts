@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     base
     java
-    kotlin("jvm") version "1.5.10" apply false
+    kotlin("jvm") version "1.5.31" apply false
 }
 
 allprojects {
@@ -11,6 +11,7 @@ allprojects {
     version = "1.0.0"
 
     repositories {
+        mavenLocal()
         mavenCentral()
         maven("https://artifacts.metaborg.org/content/repositories/releases/")
         maven("https://artifacts.metaborg.org/content/repositories/snapshots/")
