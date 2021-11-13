@@ -17,7 +17,7 @@ context-free syntax
     PathElem-LL.Index-LL = <[<ID>]>
     PathElem-LL.Filter-LL = <[<PathCond-LL>]>
 
-context-free sorts PathCond-FF
+context-free sorts PathCond-LL
 context-free syntax
 
     PathCond-LL.PathCondVar-LL = <(<ID>)>

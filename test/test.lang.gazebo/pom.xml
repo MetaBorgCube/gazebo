@@ -5,30 +5,14 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 >
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>gazebo.test</artifactId>
+  <artifactId>test.lang.gazebo</artifactId>
   <packaging>spoofax-test</packaging>
 
   <parent>
     <groupId>nl.jochembroekhoff.gazebo</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>test-parent</artifactId>
     <version>${revision}</version>
   </parent>
-
-  <dependencies>
-    <dependency>
-      <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>lang.gazebo</artifactId>
-      <version>${revision}</version>
-      <type>spoofax-language</type>
-    </dependency>
-    <dependency>
-      <groupId>org.metaborg</groupId>
-      <artifactId>org.metaborg.meta.lang.spt</artifactId>
-      <version>${metaborg-version}</version>
-      <type>spoofax-language</type>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>

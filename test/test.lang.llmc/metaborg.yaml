@@ -1,0 +1,10 @@
+---
+gazeboVersion: 0.1.0-SNAPSHOT
+id: nl.jochembroekhoff.gazebo:test.lang.llmc:${gazeboVersion}
+name: test-llmc
+dependencies:
+  compile:
+  - nl.jochembroekhoff.gazebo:lang.llmc:${gazeboVersion}
+  - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
+build:
+  useBuildSystemSpec: true

@@ -1,7 +1,7 @@
 ---
 gazeboVersion: 0.1.0-SNAPSHOT
-id: nl.jochembroekhoff.gazebo:gazebo.test:${gazeboVersion}
-name: gazebo-test
+id: nl.jochembroekhoff.gazebo:test.lang.gazebo:${gazeboVersion}
+name: test-gazebo
 dependencies:
   compile:
   - nl.jochembroekhoff.gazebo:lang.gazebo:${gazeboVersion}

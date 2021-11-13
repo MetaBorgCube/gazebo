@@ -1,0 +1,34 @@
+module Syntax
+
+imports 
+
+  libspoofax/color/default
+  completion/colorer/llmc-cc-esv
+
+language
+
+  table         : target/metaborg/sdf.tbl
+  start symbols : Function-LL
+
+  line comment  : "//"
+  block comment : "/*" * "*/"
+  fences        : [ ] ( ) { }
+
+colorer
+
+  INT : green
+  FLOAT : green
+  STRING : blue
+  //_.ArgSelector-LL : orange
+
+menus
+  
+  menu: "Syntax" (openeditor)
+    
+    action: "Format"          = editor-format (source)
+    action: "Show parsed AST" = debug-show-aterm (source)
+
+views
+  
+  outline view: editor-outline (source)
+    expand to level: 3

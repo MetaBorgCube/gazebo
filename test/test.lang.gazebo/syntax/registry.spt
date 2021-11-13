@@ -22,7 +22,7 @@ static registry $<minecraft:block>
     register minecraft:redstone_torch
     {
         protocol_id 1
-        block_states
+        states
         {
             facing String { "none", "north", "east", "south", "west" }
             lit Bool { true, false }

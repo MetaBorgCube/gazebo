@@ -52,7 +52,7 @@ context-free restrictions
     LAYOUT? -/- [\/].[\/]
     LAYOUT? -/- [\/].[\*]
 
-context-free syntax
+lexical syntax
 
     // Disallow reserved underscore identifier
     ID = "_" {reject}
@@ -60,7 +60,7 @@ context-free syntax
 context-free sorts NSID-LL
 context-free syntax
 
-    NSID-LL.NSID-LL = <<ID>:<ID>>
+    NSID-LL.NSID-LL = <<ID>:<{ID "/"}+>>
 
 context-free sorts Modifier-LL
 context-free syntax

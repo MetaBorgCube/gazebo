@@ -13,15 +13,17 @@ context-free syntax
             <Block-LL>
     >
 
-context-free sorts Block-LL
+context-free sorts Block-LL FlowBlock-LL
 context-free syntax
 
-    Block-LL.FlowBlock-LL = <
-        <FlowControl-LL?> {
-            <{Block-LL "\n"}+>
+    Block-LL.FlowGroup-LL = <<{FlowBlock-LL "\n"}*>>
+    Block-LL.BasicBlock-LL = <<{Assign-LL "\n"}+>>
+
+    FlowBlock-LL.FlowBlock-LL = <
+        <FlowControl-LL> {
+            <Block-LL>
         }
     >
-    Block-LL.BasicBlock-LL = <<{Assign-LL "\n"}*>>
 
 context-free sorts FlowControl-LL
 context-free syntax
@@ -45,3 +47,4 @@ context-free syntax
 
     Condition-LL.Unconditional-LL = <>
     Condition-LL.CondLoop-LL = <loop <Arg-LL>>
+    Condition-LL.If-LL = <if <Arg-LL>>
