@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.gazebo.lang.mcam.strategies;
+package nl.jochembroekhoff.gazebo.lang.llmc.strategies;
 
 import org.strategoxt.lang.Context;
 

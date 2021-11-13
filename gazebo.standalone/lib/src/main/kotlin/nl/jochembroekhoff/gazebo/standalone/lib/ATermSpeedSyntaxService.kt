@@ -24,7 +24,7 @@ class ATermSpeedSyntaxService @Inject constructor(
 
     override fun parse(input: ISpoofaxInputUnit, progress: IProgress, cancel: ICancel): ISpoofaxParseUnit {
         val inputName = input.source()?.name
-        return if (inputName?.baseName?.let { it.endsWith(".aterm-speed.gzbc") || it.endsWith(".aterm-speed.mcam") } == true) {
+        return if (inputName?.baseName?.let { it.endsWith(".aterm-speed.gzbc") || it.endsWith(".aterm-speed.llmc") } == true) {
             cancel.throwIfCancelled()
 
             logger.debug("ATerm speed syntax load for input {}", inputName)

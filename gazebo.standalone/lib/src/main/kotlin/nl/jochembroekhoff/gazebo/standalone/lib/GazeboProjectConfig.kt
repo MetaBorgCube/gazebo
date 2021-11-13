@@ -20,10 +20,10 @@ class GazeboProjectConfig(
         private val componentMapping = mapOf(
             GazeboLang.GZB to "lang.gazebo",
             GazeboLang.GZBC to "lang.gazebo-core",
-            GazeboLang.MCAM to "lang.mcam",
+            GazeboLang.LLMC to "lang.llmc",
             GazeboExt.GZB2GZBC to "ext.gzb2gzbc",
-            GazeboExt.GZBC2MCAM to "ext.gzbc2mcam",
-            GazeboExt.MCAM2MCJE to "ext.mcam2mcje",
+            GazeboExt.GZBC2LLMC to "ext.gzbc2llmc",
+            GazeboExt.LLMC2MCJE to "ext.llmc2mcje",
         )
 
         private fun gazeboProjectIdentifier(component: String): String {
@@ -47,7 +47,7 @@ class GazeboProjectConfig(
         return listOf(
             LangSource("gazebo", "./data"),
             LangSource("gazebo-core", "./src-gen/gzb-interm"),
-            LangSource("mcam", "./src-gen/gzb-interm"),
+            LangSource("llmc", "./src-gen/gzb-interm"),
         )
     }
 

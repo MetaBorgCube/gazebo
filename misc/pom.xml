@@ -30,7 +30,7 @@
     </dependency>
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>lang.mcam</artifactId>
+      <artifactId>lang.llmc</artifactId>
       <type>spoofax-language</type>
       <version>${revision}</version>
     </dependency>
@@ -43,13 +43,13 @@
     </dependency>
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>ext.gzbc2mcam</artifactId>
+      <artifactId>ext.gzbc2llmc</artifactId>
       <type>spoofax-language</type>
       <version>${revision}</version>
     </dependency>
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>ext.mcam2mcje</artifactId>
+      <artifactId>ext.llmc2mcje</artifactId>
       <type>spoofax-language</type>
       <version>${revision}</version>
     </dependency>
@@ -100,7 +100,7 @@
             </artifactItem>
             <artifactItem>
               <groupId>nl.jochembroekhoff.gazebo</groupId>
-              <artifactId>lang.mcam</artifactId>
+              <artifactId>lang.llmc</artifactId>
               <type>spoofax-language</type>
             </artifactItem>
             <!-- extensions -->
@@ -111,12 +111,12 @@
             </artifactItem>
             <artifactItem>
               <groupId>nl.jochembroekhoff.gazebo</groupId>
-              <artifactId>ext.gzbc2mcam</artifactId>
+              <artifactId>ext.gzbc2llmc</artifactId>
               <type>spoofax-language</type>
             </artifactItem>
             <artifactItem>
               <groupId>nl.jochembroekhoff.gazebo</groupId>
-              <artifactId>ext.mcam2mcje</artifactId>
+              <artifactId>ext.llmc2mcje</artifactId>
               <type>spoofax-language</type>
             </artifactItem>
             <!-- libraries -->

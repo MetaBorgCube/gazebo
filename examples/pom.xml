@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>lang.mcam</artifactId>
+      <artifactId>lang.llmc</artifactId>
       <version>${revision}</version>
       <type>spoofax-language</type>
     </dependency>

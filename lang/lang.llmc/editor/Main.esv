@@ -9,7 +9,7 @@ imports
 
 language
 
-  extensions : mcam
+  extensions : llmc
 
   provider : target/metaborg/stratego.ctree
   provider : target/metaborg/stratego.jar

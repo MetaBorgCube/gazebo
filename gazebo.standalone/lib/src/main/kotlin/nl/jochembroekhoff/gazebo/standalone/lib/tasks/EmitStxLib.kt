@@ -18,7 +18,7 @@ class EmitStxLib(targetLang: GazeboLang) : AdditionalTask<Future<FileObject>>("e
         private val langNameMapping = mapOf(
             GazeboLang.GZB to "gazebo",
             GazeboLang.GZBC to "gazebo-core",
-            GazeboLang.MCAM to "mcam",
+            GazeboLang.LLMC to "llmc",
         )
     }
 

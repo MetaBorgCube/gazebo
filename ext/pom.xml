@@ -16,8 +16,8 @@
 
   <modules>
     <module>ext.gzb2gzbc</module>
-    <module>ext.gzbc2mcam</module>
-    <module>ext.mcam2mcje</module>
+    <module>ext.gzbc2llmc</module>
+    <module>ext.llmc2mcje</module>
   </modules>
 
   <dependencies>
@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>lang.mcam</artifactId>
+      <artifactId>lang.llmc</artifactId>
       <version>${revision}</version>
       <type>spoofax-language</type>
     </dependency>

@@ -1,7 +1,7 @@
 ---
 gazeboVersion: 0.1.0-SNAPSHOT
-id: nl.jochembroekhoff.gazebo:lang.mcam:${gazeboVersion}
-name: mcam
+id: nl.jochembroekhoff.gazebo:lang.llmc:${gazeboVersion}
+name: llmc
 dependencies:
   compile:
   - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
@@ -17,7 +17,7 @@ pardonedLanguages:
 - SDF
 language:
   sdf:
-    pretty-print: mcam
+    pretty-print: llmc
     sdf2table: java
     placeholder:
       prefix: "$"

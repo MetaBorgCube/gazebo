@@ -1,19 +1,19 @@
 ---
 gazeboVersion: 0.1.0-SNAPSHOT
-id: nl.jochembroekhoff.gazebo:ext.gzbc2mcam:${gazeboVersion}
-name: gazebo-ext-gzbc2mcam
+id: nl.jochembroekhoff.gazebo:ext.gzbc2llmc:${gazeboVersion}
+name: gazebo-ext-gzbc2llmc
 dependencies:
   compile:
   - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
   source:
   - org.metaborg:meta.lib.spoofax:${metaborgVersion}
   - nl.jochembroekhoff.gazebo:lang.gazebo-core:${gazeboVersion}
-  - nl.jochembroekhoff.gazebo:lang.mcam:${gazeboVersion}
+  - nl.jochembroekhoff.gazebo:lang.llmc:${gazeboVersion}
 contributions:
 - name: gazebo-core
   id: nl.jochembroekhoff.gazebo:lang.gazebo-core:${gazeboVersion}
 generates:
-- language: mcam
+- language: llmc
   directory: src-gen
 language:
   sdf:

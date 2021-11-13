@@ -17,7 +17,7 @@
   <modules>
     <module>lang.gazebo</module>
     <module>lang.gazebo-core</module>
-    <module>lang.mcam</module>
+    <module>lang.llmc</module>
   </modules>
 
   <dependencies>
