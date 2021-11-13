@@ -64,7 +64,7 @@ context-free sorts Invoke Args /* Kwargs Kwarg */
 context-free syntax
 
     Expr = Invoke
-    Invoke.InvokeNone = <<Expr-I>()>
+    Invoke.InvokeNone = Expr-I "(" ")" // no <<Expr-I>()>, because that would not allow spaces between the parens
     Invoke.InvokeArgs = <<Expr-I>(<Args>)>
     //Invoke.InvokeArgsKwargs = <<Expr-I>(<Args>, <Kwargs>)>
     //Invoke.InvokeKwargs = <<Expr-I>(<Kwargs>)>

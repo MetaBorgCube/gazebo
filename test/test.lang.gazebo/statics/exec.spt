@@ -3,6 +3,12 @@ module statics/exec
 
 fixture [[
 module test:test
+/*global aliases copied from gen/overlay/minecraft/gazebo/global_selectors.gzb*/
+global alias @e = @e
+global alias @a = @e[] // in practical implementation: [type == $<:entity_type>:player]
+global alias @p = @a[sort = "nearest", limit = 1]
+global alias @r = @a[sort = "random", limit = 1]
+global alias @s = @e[limit = 1]
 static registry $<minecraft:dimension>
 {
     register minecraft:the_end { protocol_id 2 }

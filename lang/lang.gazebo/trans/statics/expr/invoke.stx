@@ -13,15 +13,18 @@ rules
 
     typeOfInvoke(s, InvokeNone(Expr2Expr-I(e))) = Tr :- {Tfn}
         typeOfExpr(s, e) == Tfn,
-        typeOfInvoke_internal(s, Tfn, Args([])) == Tr | error $[cannot invoke, type [Tfn] is not a function]@e.
+        typeOfInvoke_internal(s, Tfn, Args([])) == Tr | error $[cannot invoke, type [Tfn] is not invokeable]@e.
 
     typeOfInvoke(s, InvokeArgs(Expr2Expr-I(e), a)) = Tr :- {Tfn}
         typeOfExpr(s, e) == Tfn,
-        typeOfInvoke_internal(s, Tfn, a) == Tr | error $[cannot invoke, type [Tfn] is not a function]@e.
+        typeOfInvoke_internal(s, Tfn, a) == Tr | error $[cannot invoke, type [Tfn] is not invokeable]@e.
 
 rules
 
     typeOfInvoke_internal : scope * TYPE * Args -> TYPE
+
+    typeOfInvoke_internal(_, TAG(), a) = VOID() :-
+        a == Args([]) | error $[cannot invoke tag with args]@a.
 
     typeOfInvoke_internal(s, FUNC(Tparams, Tr), a) = Tr :- {Tparams_remaining}
         funcArgsOk(s, Tparams, a) == Tparams_remaining.

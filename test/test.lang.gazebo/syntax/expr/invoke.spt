@@ -19,6 +19,10 @@ test invoke none [[
 a()
 ]] parse succeeds
 
+test invoke none with space between parens [[
+appel( )
+]] parse succeeds
+
 test invoke args [[
 test(1, true, "other")
 ]] parse succeeds
