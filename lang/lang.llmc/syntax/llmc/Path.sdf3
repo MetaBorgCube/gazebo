@@ -1,0 +1,29 @@
+module llmc/Path
+
+imports
+
+    llmc/Common
+
+context-free sorts Path-LL
+context-free syntax
+
+    Path-LL.Path-LL = <'<PathElem-LL+>'>
+
+context-free sorts PathElem-LL
+context-free syntax
+
+    PathElem-LL.Select-LL = <<{SelectElem-LL "."}+>>
+    PathElem-LL.Cond-LL = PathCond-LL
+    PathElem-LL.Index-LL = <[<ID>]>
+    PathElem-LL.Filter-LL = <[<PathCond-LL>]>
+
+context-free sorts PathCond-FF
+context-free syntax
+
+    PathCond-LL.PathCondVar-LL = <(<ID>)>
+
+context-free sorts SelectElem-LL
+context-free syntax
+
+    SelectElem-LL.SelectElemID-LL = ID
+    SelectElem-LL.SelectElemStr-LL = STRING

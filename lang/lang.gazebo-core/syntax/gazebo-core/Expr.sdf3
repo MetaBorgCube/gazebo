@@ -54,7 +54,10 @@ context-free syntax
     Expr-C.String-C = STRING
     Expr-C.BoolT-C = <true>
     Expr-C.BoolF-C = <false>
+    Expr-C.NumB-C = <<INT>B>
+    Expr-C.NumS-C = <<INT>S>
     Expr-C.NumI-C = <<INT>I>
+    Expr-C.NumL-C = <<INT>L>
     Expr-C.NumF-C = <<FLOAT>F>
     Expr-C.NumD-C = <<FLOAT>D>
 

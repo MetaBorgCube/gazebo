@@ -1,0 +1,42 @@
+module llmc/OpArg
+
+imports
+
+    llmc/Common
+    llmc/Path
+
+context-free sorts Op-LL
+context-free syntax
+
+    Op-LL.PopLeft-LL = <popl>
+
+context-free sorts Arg-LL
+context-free syntax
+
+    Arg-LL.ArgVar-LL = ID
+    Arg-LL.ArgRef-LL = NSID-LL
+    Arg-LL.ArgString-LL = STRING
+    Arg-LL.ArgIntB-LL = <<INT>B>
+    Arg-LL.ArgIntS-LL = <<INT>S>
+    Arg-LL.ArgIntI-LL = <<INT>I>
+    Arg-LL.ArgIntL-LL = <<INT>L>
+    Arg-LL.ArgFloatS-LL = <<FLOAT>F> // single-precision
+    Arg-LL.ArgFloatD-LL = <<FLOAT>D> // double-precision
+    Arg-LL.ArgList-LL = <l[<{Arg-LL ", "}*>]>
+    Arg-LL.ArgArray-LL = <a[<{Arg-LL ", "}*>]>
+    Arg-LL.ArgCompound-LL = <c[<{CompoundEntry-LL ", "}*>]>
+    Arg-LL.ArgPos-LL = <p[<PosKind-LL>; <PosCoordKind-LL> <Arg-LL>, <PosCoordKind-LL> <Arg-LL>, <PosCoordKind-LL> <Arg-LL>]>
+    Arg-LL.ArgRes-LL = <r[<NSID-LL>, <NSID-LL>]>
+    Arg-LL.ArgTag-LL = <t[<NSID-LL>]>
+    Arg-LL.ArgPath-LL = Path-LL
+
+context-free sorts CompoundEntry-LL
+context-free syntax
+
+    CompoundEntry-LL.CompoundEntry-LL = <<ID> <Arg-LL>>
+
+context-free sorts PosCoordKind-LL
+context-free syntax
+
+    PosCoordKind-LL.PosCoordAbs-LL = <>
+    PosCoordKind-LL.PosCoordDyn-LL = <dyn>

@@ -1,0 +1,29 @@
+module llmc/Type
+
+imports
+
+    llmc/Common
+
+context-free sorts Type-LL
+context-free syntax
+
+    // type for var and ref not accounted for: abstract types
+    Type-LL.TypeString-LL = <s>
+    Type-LL.TypeIntB-LL = <i[B]>
+    Type-LL.TypeIntS-LL = <i[S]>
+    Type-LL.TypeIntI-LL = <i[I]>
+    Type-LL.TypeIntL-LL = <i[L]>
+    Type-LL.TypeFloatS-LL = <f[S]>
+    Type-LL.TypeFloatD-LL = <f[D]>
+    Type-LL.TypeList-LL = <l[<Type-LL>]>
+    Type-LL.TypeArray-LL = <a[<Type-LL>]>
+    Type-LL.TypeCompound-LL = <c[<{TypeCompoundEntry-LL ", "}*>]>
+    Type-LL.TypePos-LL = <p[<PosKind-LL> <Type-LL>]>
+    Type-LL.TypeRes-LL = <r[<NSID-LL>]>
+    Type-LL.TypeTag-LL = <t>
+    // type for path not accounted for: abstract type
+
+context-free sorts TypeCompoundEntry-LL
+context-free syntax
+
+    TypeCompoundEntry-LL.TypeCompoundEntry-LL = <<ID> <Type-LL>>

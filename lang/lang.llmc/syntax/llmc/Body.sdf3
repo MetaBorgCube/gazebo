@@ -1,0 +1,47 @@
+module llmc/Body
+
+imports
+
+    llmc/Common
+    llmc/OpArg
+
+context-free sorts Body-LL
+context-free syntax
+
+    Body-LL.Body-LL = <
+        body
+            <Block-LL>
+    >
+
+context-free sorts Block-LL
+context-free syntax
+
+    Block-LL.FlowBlock-LL = <
+        <FlowControl-LL?> {
+            <{Block-LL "\n"}+>
+        }
+    >
+    Block-LL.BasicBlock-LL = <<{Assign-LL "\n"}*>>
+
+context-free sorts FlowControl-LL
+context-free syntax
+
+    FlowControl-LL.FlowControl-LL = <<Condition-LL> <Modifier-LL*>>
+
+context-free sorts Assign-LL
+context-free syntax
+
+    Assign-LL.AssignOp-LL = [[AssignDest-LL] <- [Op-LL] [Arg-LL*]]
+    Assign-LL.AssignNew-LL = [[AssignDest-LL] <- [Arg-LL]]
+
+context-free sorts AssignDest-LL
+context-free syntax
+
+    AssignDest-LL.DestDiscard-LL = <_>
+    AssignDest-LL.DestVar-LL = ID
+
+context-free sorts Condition-LL
+context-free syntax
+
+    Condition-LL.Unconditional-LL = <>
+    Condition-LL.CondLoop-LL = <loop <Arg-LL>>

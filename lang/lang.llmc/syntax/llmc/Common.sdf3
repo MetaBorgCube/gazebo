@@ -1,0 +1,76 @@
+module llmc/Common
+
+lexical sorts
+
+    COMMENT_CHAR INDSIDE_COMMENT
+    ID
+    STRING STRING_CHAR
+    INT FLOAT
+    NEWLINE_EOF EOF
+
+lexical syntax
+
+    COMMENT_CHAR     = [\*]
+    LAYOUT           = "/*" INSIDE_COMMENT* "*/"
+    INSIDE_COMMENT   = ~[\*]
+    INSIDE_COMMENT   = COMMENT_CHAR
+
+    ID               = [a-zA-Z\-\.\_] [a-zA-Z0-9\-\.\_]*
+
+    STRING           = "\"" STRING_CHAR* "\""
+    STRING_CHAR      = ~[\\\"\n]
+    STRING_CHAR      = "\\" [\\\"]
+
+    INT              = "-"? [0-9]+
+    FLOAT            = INT
+    FLOAT            = INT "." INT
+
+    LAYOUT           = [\ \t\n\r]
+    LAYOUT           = "//" ~[\n\r]* NEWLINE_EOF
+    NEWLINE_EOF      = [\n\r]
+    NEWLINE_EOF      = EOF
+    EOF              =
+
+lexical restrictions
+
+    COMMENT_CHAR     -/- [\/]
+
+    // greedy match
+    ID               -/- [a-zA-Z0-9\-\.\_]
+    INT              -/- [0-9]
+
+    // Floats may not be followed by another suffix
+    FLOAT            -/- [dfDF]
+
+    // EOF may not be followed by any char
+    EOF              -/- ~[]
+
+context-free restrictions
+
+    // Ensure greedy matching for comments
+    LAYOUT? -/- [\ \t\n\r]
+    LAYOUT? -/- [\/].[\/]
+    LAYOUT? -/- [\/].[\*]
+
+context-free syntax
+
+    // Disallow reserved underscore identifier
+    ID = "_" {reject}
+
+context-free sorts NSID-LL
+context-free syntax
+
+    NSID-LL.NSID-LL = <<ID>:<ID>>
+
+context-free sorts Modifier-LL
+context-free syntax
+
+    Modifier-LL.ModConst-LL = <.const>
+
+context-free sorts PosKind-LL
+context-free syntax
+
+    PosKind-LL.PosAny-LL = <*> // not allowed at use-site
+    PosKind-LL.PosAbs-LL = <.>
+    PosKind-LL.PosLoc-LL = <^>
+    PosKind-LL.PosRel-LL = <~>

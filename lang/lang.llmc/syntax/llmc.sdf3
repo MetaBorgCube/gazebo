@@ -1,13 +1,48 @@
 module llmc
 
+imports
+
+    llmc/Common
+    llmc/Body
+    llmc/Type
+
 context-free start-symbols
 
-    StartAM
+    Function-LL
 
-context-free sorts
-
-    StartAM
-
+context-free sorts Function-LL
 context-free syntax
 
-    StartAM.StartAM = <start>
+    Function-LL.Function-LL = <
+        function <NSID-LL>
+
+        <Global-LL>
+
+        <Sign-LL>
+
+        <Local-LL>
+
+        <Body-LL>
+    >
+
+context-free sorts Global-LL Sign-LL Local-LL
+context-free syntax
+
+    // TODO: specify common identifier to link global storage location
+    Global-LL.Global-LL = <
+        global
+            <{Decl-LL "\n"}*>
+    >
+    Sign-LL.Sign-LL = <
+        sign
+            <{Decl-LL "\n"}*>
+    >
+    Local-LL.Local-LL = <
+        local
+            <{Decl-LL "\n"}*>
+    >
+
+context-free sorts Decl-LL
+context-free syntax
+
+    Decl-LL.Decl-LL = <<Modifier-LL*> <ID> <Type-LL>>
