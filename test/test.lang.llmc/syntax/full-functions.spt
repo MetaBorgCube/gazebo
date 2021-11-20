@@ -15,6 +15,7 @@ func count_items_in_container(const container `~Int, const item_id $<item>) -> I
 */
 
 global
+    dummy b = data example:abc/def 'Path.to."some thing"[0]'
 
 sign
     .const container p[~iI]

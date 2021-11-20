@@ -14,7 +14,8 @@ context-free syntax
 
     PathElem-LL.Select-LL = <<{SelectElem-LL "."}+>>
     PathElem-LL.Cond-LL = PathCond-LL
-    PathElem-LL.Index-LL = <[<ID>]>
+    PathElem-LL.IndexFix-LL = <[<INT>]>
+    PathElem-LL.IndexDyn-LL = <[<ID>]>
     PathElem-LL.Filter-LL = <[<PathCond-LL>]>
 
 context-free sorts PathCond-LL

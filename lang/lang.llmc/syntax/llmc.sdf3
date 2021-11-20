@@ -5,6 +5,7 @@ imports
     llmc/Common
     llmc/Body
     llmc/Type
+    llmc/Path
 
 context-free start-symbols
 
@@ -28,7 +29,6 @@ context-free syntax
 context-free sorts Global-LL Sign-LL Local-LL
 context-free syntax
 
-    // TODO: specify common identifier to link global storage location
     Global-LL.Global-LL = <
         global
             <{Decl-LL "\n"}*>
@@ -42,7 +42,9 @@ context-free syntax
             <{Decl-LL "\n"}*>
     >
 
-context-free sorts Decl-LL
+context-free sorts Decl-LL StorageLocation-LL
 context-free syntax
 
-    Decl-LL.Decl-LL = <<Modifier-LL*> <ID> <Type-LL>>
+    Decl-LL.DeclAuto-LL = <<Modifier-LL*> <ID> <Type-LL> <StorageLocation-LL>>
+    StorageLocation-LL.StorageLocationAuto-LL = <>
+    StorageLocation-LL.StorageLocationData = <= data <NSID-LL> <Path-LL>>
