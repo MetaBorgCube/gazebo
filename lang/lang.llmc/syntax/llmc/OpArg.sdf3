@@ -36,8 +36,9 @@ context-free syntax
     Arg-LL.ArgRes-LL = <r[<NSID-LL>, <NSID-LL>]>
     Arg-LL.ArgTag-LL = <t[<NSID-LL>]>
     Arg-LL.ArgPath-LL = Path-LL
-
-    // TODO: Selector
+    Arg-LL.ArgSelector-LL = <<SelectorType-LL>[<{SelectorProp-LL ", "}*>]>
+    Arg-LL.ArgRaw-LL = <|[<{UnsafePart-LL ", "}+>]>
+    Arg-LL.ArgUnsafe-LL = </[<{UnsafePart-LL ", "}+>]>
 
 lexical syntax
 
@@ -54,3 +55,23 @@ context-free syntax
 
     PosCoordKind-LL.PosCoordAbs-LL = <>
     PosCoordKind-LL.PosCoordDyn-LL = <dyn>
+
+context-free sorts SelectorType-LL SelectorProp-LL SelectorPropKv-LL
+context-free syntax
+
+    SelectorType-LL.SelectorE-LL = <@e>
+    SelectorType-LL.SelectorA-LL = <@a>
+    SelectorType-LL.SelectorP-LL = <@p>
+    SelectorType-LL.SelectorR-LL = <@r>
+    SelectorType-LL.SelectorS-LL = <@s>
+
+    SelectorProp-LL.SelectorPropKv-LL = <<SelectorPropKv-LL>>
+    SelectorProp-LL.SelectorPropMap-LL = <<ID> = {<{SelectorPropKv-LL ", "}*>}>
+
+    SelectorPropKv-LL.SelectorPropKvEqual-LL = <<ID> = <Arg-LL>>
+    SelectorPropKv-LL.SelectorPropKvNotEqual-LL = <<ID> != <Arg-LL>>
+
+context-free sorts UnsafePart-LL
+context-free syntax
+
+    UnsafePart-LL.UnsafePartFormatted-LL = <(<ID>) <Arg-LL>>
