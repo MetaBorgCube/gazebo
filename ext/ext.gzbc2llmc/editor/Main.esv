@@ -1,0 +1,15 @@
+module Main
+
+language
+
+  context  : none
+  provider : target/metaborg/stratego.ctree
+  on save  : editor-generate-llmc-shared
+
+menus
+
+  menu: "LLMC (Low-Level Minecraft Commands)" (openeditor) (meta) (realtime)
+
+    action: "Generate" = editor-generate-llmc-shared
+    action: "Generate (PP source)" = editor-generate-llmc-shared-pp
+    //action: "Generate (local)" = editor-generate-llmc-local

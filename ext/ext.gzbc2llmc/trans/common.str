@@ -1,0 +1,47 @@
+module common
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  pp/gazebo-core-parenthesize
+  pp/gazebo-core-pp
+  pp/llmc-parenthesize
+  pp/llmc-pp
+
+  libspoofax/-
+
+  libstratego-gpp
+
+  str_common
+
+strategies
+
+  pp-gzbc =
+      parenthesize-gazebo-core
+    ; prettyprint-gazebo-core-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+  pp-llmc =
+      parenthesize-llmc
+    ; prettyprint-llmc-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+strategies
+
+  relevant-tli =
+    ?Mixin-C(_, _)
+  + ?Function-C(_, _, _)
+  + ?Decl-C(_, _, _)
+
+rules // nsid-from-base(|[ns, basename]) :: a | List(a) -> List(a)
+
+  nsid-from-base(|[ns | basename]): name -> NSID-LL(ns, <concat> [basename, name])
+    where is-list
+  nsid-from-base(|base): name -> <nsid-from-base(|base)> [name]
+    where not(is-list)

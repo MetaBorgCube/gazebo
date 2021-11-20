@@ -1,0 +1,23 @@
+module generate
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  // for temporary workaround
+  injections/gazebo-core/-
+  injections/llmc/-
+  injections/-
+
+  common
+  transform
+
+rules
+
+  generate-llmc: Start-C(IdentFull-C(ns, name*), tlis) -> transformed
+    with // the implicate-injections-gazebo-core is a temporary workaround for it not working correctly in Statix runtime
+      tlis' := <map(implicate-injections-gazebo-core); filter(relevant-tli)> tlis
+    ; transformed := <map(transform-tli(|[ns | name*]))> tlis'
