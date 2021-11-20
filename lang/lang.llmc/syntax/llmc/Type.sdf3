@@ -22,6 +22,7 @@ context-free syntax
     Type-LL.TypePos-LL = <p[<PosKind-LL> <Type-LL>]> // restricted to numeric types
     Type-LL.TypeRes-LL = <r[<NSID-LL>]>
     Type-LL.TypeTag-LL = <t>
+    Type-LL.TypeSelector-LL = <@>
     // type for path not accounted for: abstract type
 
     Type-LL.TypeRefReference-LL = <`<INT>>

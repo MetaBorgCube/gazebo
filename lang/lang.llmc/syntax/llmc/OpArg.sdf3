@@ -33,7 +33,7 @@ context-free syntax
     Arg-LL.ArgArray-LL = <a[<{Arg-LL ", "}*>]>
     Arg-LL.ArgCompound-LL = <c[<{CompoundEntry-LL ", "}*>]>
     Arg-LL.ArgPos-LL = <p[<PosKind-LL>; <PosCoordKind-LL> <Arg-LL>, <PosCoordKind-LL> <Arg-LL>, <PosCoordKind-LL> <Arg-LL>]>
-    Arg-LL.ArgRes-LL = <r[<NSID-LL>, <NSID-LL>]>
+    Arg-LL.ArgRes-LL = <r[<NSID-LL>, <NSID-LL>]<ResourceState-LL>>
     Arg-LL.ArgTag-LL = <t[<NSID-LL>]>
     Arg-LL.ArgPath-LL = Path-LL
     Arg-LL.ArgSelector-LL = <<SelectorType-LL>[<{SelectorProp-LL ", "}*>]>
@@ -55,6 +55,13 @@ context-free syntax
 
     PosCoordKind-LL.PosCoordAbs-LL = <>
     PosCoordKind-LL.PosCoordDyn-LL = <dyn>
+
+context-free sorts ResourceState-LL StateKv-LL
+context-free syntax
+
+    ResourceState-LL.NoResourceState-LL = <>
+    ResourceState-LL.StatesWithPayload-LL = <+[<{StateKv-LL ", "}*>][<Arg-LL?>]>
+    StateKv-LL.StateKv-LL = <<ID> = <Arg-LL>>
 
 context-free sorts SelectorType-LL SelectorProp-LL SelectorPropKv-LL
 context-free syntax

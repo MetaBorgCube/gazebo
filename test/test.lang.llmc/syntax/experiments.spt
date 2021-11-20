@@ -1,0 +1,31 @@
+language llmc
+module syntax/experiments
+
+test experiment 1 [[[
+function exp:a
+
+global
+    dummy b = data example:abc/def 'Path.to."some thing"[0]'
+
+sign
+    _ret b
+
+local
+    a r[minecraft:block]
+    b @
+    c iI
+
+body {
+    a <- r[minecraft:block, minecraft:chest]+[facing="south", waterlogged=false][c[
+        Items l[c[
+            Slot 0B,
+            id r[minecraft:item, minecraft:stone],
+            Count 64B
+        ]]
+    ]]
+    b <- @r[level=7I]
+    c <- |[(default) "say hello"]
+    dummy <- false
+    _ret <- true
+}
+]]] parse succeeds
