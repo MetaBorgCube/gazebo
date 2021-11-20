@@ -7,6 +7,7 @@ dependencies:
   - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
   source:
   - org.metaborg:meta.lib.spoofax:${metaborgVersion}
+  - nl.jochembroekhoff.gazebo:str-common:${gazeboVersion}
   - nl.jochembroekhoff.gazebo:lang.llmc:${gazeboVersion}
 contributions:
 - name: llmc

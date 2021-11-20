@@ -15,6 +15,13 @@
   </parent>
 
   <dependencies>
+    <!-- common -->
+    <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>str-common</artifactId>
+      <type>spoofax-language</type>
+      <version>${revision}</version>
+    </dependency>
     <!-- languages -->
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
@@ -87,6 +94,12 @@
           <overWriteReleases>false</overWriteReleases>
           <overWriteSnapshots>true</overWriteSnapshots>
           <artifactItems>
+            <!-- common -->
+            <artifactItem>
+              <groupId>nl.jochembroekhoff.gazebo</groupId>
+              <artifactId>str-common</artifactId>
+              <type>spoofax-language</type>
+            </artifactItem>
             <!-- languages -->
             <artifactItem>
               <groupId>nl.jochembroekhoff.gazebo</groupId>

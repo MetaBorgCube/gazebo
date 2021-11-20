@@ -18,6 +18,8 @@ imports
 
   libstratego-gpp
 
+  str_common
+
 signature
 
   sorts
@@ -35,51 +37,6 @@ signature
 
     /** Statix spec types */
     SELECTOR : Stx-Scope -> TYPE
-
-strategies
-
-  /** opt-map(T -> U) :: Option(T) -> Option(U) */
-  opt-map(s) = None() <+ Some(s)
-
-  /** opt-unwrap :: Option(T) -> T */
-  opt-unwrap = ?Some(<id>)
-
-  /** opt-unwrap(_ -> T) :: Option(T) -> T */
-  opt-unwrap(fallback) =
-    ?None(); fallback
-  <+ ?Some(<id>)
-
-rules // intersperse(|elem:T) :: [T] -> [T]
-
-  intersperse(|elem) : [] -> []
-  intersperse(|elem) : [x] -> [x]
-  intersperse(|elem) : [x|xs] -> [x, elem | <intersperse(|elem)> xs]
-
-rules
-
-  get-filename: s -> s'
-    with
-      names := <strip-annos; string-tokenize(|['/'])> s
-    ; s' := <last> names
-
-  get-dir(|path): s -> s'
-    with
-      names := <strip-annos; string-tokenize(|['/'])> s
-    ; names' := <at-last(![])> names
-    ; if [h | tl] := names' then
-        s' := <concat-strings> [path, "/",  <separate-by(|"/"); concat-strings> names']
-      else
-        s' := path
-      end
-
-  get-src-gen(|project-path, folder, ext):
-    filename -> filename'
-    with
-      fn := <get-filename> filename
-    ; src-gen-path := <concat-strings> [project-path, "/src-gen"]
-    ; src-gen-folder := <concat-strings> [src-gen-path, "/" ,folder]
-    ; file-folder := <get-dir(|src-gen-folder)> filename
-    ; filename' := <concat-strings> [file-folder, "/" , fn, ext]
 
 strategies
 
@@ -134,8 +91,3 @@ strategies // is-simple-type :: Type -> id
   + ?TypeBool()
   + ?TypeInt()
   + ?TypeFloat()
-
-strategies
-
-  string-norm = un-double-quote; unescape
-  string-denorm = escape; double-quote

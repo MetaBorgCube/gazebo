@@ -8,6 +8,7 @@ dependencies:
   source:
   - org.metaborg:meta.lib.spoofax:${metaborgVersion}
   - org.metaborg:statix.runtime:${metaborgVersion}
+  - nl.jochembroekhoff.gazebo:str-common:${gazeboVersion}
   - nl.jochembroekhoff.gazebo:lang.gazebo:${gazeboVersion}
   - nl.jochembroekhoff.gazebo:lang.gazebo-core:${gazeboVersion}
 contributions:

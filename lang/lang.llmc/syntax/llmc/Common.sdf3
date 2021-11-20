@@ -15,7 +15,7 @@ lexical syntax
     INSIDE_COMMENT   = ~[\*]
     INSIDE_COMMENT   = COMMENT_CHAR
 
-    ID               = [a-zA-Z\-\.\_] [a-zA-Z0-9\-\.\_]*
+    ID               = [a-zA-Z\-\.\_\$] [a-zA-Z0-9\-\.\_\$]*
 
     STRING           = "\"" STRING_CHAR* "\""
     STRING_CHAR      = ~[\\\"\n]
@@ -36,11 +36,8 @@ lexical restrictions
     COMMENT_CHAR     -/- [\/]
 
     // greedy match
-    ID               -/- [a-zA-Z0-9\-\.\_]
+    ID               -/- [a-zA-Z0-9\-\.\_\$]
     INT              -/- [0-9]
-
-    // Floats may not be followed by another suffix
-    FLOAT            -/- [dfDF]
 
     // EOF may not be followed by any char
     EOF              -/- ~[]

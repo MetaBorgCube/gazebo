@@ -21,6 +21,12 @@
   </modules>
 
   <dependencies>
+      <dependency>
+      <groupId>nl.jochembroekhoff.gazebo</groupId>
+      <artifactId>str-common</artifactId>
+      <version>${revision}</version>
+      <type>spoofax-language</type>
+    </dependency>
     <dependency>
       <groupId>nl.jochembroekhoff.gazebo</groupId>
       <artifactId>lang.gazebo</artifactId>

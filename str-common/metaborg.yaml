@@ -1,0 +1,32 @@
+---
+gazeboVersion: 0.1.0-SNAPSHOT
+id: nl.jochembroekhoff.gazebo:str-common:${gazeboVersion}
+name: str-common
+dependencies:
+  source:
+  - org.metaborg:meta.lib.spoofax:${metaborgVersion}
+exports:
+- language: Stratego-Sugar
+  directory: trans
+language:
+  sdf:
+    enabled: false
+  stratego:
+    format: ctree
+    args:
+    - -la
+    - stratego-lib
+    - -la
+    - stratego-sglr
+    - -la
+    - stratego-gpp
+    - -la
+    - stratego-xtc
+    - -la
+    - stratego-aterm
+    - -la
+    - stratego-sdf
+    - -la
+    - strc
+build:
+  useBuildSystemSpec: true
