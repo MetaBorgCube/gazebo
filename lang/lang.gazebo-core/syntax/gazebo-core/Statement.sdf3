@@ -122,3 +122,9 @@ context-free syntax
     AssignOperator-C.AssignOperatorMul = <*=>
     AssignOperator-C.AssignOperatorDiv = </=>
     AssignOperator-C.AssignOperatorMod = <%=>
+
+///
+
+context-free syntax
+
+    Statement-C.DeleteStmt-C = <__del <Expr-C>>

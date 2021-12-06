@@ -10,29 +10,18 @@ imports
 
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
-  transform-tli(|base): Mixin-C(name, _) ->
-    Function-LL(
-      <newname; ![name, <id>]; nsid-from-base(|base)> "$mixin.init",
-      Global-LL([]),
-      Sign-LL([]),
-      Local-LL([]),
-      Body-LL(FlowGroup-LL([]))
-    )
-
   transform-tli(|base): Function-C(name, _, _) ->
     Function-LL(
       <nsid-from-base(|base)> name,
-      Global-LL([]),
-      Sign-LL([]),
-      Local-LL([]),
+      [
+        Decl-LL(SGlobal-LL(), [], "abc", TypeIntI-LL(), StorageLocationAuto-LL())
+      ],
       Body-LL(FlowGroup-LL([]))
     )
 
   transform-tli(|base): Decl-C(_, name, e) ->
     Function-LL(
-      <newname; ![name, <id>]; nsid-from-base(|base)> "$global.init",
-      Global-LL([]),
-      Sign-LL([]),
-      Local-LL([]),
+      <newname; ![name, <id>]; nsid-from-base(|base)> "_global.init",
+      [],
       Body-LL(FlowGroup-LL([]))
     )

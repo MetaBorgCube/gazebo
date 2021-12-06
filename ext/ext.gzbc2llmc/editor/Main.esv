@@ -10,6 +10,6 @@ menus
 
   menu: "LLMC (Low-Level Minecraft Commands)" (openeditor) (meta) (realtime)
 
-    action: "Generate" = editor-generate-llmc-shared
-    action: "Generate (PP source)" = editor-generate-llmc-shared-pp
+    action: "Generate (shared)" = editor-generate-llmc-shared
+    action: "Generate (shared, PP source)" = editor-generate-llmc-shared-pp
     //action: "Generate (local)" = editor-generate-llmc-local

@@ -1,0 +1,128 @@
+module desugar
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/llmc/-
+  signatures/-
+
+  common
+
+strategies
+
+  tli-add =
+    ?tli
+  ; rules( TliAdd:+ _ -> tli )
+
+strategies
+
+  with-added-tlis(s) =
+    {| TliAdd
+    : s
+    ; ![<bagof-TliAdd <+ ![]>(), <id>]
+    ; concat
+    |}
+
+  desugar-all =
+    {| MixinLookup
+    : with-added-tlis(map(try(desugar-mixin)))
+    ; with-added-tlis(map(bottomup(try(desugar))))
+    |}
+
+rules
+
+  /*
+  mixin MyMixin [tag = "example", level > 5+6]
+  const my_sel := @(e, MyMixin, [])
+  -->
+  const _mixin.MyMixin.level0 := 5 + 6
+  const my_sel := @(e, [tag = "example", level > _mixin.MyMixin.level.0])
+  */
+
+  desugar-mixin-prop-lift(|ident_base): e -> e'
+    with
+      if is-lit-or-ref then
+        e' := e
+      else
+        ident := <newname> ident_base
+      ; e' := RefLocal-C(IdentLocal-C(ident))
+      ; <tli-add> Decl-C(DeclKindConst-C(), ident, e)
+      end
+
+  desugar-mixin-prop(|name): PropKv-C(k, v) ->
+    PropKv-C(k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k])> v)
+  desugar-mixin-prop(|name): PropCmp-C(k, cmp, v) ->
+    PropCmp-C(k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k])> v)
+  desugar-mixin-prop(|name): PropMap-C(k, entries) ->
+    PropMap-C(k, <desugar-mixin-prop-entry(|name, k)> entries)
+
+  desugar-mixin-prop-entry(|name, k): PropMapEntryKv-C(map_k, map_v) ->
+    PropMapEntryKv-C(map_k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k, ".", map_k])> map_v)
+  desugar-mixin-prop-entry(|name, k): PropMapEntryCmp-C(map_k, cmp, map_v) ->
+    PropMapEntryCmp-C(map_k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k, ".", map_k])> map_v)
+
+  desugar-mixin: m@Mixin-C(name, Props-C(props)) -> m
+    with
+      props' := <map(desugar-mixin-prop(|name))> props
+    ; name' := <strip-annos> name
+    ; rules(MixinLookup: name' -> props')
+
+rules // statement desugaring
+
+  // NOTE: works for lists and arrays ONLY
+  desugar: IterateStmt-C(subj, destruction, block) ->
+    Block-C([
+      // loop flag
+      Decl-C(DeclKindVar-C(), ident_flag, BoolT-C()),
+      // loop subject
+      Decl-C(DeclKindVar-C(), ident_subj, subj),
+      LoopStmt-C(
+        ref_flag,
+        Block-C([IfStmt-C(
+          // if __count(flag) > 0
+          Cmp-C(Count-C(ref_flag), CmpGt-C(), NumI-C("1")),
+          // ... then
+          Block-C([
+            // get subj[0]
+            AssignStmt-C(ref_curr, AssignOperatorEq(), FindIndex-C(ref_subj, NumI-C("0"))),
+            // del subj[0]
+            DeleteStmt-C(FindIndex-C(ref_subj, NumI-C("0"))),
+            // continue to original loop body
+            block
+          ]),
+          // ... else: set flag to false
+          Block-C([AssignStmt-C(ref_flag, AssignOperatorEq(), BoolF-C())])
+        )])
+      )
+    ])
+    with
+      ident_base := <newname> "_iterLA"
+    ; [ident_subj, ident_curr, ident_flag] :=
+        <map(![ident_base, ".", <id>]; concat-strings)> ["subj", "curr", "flag"]
+    ; [ref_subj, ref_curr, ref_flag] :=
+        <map(!RefLocal-C(IdentLocal-C(<id>)))> [ident_base, ident_curr, ident_flag]
+
+  desugar: MatchStmt-C(subj, cases, default_case) ->
+    Block-C([
+      Decl-C(DeclKindVal-C(), ident, subj),
+      <foldl(\(MatchCase-C(case_value, case_block), else_branch) ->
+        IfStmt-C(
+          Cmp-C(
+            RefLocal-C(IdentLocal-C(ident)),
+            CmpEqual-C(),
+            case_value
+          ),
+          case_block,
+          else_branch
+        )
+      \)> (<reverse> cases, default_case)
+    ])
+    with
+      ident := <newname> "_match.subj"
+
+rules // expression desugaring
+
+  desugar: Selector-C([base | mixins], Props-C(props)) -> Selector-C([base], Props-C(props'))
+    with
+      mixin_props := <map(strip-annos; MixinLookup); flatten-list> mixins
+    ; props' := <concat> [mixin_props, props]

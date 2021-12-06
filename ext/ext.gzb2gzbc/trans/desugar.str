@@ -10,7 +10,7 @@ imports
 
 rules
 
-  desugar : FnExpr(spec, e) -> FnBlock(spec, Block([ReturnValue(e)]))
+  desugar: FnExpr(spec, e) -> FnBlock(spec, Block([ReturnValue(e)]))
 
 rules
 
@@ -40,3 +40,7 @@ rules
 
   desugar: If(e, b, ElseIf(elseif)) -> If(e, b, ElseBlock(elseif))
   desugar: If(e, b, NoElse()) -> If(e, b, ElseBlock(Block([])))
+
+rules
+
+  desugar: SingleStmt(stmt) -> Block([stmt])

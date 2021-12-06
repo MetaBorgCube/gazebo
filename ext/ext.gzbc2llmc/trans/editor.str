@@ -10,12 +10,12 @@ rules
   editor-generate-llmc-shared: input@(selected, _, ast, path, project-path) -> (filenames, results)
     with
       results := <generate-llmc; map(strip-annos)> ast
-    ; name* := <map(\Function-LL(NSID-LL(ns, name), _, _, _, _) -> [ns, "llmc" | name]\)> results
+    ; name* := <map(\Function-LL(NSID-LL(ns, name), _, _) -> [ns, "llmc" | name]\)> results
     ; filenames := <map(intersperse(|"/"); concat-strings; get-src-gen(|project-path, "llmc-interm", ".aterm-speed.llmc"))> name*
 
   editor-generate-llmc-shared-pp: input@(selected, _, ast, path, project-path) -> (filenames, results-pp)
     with
       results := <generate-llmc; map(strip-annos)> ast
-    ; name* := <map(\Function-LL(NSID-LL(ns, name), _, _, _, _) -> [ns, "llmc" | name]\)> results
+    ; name* := <map(\Function-LL(NSID-LL(ns, name), _, _) -> [ns, "llmc" | name]\)> results
     ; filenames := <map(intersperse(|"/"); concat-strings; get-src-gen(|project-path, "llmc-interm", ".llmc"))> name*
     ; results-pp := <map(pp-llmc)> results

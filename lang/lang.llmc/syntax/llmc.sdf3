@@ -17,34 +17,17 @@ context-free syntax
     Function-LL.Function-LL = <
         function <NSID-LL>
 
-        <Global-LL>
-
-        <Sign-LL>
-
-        <Local-LL>
+        <{Decl-LL "\n"}*>
 
         <Body-LL>
     >
 
-context-free sorts Global-LL Sign-LL Local-LL
+context-free sorts Decl-LL DeclScope-LL StorageLocation-LL
 context-free syntax
 
-    Global-LL.Global-LL = <
-        global
-            <{Decl-LL "\n"}*>
-    >
-    Sign-LL.Sign-LL = <
-        sign
-            <{Decl-LL "\n"}*>
-    >
-    Local-LL.Local-LL = <
-        local
-            <{Decl-LL "\n"}*>
-    >
-
-context-free sorts Decl-LL StorageLocation-LL
-context-free syntax
-
-    Decl-LL.DeclAuto-LL = <<Modifier-LL*> <ID> <Type-LL> <StorageLocation-LL>>
+    Decl-LL.Decl-LL = <<DeclScope-LL> <Modifier-LL*> <ID> <Type-LL> <StorageLocation-LL>>
+    DeclScope-LL.SGlobal-LL = <global>
+    DeclScope-LL.SSign-LL = <sign>
+    DeclScope-LL.SLocal-LL = <local>
     StorageLocation-LL.StorageLocationAuto-LL = <>
     StorageLocation-LL.StorageLocationData = <= data <NSID-LL> <Path-LL>>

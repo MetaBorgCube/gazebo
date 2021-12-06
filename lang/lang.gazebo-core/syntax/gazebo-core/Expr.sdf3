@@ -172,6 +172,12 @@ context-free syntax
     RawPart-C.RawText-C = <<STRING>>
     RawPart-C.RawFormat-C = <format(<ID?>) <Expr-C>>
 
+///
+
+context-free syntax
+
+    Expr-C.Count-C = <__count(<Expr-C>)>
+
 ////
 
 context-free priorities
