@@ -84,14 +84,14 @@ rules // statement desugaring
           // ... then
           Block-C([
             // get subj[0]
-            AssignStmt-C(ref_curr, AssignOperatorEq(), FindIndex-C(ref_subj, NumI-C("0"))),
+            AssignStmt-C(ref_curr, AssignOperatorEq-C(), FindIndex-C(ref_subj, NumI-C("0"))),
             // del subj[0]
             DeleteStmt-C(FindIndex-C(ref_subj, NumI-C("0"))),
             // continue to original loop body
             block
           ]),
           // ... else: set flag to false
-          Block-C([AssignStmt-C(ref_flag, AssignOperatorEq(), BoolF-C())])
+          Block-C([AssignStmt-C(ref_flag, AssignOperatorEq-C(), BoolF-C())])
         )])
       )
     ])

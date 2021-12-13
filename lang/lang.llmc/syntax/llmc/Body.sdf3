@@ -4,6 +4,7 @@ imports
 
     llmc/Common
     llmc/OpArg
+    llmc/Path
 
 context-free sorts Body-LL
 context-free syntax
@@ -20,15 +21,10 @@ context-free syntax
     Block-LL.BasicBlock-LL = <<{Assign-LL "\n"}+>>
 
     FlowBlock-LL.FlowBlock-LL = <
-        <FlowControl-LL> {
+        <Condition-LL> <Modifier-LL*> {
             <Block-LL>
         }
     >
-
-context-free sorts FlowControl-LL
-context-free syntax
-
-    FlowControl-LL.FlowControl-LL = <<Condition-LL> <Modifier-LL*>>
 
 context-free sorts Assign-LL
 context-free syntax
@@ -41,6 +37,7 @@ context-free syntax
 
     AssignDest-LL.DestDiscard-LL = <_>
     AssignDest-LL.DestVar-LL = ID
+    AssignDest-LL.DestVarPath-LL = <<ID>, <Path-LL>>
 
 context-free sorts Condition-LL
 context-free syntax

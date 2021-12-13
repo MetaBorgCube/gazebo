@@ -116,12 +116,12 @@ context-free syntax
 
     Statement-C.AssignStmt-C = <<Expr-C> <AssignOperator-C> <Expr-C>>
 
-    AssignOperator-C.AssignOperatorEq = <=>
-    AssignOperator-C.AssignOperatorAdd = <+=>
-    AssignOperator-C.AssignOperatorSub = <-=>
-    AssignOperator-C.AssignOperatorMul = <*=>
-    AssignOperator-C.AssignOperatorDiv = </=>
-    AssignOperator-C.AssignOperatorMod = <%=>
+    AssignOperator-C.AssignOperatorEq-C = <=>
+    AssignOperator-C.AssignOperatorAdd-C = <+=>
+    AssignOperator-C.AssignOperatorSub-C = <-=>
+    AssignOperator-C.AssignOperatorMul-C = <*=>
+    AssignOperator-C.AssignOperatorDiv-C = </=>
+    AssignOperator-C.AssignOperatorMod-C = <%=>
 
 ///
 

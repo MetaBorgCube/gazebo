@@ -9,11 +9,17 @@ context-free sorts Op-LL
 context-free syntax
 
     Op-LL.OpAdd-LL = <add>
+    Op-LL.OpSub-LL = <sub>
+    Op-LL.OpMul-LL = <mul>
+    Op-LL.OpDiv-LL = <div>
+    Op-LL.OpMod-LL = <mod>
     Op-LL.OpCountElements-LL = <count>
     Op-LL.OpCompareGt-LL = <gt>
     Op-LL.OpFind-LL = <find>
     Op-LL.OpGetBlockEntityData-LL = <getbe>
     Op-LL.OpPopLeft-LL = <popl>
+    Op-LL.OpDel-LL = <del>
+    Op-LL.OpInvoke-LL = <ivk>
 
 context-free sorts Arg-LL
 context-free syntax

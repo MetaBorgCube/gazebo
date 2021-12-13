@@ -20,6 +20,7 @@ context-free syntax
         <{Decl-LL "\n"}*>
 
         <Body-LL>
+
     >
 
 context-free sorts Decl-LL DeclScope-LL StorageLocation-LL
@@ -30,4 +31,4 @@ context-free syntax
     DeclScope-LL.SSign-LL = <sign>
     DeclScope-LL.SLocal-LL = <local>
     StorageLocation-LL.StorageLocationAuto-LL = <>
-    StorageLocation-LL.StorageLocationData = <= data <NSID-LL> <Path-LL>>
+    StorageLocation-LL.StorageLocationData-LL = <= data <NSID-LL> <Path-LL>>

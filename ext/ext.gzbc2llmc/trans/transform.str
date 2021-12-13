@@ -10,14 +10,22 @@ imports
 
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
-  transform-tli(|base): Function-C(name, _, _) ->
+  transform-tli(|base): Function-C(name, _, block) ->
     Function-LL(
       <nsid-from-base(|base)> name,
-      [
-        Decl-LL(SGlobal-LL(), [], "abc", TypeIntI-LL(), StorageLocationAuto-LL())
-      ],
-      Body-LL(FlowGroup-LL([]))
+      decls,
+      Body-LL(block')
     )
+    with
+      {| RegisterDecl
+      : block' := <transform-block; simplify-block> block
+      ; decl_gen* := <bagof-RegisterDecl <+ ![]>()
+      |}
+    ; decl_sign* := [/*TODO*/]
+    ; decl_global* := [/*TODO*/]
+    ; decls := [decl_sign*, decl_global*, decl_gen*]
+
+  simplify-block = bottomup(try(id)) // TODO: implement
 
   transform-tli(|base): Decl-C(_, name, e) ->
     Function-LL(
@@ -25,3 +33,372 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       [],
       Body-LL(FlowGroup-LL([]))
     )
+
+rules // transform-block :: Block-C -> Block-LL
+
+  is-basic-stmt =
+    ?Decl-C(_, _, _)
+  + ?DiscardStmt-C(_)
+  + ?AssignStmt-C(_, _, _)
+  + ?DeleteStmt-C(_)
+
+  flow-block-from-basic-stmts =
+    !FlowBlock-LL(
+      Unconditional-LL(), [],
+      BasicBlock-LL(<
+        map({| EmitAssign
+          : transform-stmt-basic
+          ; ![<bagof-EmitAssign <+ ![]>(), [<id>]]
+          ; concat
+          |})
+      ; flatten-list
+      >)
+    )
+
+  transform-block: Block-C(stmts) -> block_out
+    with
+      flow_blocks := <rec x({group, sep, tail, block, next :
+        // try to make a split at the first flow block
+        ( split-fetch-keep(not(is-basic-stmt))
+        ; ?(group, sep, tail)
+          // if the first item matched immediately ...
+        ; if <?[]> group then
+            // ... then we have found a flow statement,
+            // which must be transformed into a single flow block
+            block := <transform-stmt-flow> sep
+          ; next := tail
+          else
+            // ... otherwise, we have found one or more basic statements,
+            // which can be grouped into a single basic block
+            block := <flow-block-from-basic-stmts> group
+          ; next := [sep | tail]
+          end
+        ; ![block | <x> next]
+        )
+        // but if this all fails (due to split-fetch-keep failing),
+        // then the entire input must consist of basic statements
+     <+ ![<flow-block-from-basic-stmts>]
+      })> stmts
+    // NOTE: this simplification step is NOT NECESSARY and could be moved to a dedicated simplification strategy
+    with
+      // if there ended up only being a single unconditional flow block (WITHOUT modifiers), then just return its content
+      if <?[FlowBlock-LL(Unconditional-LL(), [], single_inner_block)]> flow_blocks then
+        block_out := single_inner_block
+      else
+        block_out := FlowGroup-LL(flow_blocks)
+      end
+
+rules // transform-ident-full :: IdentFull-C -> NSID-LL
+
+  transform-ident-full: IdentFull-C(ns, names) -> NSID-LL(ns, names)
+
+rules // transform-expr :: Expr-C -> Arg-LL
+
+  transform-expr: NbtCompound-C(kvs) -> ArgCompound-LL(kvs')
+    with
+      kvs' := <map(\NbtCompoundEntry-C(k, v) -> CompoundEntry-LL(k, <transform-expr> v)\)> kvs
+  transform-expr: NbtArray-C(elems) -> ArgArray-LL(<map(transform-expr)> elems)
+  transform-expr: NbtList-C(elems) -> ArgList-LL(<map(transform-expr)> elems)
+
+  transform-expr: String-C(s) -> ArgString-LL(s)
+  transform-expr: BoolT-C() -> ArgBoolT-LL()
+  transform-expr: BoolF-C() -> ArgBoolF-LL()
+  transform-expr: NumB-C(i) -> ArgIntB-LL(i)
+  transform-expr: NumS-C(i) -> ArgIntS-LL(i)
+  transform-expr: NumI-C(i) -> ArgIntI-LL(i)
+  transform-expr: NumL-C(i) -> ArgIntL-LL(i)
+  transform-expr: NumF-C(f) -> ArgFloatS-LL(f)
+  transform-expr: NumD-C(f) -> ArgFloatD-LL(f)
+
+  // TODO: sel, res, tag
+
+  transform-expr: RefFull-C(ident_full) -> ArgRef-LL(<transform-ident-full> ident_full)
+  transform-expr: RefLocal-C(IdentLocal-C(ident)) -> ArgVar-LL(ident)
+
+  transform-expr =
+    (?FindIndex-C(_, _) + ?FindKey-C(_, _))
+  ; with(
+      unwrap-find => (e', path)
+    ; ident := <newname> "$find"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        OpFind-LL(),
+        [
+          e',
+          ArgPath-LL(path)
+        ]
+      ))
+    )
+  ; !ArgVar-LL(ident)
+
+  transform-expr: Invoke-C(target@RefFull-C(_), arg*) -> ArgVar-LL(ident)
+    with
+      target' := <transform-expr> target
+    ; arg'* := <map(transform-expr)> arg*
+    ; ident := <newname> "$invoke"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        OpInvoke-LL(),
+        [
+          target',
+          arg'*
+        ]
+      ))
+
+  // transform-expr-arith(|Char) :: [Expr-C] -> Arg-LL
+  transform-expr-arith(|op): opnds -> ArgVar-LL(ident)
+    with
+      op' := <
+        \'*' -> OpMul-LL()\
+      + \'/' -> OpDiv-LL()\
+      + \'%' -> OpMod-LL()\
+      + \'+' -> OpAdd-LL()\
+      + \'-' -> OpSub-LL()\
+      > op
+    ; opnds' := <map(transform-expr)> opnds
+    ; ident := <newname> "$arith"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        op',
+        opnds'
+      ))
+
+  transform-expr =
+    ( ?Mul-C(_, _)
+    + ?Div-C(_, _)
+    + ?Mod-C(_, _)
+    + ?Add-C(_, _)
+    + ?Sub-C(_, _)
+    )
+  ; ?op#([opnd_l, opnd_r])
+  ; with(
+      op' := <
+        \"Mul-C" -> '*'\
+      + \"Div-C" -> '/'\
+      + \"Mod-C" -> '%'\
+      + \"Add-C" -> '+'\
+      + \"Sub-C" -> '-'\
+      > op
+    ; arg' := <transform-expr-arith(|op')> [opnd_l, opnd_r]
+    )
+  ; !arg'
+
+  // TODO: logic
+  // TODO: range
+  // TODO: pos
+  // TODO: enum ref
+  // TODO: raw
+  // TODO: count
+
+  transform-expr: Count-C(e) -> ArgVar-LL(ident)
+    with
+      e' := <transform-expr> e
+    ; ident := <newname> "$count"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeIntI-LL(),
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        OpCountElements-LL(),
+        [e']
+      ))
+
+rules // rvalue/lvalue manipulation
+
+  // arg-lit-int :: Arg-LL -> string
+  arg-lit-int: ArgIntB-LL(i) -> i
+  arg-lit-int: ArgIntS-LL(i) -> i
+  arg-lit-int: ArgIntI-LL(i) -> i
+  arg-lit-int: ArgIntL-LL(i) -> i
+
+  unwrap-find-inner: FindIndex-C(e, idx) -> (e, Some(elem))
+    with
+      idx' := <transform-expr> idx
+    ; if <?ArgVar-LL(var)> idx' then
+        elem := IndexDyn-LL(var)
+      else
+        if lit_int := <arg-lit-int> idx' then
+          elem := IndexFix-LL(lit_int)
+        else
+          debug(!"Unexpected lvalue-find-inner")
+        ; fail
+        end
+      end
+  unwrap-find-inner: FindKey-C(e, key) -> (e, Some(Select-LL(key)))
+  unwrap-find-inner: e -> (e, None())
+  unwrap-find: e -> (<transform-expr> e', Path-LL(<reverse> parts))
+    with
+      (e', parts) := <rec x({e', part, part', tail, parts: \e -> (e'', parts)
+        with
+          (e', part) := <unwrap-find-inner> e
+        ; if <?Some(part')> part then
+            (e'', tail) := <x> e'
+          ; parts := [part' | tail]
+          else
+            e'' := e'
+          ; parts := []
+          end
+      \})> e
+
+  lvalue-mk: (ArgVar-LL(var), Path-LL([])) -> DestVar-LL(var)
+  lvalue-mk: (ArgVar-LL(var), path@Path-LL([_|_])) -> DestVarPath-LL(var, path)
+  lvalue =
+    unwrap-find
+  ; lvalue-mk
+
+  rvalue-from-lvalue: DestVar-LL(var) -> ArgVar-LL(var)
+  rvalue-from-lvalue: DestVarPath-LL(var, path) -> ArgVar-LL(ident)
+    with
+      ident := <newname> "$rv_from_lv"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        OpFind-LL(),
+        [
+          ArgVar-LL(var),
+          ArgPath-LL(path)
+        ]
+      ))
+
+rules // transform-stmt-basic :: Stmt-C -> Assign-LL
+
+  transform-stmt-basic: Decl-C(kind, name, e) ->
+    <transform-stmt-basic> AssignStmt-C(RefLocal-C(IdentLocal-C(name)), AssignOperatorEq-C(), e)
+    with
+      if <?DeclKindConst-C()> kind then
+        modifiers := [ModConst-LL()]
+      else
+        modifiers := []
+      end
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        modifiers,
+        name, // no need to consider shadowing
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+
+  transform-stmt-basic: DiscardStmt-C(e) ->
+    AssignNew-LL(
+      DestDiscard-LL(),
+      <transform-expr> e
+    )
+
+  transform-stmt-basic: AssignStmt-C(dst, AssignOperatorEq-C(), e) ->
+    AssignNew-LL(
+      <lvalue> dst,
+      <transform-expr> e
+    )
+
+  transform-stmt-basic: AssignStmt-C(dst, op, e) ->
+    AssignOp-LL(
+      dst',
+      < \AssignOperatorAdd-C() -> OpAdd-LL()\
+      + \AssignOperatorSub-C() -> OpSub-LL()\
+      + \AssignOperatorMul-C() -> OpMul-LL()\
+      + \AssignOperatorDiv-C() -> OpDiv-LL()\
+      + \AssignOperatorMod-C() -> OpMod-LL()\
+      > op,
+      [
+        dst_rv,
+        <transform-expr> e
+      ]
+    )
+    with
+      dst' := <lvalue> dst
+    ; dst_rv := <rvalue-from-lvalue> dst'
+
+  transform-stmt-basic: DeleteStmt-C(e) ->
+    AssignOp-LL(
+      <lvalue> e,
+      OpDel-LL(),
+      []
+    )
+
+rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
+
+  // TODO: ExecuteStmt-C
+
+  transform-stmt-flow: LoopStmt-C(cond, block) ->
+    FlowBlock-LL(
+      CondLoop-LL(<transform-expr> cond), [],
+      <transform-block> block
+    )
+
+  /*
+  {
+    { $if_not_taken0 <- true }
+    if cond {
+      { $if_not_taken <- false }
+      { <b_true> }
+    }
+    if $if_not_taken0 { <b_false> }
+  }
+  */
+  transform-stmt-flow: IfStmt-C(cond, b_true, b_false) ->
+    FlowBlock-LL(Unconditional-LL(), [], FlowGroup-LL([
+      // { $if_not_taken0 <- true }
+      FlowBlock-LL(Unconditional-LL(), [], BasicBlock-LL([
+        AssignNew-LL(DestVar-LL(ident), ArgBoolT-LL())
+      ])),
+      // if cond
+      FlowBlock-LL(
+        If-LL(<transform-expr> cond), [],
+        FlowGroup-LL([
+          // { $if_not_taken <- false }
+          FlowBlock-LL(Unconditional-LL(), [], BasicBlock-LL([
+            AssignNew-LL(DestVar-LL(ident), ArgBoolF-LL())
+          ])),
+          // { <b_true> }
+          FlowBlock-LL(Unconditional-LL(), [], <transform-block> b_true)
+        ])
+      ),
+      // if $if_not_taken0
+      FlowBlock-LL(
+        If-LL(ArgVar-LL(ident)), [],
+        // { <b_false> }
+        <transform-block> b_false
+      )
+    ]))
+    with
+      ident := <newname> "$if_not_taken"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeBool-LL(),
+        StorageLocationAuto-LL()
+      ))
+
+  // TODO: ReturnExprStmt-C, ReturnVoidStmt-C

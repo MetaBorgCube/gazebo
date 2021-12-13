@@ -249,12 +249,12 @@ rules // transform-stmt :: Statement -> Statement-C
   transform-stmt: ReturnEmpty() -> ReturnVoidStmt-C()
   transform-stmt: ReturnValue(e) -> ReturnExprStmt-C(<transform-expr> e)
 
-  transform-stmt: AssignEq(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorEq(), <transform-expr> e)
-  transform-stmt: AssignAdd(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorAdd(), <transform-expr> e)
-  transform-stmt: AssignSub(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorSub(), <transform-expr> e)
-  transform-stmt: AssignMul(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorMul(), <transform-expr> e)
-  transform-stmt: AssignDiv(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorDiv(), <transform-expr> e)
-  transform-stmt: AssignMod(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorMod(), <transform-expr> e)
+  transform-stmt: AssignEq(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorEq-C(), <transform-expr> e)
+  transform-stmt: AssignAdd(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorAdd-C(), <transform-expr> e)
+  transform-stmt: AssignSub(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorSub-C(), <transform-expr> e)
+  transform-stmt: AssignMul(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorMul-C(), <transform-expr> e)
+  transform-stmt: AssignDiv(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorDiv-C(), <transform-expr> e)
+  transform-stmt: AssignMod(dst, e) -> AssignStmt-C(<transform-expr> dst, AssignOperatorMod-C(), <transform-expr> e)
 
   transform-stmt: RawStmt(raw) -> DiscardStmt-C(<transform-expr> raw)
 
