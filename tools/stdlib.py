@@ -135,7 +135,7 @@ def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.P
 
 if __name__ == "__main__":
 
-    mc_rev = "1.17.1+0"
+    mc_rev = "1.18.1+0"
     root = pathlib.Path(__file__).parent.parent
     gzb_rev, mb_ver = read_pom_props(root / "pom.xml")
     ver = mc_rev, gzb_rev, mb_ver

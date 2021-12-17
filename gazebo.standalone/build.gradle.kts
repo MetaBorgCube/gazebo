@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     base
     java
-    kotlin("jvm") version "1.5.31" apply false
+    kotlin("jvm") version "1.6.0" apply false
 }
 
 allprojects {
@@ -26,7 +26,7 @@ subprojects {
 
     dependencies {
         implementation("org.metaborg", "org.metaborg.spoofax.core", "2.5.16")
-        implementation("org.slf4j", "slf4j-simple", "1.7.30")
+        implementation("org.slf4j", "slf4j-simple", "1.7.32")
     }
 
     dependencies {
