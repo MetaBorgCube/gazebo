@@ -51,8 +51,11 @@ context-free restrictions
 
 lexical syntax
 
-    // Disallow reserved underscore identifier
+    // Disallow single special identifier symbols: reserved
+    ID = "-" {reject}
+    ID = "." {reject}
     ID = "_" {reject}
+    ID = "$" {reject}
 
 context-free sorts NSID-LL
 context-free syntax

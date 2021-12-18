@@ -157,7 +157,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
         ]
       ))
 
-  // transform-expr-arith(|Char) :: [Expr-C] -> Arg-LL
+  // transform-expr-arith(|Char) :: List(Expr-C) -> Arg-LL
   transform-expr-arith(|op): opnds -> ArgVar-LL(ident)
     with
       op' := <
@@ -202,7 +202,19 @@ rules // transform-expr :: Expr-C -> Arg-LL
     )
   ; !arg'
 
-  // TODO: logic
+  transform-expr: Cmp-C(lhs, cmp, rhs) ->
+    ArgCond-LL(BoolCondCmp-LL(<transform-expr> lhs, cmp', <transform-expr> rhs))
+    with
+      cmp' := <
+        \CmpGt-C() -> CmpGt-LL()\
+      + \CmpGte-C() -> CmpGte-LL()\
+      + \CmpLt-C() -> CmpLt-LL()\
+      + \CmpLte-C() -> CmpLte-LL()\
+      + \CmpEqual-C() -> CmpEq-LL()\
+      > cmp
+    // TODO: implement type-contextual comparison
+
+  // TODO: boolean logic
   // TODO: range
   // TODO: pos
   // TODO: enum ref
@@ -350,7 +362,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
 
   transform-stmt-flow: LoopStmt-C(cond, block) ->
     FlowBlock-LL(
-      CondLoop-LL(<transform-expr> cond), [],
+      Loop-LL(<transform-expr; ensure-bool-cond> cond), [],
       <transform-block> block
     )
 
@@ -372,7 +384,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
       ])),
       // if cond
       FlowBlock-LL(
-        If-LL(<transform-expr> cond), [],
+        If-LL(<transform-expr; ensure-bool-cond> cond), [],
         FlowGroup-LL([
           // { $if_not_taken <- false }
           FlowBlock-LL(Unconditional-LL(), [], BasicBlock-LL([
@@ -384,7 +396,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
       ),
       // if $if_not_taken0
       FlowBlock-LL(
-        If-LL(ArgVar-LL(ident)), [],
+        If-LL(<ensure-bool-cond> ArgVar-LL(ident)), [],
         // { <b_false> }
         <transform-block> b_false
       )
@@ -400,3 +412,11 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
       ))
 
   // TODO: ReturnExprStmt-C, ReturnVoidStmt-C
+
+rules // ensure-bool-cond :: Arg-LL -> Arg-LL
+
+  ensure-bool-cond = ?ArgCond-LL(_) // idempotent
+  ensure-bool-cond: ArgVar-LL(_) -> ArgCond-LL(BoolCondCmp-LL(<id>, CmpEq-LL(), ArgIntB-LL("1")))
+  ensure-bool-cond: ArgIntB-LL(_) -> ArgCond-LL(BoolCondCmp-LL(<id>, CmpEq-LL(), ArgIntB-LL("1")))
+
+  // TODO: support block and entity conditions

@@ -43,5 +43,7 @@ context-free sorts Condition-LL
 context-free syntax
 
     Condition-LL.Unconditional-LL = <>
-    Condition-LL.CondLoop-LL = <loop <Arg-LL>>
+    // arg must be ArgCond-LL
+    Condition-LL.Loop-LL = <loop <Arg-LL>>
+    // arg must be ArgCond-LL
     Condition-LL.If-LL = <if <Arg-LL>>

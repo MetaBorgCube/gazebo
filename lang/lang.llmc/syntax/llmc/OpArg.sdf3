@@ -43,6 +43,18 @@ context-free syntax
     Arg-LL.ArgRaw-LL = <|[<{UnsafePart-LL ", "}+>]>
     Arg-LL.ArgUnsafe-LL = </[<{UnsafePart-LL ", "}+>]>
 
+    Arg-LL.ArgCond-LL = BoolCond-LL
+
+context-free sorts BoolCond-LL Cmp-LL
+context-free syntax
+
+    BoolCond-LL.BoolCondCmp-LL = <<Arg-LL> <Cmp-LL> <Arg-LL>>
+    Cmp-LL.CmpLt-LL = [<]
+    Cmp-LL.CmpLte-LL = [<=]
+    Cmp-LL.CmpEq-LL = [=]
+    Cmp-LL.CmpGt-LL = [>]
+    Cmp-LL.CmpGte-LL = [>=]
+
 lexical syntax
 
     ID = "true" {reject}
