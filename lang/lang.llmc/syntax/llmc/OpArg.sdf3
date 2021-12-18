@@ -14,7 +14,6 @@ context-free syntax
     Op-LL.OpDiv-LL = <div>
     Op-LL.OpMod-LL = <mod>
     Op-LL.OpCountElements-LL = <count>
-    Op-LL.OpCompareGt-LL = <gt>
     Op-LL.OpFind-LL = <find>
     Op-LL.OpGetBlockEntityData-LL = <getbe>
     Op-LL.OpPopLeft-LL = <popl>
@@ -27,8 +26,6 @@ context-free syntax
     Arg-LL.ArgVar-LL = ID
     Arg-LL.ArgRef-LL = NSID-LL
     Arg-LL.ArgString-LL = STRING
-    Arg-LL.ArgBoolT-LL = <true>
-    Arg-LL.ArgBoolF-LL = <false>
     Arg-LL.ArgIntB-LL = <<INT>B>
     Arg-LL.ArgIntS-LL = <<INT>S>
     Arg-LL.ArgIntI-LL = <<INT>I>

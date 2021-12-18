@@ -9,7 +9,6 @@ context-free syntax
 
     // type for var and ref not accounted for: abstract types
     Type-LL.TypeString-LL = <s>
-    Type-LL.TypeBool-LL = <b>
     Type-LL.TypeIntB-LL = <iB>
     Type-LL.TypeIntS-LL = <iS>
     Type-LL.TypeIntI-LL = <iI>

@@ -101,8 +101,6 @@ rules // transform-expr :: Expr-C -> Arg-LL
   transform-expr: NbtList-C(elems) -> ArgList-LL(<map(transform-expr)> elems)
 
   transform-expr: String-C(s) -> ArgString-LL(s)
-  transform-expr: BoolT-C() -> ArgBoolT-LL()
-  transform-expr: BoolF-C() -> ArgBoolF-LL()
   transform-expr: NumB-C(i) -> ArgIntB-LL(i)
   transform-expr: NumS-C(i) -> ArgIntS-LL(i)
   transform-expr: NumI-C(i) -> ArgIntI-LL(i)
@@ -370,7 +368,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
     FlowBlock-LL(Unconditional-LL(), [], FlowGroup-LL([
       // { $if_not_taken0 <- true }
       FlowBlock-LL(Unconditional-LL(), [], BasicBlock-LL([
-        AssignNew-LL(DestVar-LL(ident), ArgBoolT-LL())
+        AssignNew-LL(DestVar-LL(ident), ArgIntB-LL("1") /*true*/)
       ])),
       // if cond
       FlowBlock-LL(
@@ -378,7 +376,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
         FlowGroup-LL([
           // { $if_not_taken <- false }
           FlowBlock-LL(Unconditional-LL(), [], BasicBlock-LL([
-            AssignNew-LL(DestVar-LL(ident), ArgBoolF-LL())
+            AssignNew-LL(DestVar-LL(ident), ArgIntB-LL("0") /*false*/)
           ])),
           // { <b_true> }
           FlowBlock-LL(Unconditional-LL(), [], <transform-block> b_true)
@@ -397,7 +395,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
         SLocal-LL(),
         [],
         ident,
-        TypeBool-LL(),
+        TypeIntB-LL(),
         StorageLocationAuto-LL()
       ))
 
