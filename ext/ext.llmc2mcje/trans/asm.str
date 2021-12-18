@@ -1,0 +1,60 @@
+module asm
+
+imports
+
+  common
+
+strategies
+
+  asm(|function_base) =
+    {| BaseNSID, EmitFunction
+    : with(rules(BaseNSID: _ -> function_base))
+    ; asm-unit(|"")
+    ; (<bagof-EmitFunction>() <+ ![])
+    |}
+
+strategies
+
+  asm-unit = asm-unit(|<newname> "-anon-")
+
+  asm-unit(|name) = ?Unit-ASM(<id>)
+  ; with(
+      map(asm-command)
+    ; intersperse-concat(|"\n") => content
+    ; rules(EmitFunction:+ _ -> (name, content))
+    )
+  ; <concat-strings> [<BaseNSID>, "/", name]
+
+rules // asm-command :: Command-ASM -> string
+
+  asm-command: Command-Plain-ASM(cmd, args) -> res
+    with
+      res := <map(asm-arg); intersperse-concat(|" ")> args
+
+  asm-command: Command-CallGzb-ASM(nsid, args) -> "say todo: do gzb call here"
+
+  asm-command: Command-AnonSubUnit-ASM(unit) -> res
+    with
+      res := <intersperse-concat(|" ")> ["function", <asm-unit> unit]
+
+  asm-command: Command-NoOp-ASM() -> ""
+
+  asm-command: str -> str
+    where is-string
+
+rules // asm-arg :: Arg-ASM -> string
+
+  asm-arg: Arg-RedirectSelf-ASM(args) -> res
+    with
+      res := <map(asm-arg); intersperse-concat(|" ")> args
+
+  asm-arg: Arg-Redirect-ASM(cmd) -> res
+    with
+      res := <asm-command> cmd
+
+  asm-arg: Arg-NSID-ASM(NSID(namespace, name)) -> <concat-strings> [namespace, ":" | name]
+
+  asm-arg: Arg-RawString-ASM(str) -> str
+
+  asm-arg: str -> str
+    where is-string

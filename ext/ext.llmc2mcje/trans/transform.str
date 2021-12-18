@@ -95,10 +95,19 @@ rules // transform-block :: Block-LL -> Unit-ASM
 
   transform-block: FlowGroup-LL(flow_block*) -> Unit-ASM(flow_block'*)
     with
-      flow_block'* := <map(transform-flow-block)> flow_block*
+      flow_block'* := <map-with-emitted-commands(transform-flow-block)> flow_block*
   transform-block: BasicBlock-LL(assign*) -> Unit-ASM(assign'*)
     with
-      assign'* := <map(transform-assign)> assign*
+      assign'* := <map-with-emitted-commands(transform-assign)> assign*
+
+  // TODO: clear EmitCommand scope, behavior like {...}
+  map-with-emitted-commands(s-trans) =
+    map({| EmitCommand
+      : s-trans
+      ; ![<bagof-EmitCommand <+ ![]>(), [<id>]]
+      ; concat
+      |})
+  ; flatten-list
 
 rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
 
@@ -218,9 +227,9 @@ rules // transform-path :: Path-LL -> Arg-ASM
   transform-path-fold(is-first): Select-LL(key) -> <concat-strings> [prefix, <string-denorm> key]
     with
       if is-first then
-        prefix := "."
-      else
         prefix := ""
+      else
+        prefix := "."
       end
 
   transform-path-fold(is-first): IndexFix-LL(idx) -> <concat-strings> ["[", idx, "]"]

@@ -118,14 +118,14 @@ rules // transform-expr :: Expr-C -> Arg-LL
   ; with(
       unwrap-find => (e', path)
     ; ident := <newname> "$find"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         [],
         ident,
         TypeString-LL(), // TODO: Type-LL
         StorageLocationAuto-LL()
       ))
-    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+    ; rules(EmitAssign: AssignOp-LL(
         DestVar-LL(ident),
         OpFind-LL(),
         [
@@ -141,14 +141,14 @@ rules // transform-expr :: Expr-C -> Arg-LL
       target' := <transform-expr> target
     ; arg'* := <map(transform-expr)> arg*
     ; ident := <newname> "$invoke"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         [],
         ident,
         TypeString-LL(), // TODO: Type-LL
         StorageLocationAuto-LL()
       ))
-    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+    ; rules(EmitAssign: AssignOp-LL(
         DestVar-LL(ident),
         OpInvoke-LL(),
         [
@@ -169,14 +169,14 @@ rules // transform-expr :: Expr-C -> Arg-LL
       > op
     ; opnds' := <map(transform-expr)> opnds
     ; ident := <newname> "$arith"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         [],
         ident,
         TypeString-LL(), // TODO: Type-LL
         StorageLocationAuto-LL()
       ))
-    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+    ; rules(EmitAssign: AssignOp-LL(
         DestVar-LL(ident),
         op',
         opnds'
@@ -225,14 +225,14 @@ rules // transform-expr :: Expr-C -> Arg-LL
     with
       e' := <transform-expr> e
     ; ident := <newname> "$count"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         [],
         ident,
         TypeIntI-LL(),
         StorageLocationAuto-LL()
       ))
-    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+    ; rules(EmitAssign: AssignOp-LL(
         DestVar-LL(ident),
         OpCountElements-LL(),
         [e']
@@ -285,14 +285,14 @@ rules // rvalue/lvalue manipulation
   rvalue-from-lvalue: DestVarPath-LL(var, path) -> ArgVar-LL(ident)
     with
       ident := <newname> "$rv_from_lv"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         [],
         ident,
         TypeString-LL(), // TODO: Type-LL
         StorageLocationAuto-LL()
       ))
-    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+    ; rules(EmitAssign: AssignOp-LL(
         DestVar-LL(ident),
         OpFind-LL(),
         [
@@ -311,7 +311,7 @@ rules // transform-stmt-basic :: Stmt-C -> Assign-LL
       else
         modifiers := []
       end
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         modifiers,
         name, // no need to consider shadowing
@@ -403,7 +403,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
     ]))
     with
       ident := <newname> "$if_not_taken"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
+    ; rules(RegisterDecl: Decl-LL(
         SLocal-LL(),
         [],
         ident,

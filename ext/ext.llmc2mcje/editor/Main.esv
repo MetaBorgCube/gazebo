@@ -4,10 +4,11 @@ language
 
   context  : none
   provider : target/metaborg/stratego.ctree
-  on save  : editor-generate-mcje-shared
+  on save  : editor-generate-mcfn-shared
 
 menus
 
   menu: "Minecraft: Java Edition" (openeditor) (meta) (realtime)
 
-    action: "Generate (shared)" = editor-generate-mcje-shared
+    action: "Generate intermediate assembly" = editor-generate-mcfn-asm-local
+    action: "Generate function (shared)" = editor-generate-mcfn-shared

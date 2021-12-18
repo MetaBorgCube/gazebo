@@ -25,7 +25,7 @@ signature
     /** plain command, without formatting */
     Command-Plain-ASM : string * List(Arg-ASM) -> Command-ASM
     /** call with GZB calling convention */
-    Command-CallGzb-ASM : string * List(string) -> Command-ASM
+    Command-CallGzb-ASM : NSID * List(string) -> Command-ASM
     /** anonymous sub-unit (assembled in new function file x:y/z, expanded to 'function x:y/z') */
     Command-AnonSubUnit-ASM : Unit-ASM -> Command-ASM
     /** no-op */
@@ -38,6 +38,13 @@ signature
     Arg-NSID-ASM : NSID -> Arg-ASM
     /** raw string part, anything allowed */
     Arg-RawString-ASM : string -> Arg-ASM
+
+strategies
+
+  intersperse-concat(|sep) =
+    with(all(not(is-list)))
+  ; intersperse(|sep)
+  ; concat-strings
 
 strategies
 

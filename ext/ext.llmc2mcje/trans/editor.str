@@ -4,12 +4,35 @@ imports
 
   common
   generate
+  asm
 
 rules
 
-  editor-generate-mcje-shared: input@(selected, _, ast, path, project-path) -> (filename, result)
+  editor-generate-mcfn-asm-local: input@(selected, _, ast, path, project-path) -> (filename, result)
     with
-      !ast; ?Function-LL(NSID-LL(namespace, name*), decl*, body)
-    ; function_path := <intersperse(|"/"); concat-strings> [namespace, name*]
-    ; filename := <get-src-gen(|project-path, "gzb-fin-interm", ".mcfn-asm.aterm")> function_path
+      filename := <guarantee-extension(|"mcfn-asm.aterm")> path
     ; result := <generate-mcfn-asm> ast
+
+  editor-generate-mcfn-shared: input@(selected, _, ast, path, project-path) -> (filenames, results)
+    with
+      !ast; ?Function-LL(NSID-LL(namespace, name), decl*, body)
+    ; function_path := <intersperse-concat(|"/")> [namespace | name]
+    ; function_base := <concat-strings> [namespace, ":" | <intersperse(|"/")> name]
+    ; asm_tree := <generate-mcfn-asm> ast
+    with
+      (filenames, results) := <
+        asm(|function_base)
+      ; map((mk-filename(|function_path); mk-src-gen-path(|project-path), id))
+      ; unzip
+      > asm_tree
+
+rules
+
+  mk-filename(|base): "" -> base
+  mk-filename(|base): str -> <concat-strings> [base, "/", str]
+    where not(?"")
+
+strategies
+
+  mk-src-gen-path(|project-path) =
+    get-src-gen(|project-path, "gzb-fin-interm", ".mcfunction")
