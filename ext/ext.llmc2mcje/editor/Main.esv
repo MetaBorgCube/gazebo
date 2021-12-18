@@ -1,0 +1,13 @@
+module Main
+
+language
+
+  context  : none
+  provider : target/metaborg/stratego.ctree
+  on save  : editor-generate-mcje-shared
+
+menus
+
+  menu: "Minecraft: Java Edition" (openeditor) (meta) (realtime)
+
+    action: "Generate (shared)" = editor-generate-mcje-shared

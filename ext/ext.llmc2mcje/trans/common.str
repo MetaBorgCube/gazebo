@@ -1,0 +1,65 @@
+module common
+
+imports
+
+  signatures/llmc/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  libspoofax/-
+
+  libstratego-gpp
+
+  str_common
+
+signature
+
+  sorts NSID
+  constructors
+    NSID : string * List(string) -> NSID
+
+  sorts Unit-ASM Command-ASM Arg-ASM
+  constructors
+    /** base unit */
+    Unit-ASM : List(Command-ASM) -> Unit-ASM
+    /** plain command, without formatting */
+    Command-Plain-ASM : string * List(Arg-ASM) -> Command-ASM
+    /** call with GZB calling convention */
+    Command-CallGzb-ASM : string * List(string) -> Command-ASM
+    /** anonymous sub-unit (assembled in new function file x:y/z, expanded to 'function x:y/z') */
+    Command-AnonSubUnit-ASM : Unit-ASM -> Command-ASM
+    /** no-op */
+    Command-NoOp-ASM : Command-ASM
+    /** command self-redirection (e.g. 'execute if abc' -> 'if xyz'), mainly used for execute chains */
+    Arg-RedirectSelf-ASM : List(Arg-ASM) -> Arg-ASM
+    /** general command redirection (e.g. 'execute ... run' -> 'say hi') */
+    Arg-Redirect-ASM : Command-ASM -> Arg-ASM
+    /** generic NSID arg */
+    Arg-NSID-ASM : NSID -> Arg-ASM
+    /** raw string part, anything allowed */
+    Arg-RawString-ASM : string -> Arg-ASM
+
+strategies
+
+  path-join =
+    map(?Path-LL(<id>))
+  ; concat
+  ; !Path-LL(<id>)
+
+strategies
+
+  is-int-ll =
+    ( ?ArgIntB-LL(v)
+    + ?ArgIntS-LL(v)
+    + ?ArgIntI-LL(v)
+    + ?ArgIntL-LL(v)
+    )
+  ; !v
+
+  is-float-ll =
+    ( ?ArgFloatS-LL(v)
+    + ?ArgFloatD-LL(v)
+    )
+  ; !v
+
+  is-numeric-ll = is-int-ll + is-float-ll

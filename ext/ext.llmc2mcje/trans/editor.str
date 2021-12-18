@@ -1,0 +1,15 @@
+module editor
+
+imports
+
+  common
+  generate
+
+rules
+
+  editor-generate-mcje-shared: input@(selected, _, ast, path, project-path) -> (filename, result)
+    with
+      !ast; ?Function-LL(NSID-LL(namespace, name*), decl*, body)
+    ; function_path := <intersperse(|"/"); concat-strings> [namespace, name*]
+    ; filename := <get-src-gen(|project-path, "gzb-fin-interm", ".mcfn-asm.aterm")> function_path
+    ; result := <generate-mcfn-asm> ast

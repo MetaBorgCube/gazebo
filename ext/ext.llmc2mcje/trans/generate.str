@@ -1,0 +1,21 @@
+module generate
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  // for temporary workaround
+  injections/gazebo-core/-
+  injections/llmc/-
+  injections/-
+
+  common
+  //desugar
+  transform
+
+rules
+
+  generate-mcfn-asm = transform-function

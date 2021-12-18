@@ -1,0 +1,228 @@
+module transform
+
+imports
+
+  signatures/llmc/-
+  signatures/-
+
+  common
+
+signature
+
+  sorts Loc
+  constructors
+    StackKey : string -> Loc
+    DataStorage : NSID * Path-LL -> Loc
+
+strategies // transform-function :: Function-LL -> Unit-ASM
+
+  transform-function =
+    ?Function-LL(_, decls, Body-LL(body_block))
+  ; {| VarLoc
+    : <map(register-decl)> decls
+    ; <transform-block> body_block
+    |}
+
+strategies // register-decl :: Decl-LL -> _
+
+  register-decl =
+    ?Decl-LL(scope, mods, name, _, loc)
+  ; loc' := <register-decl-loc(|name)> loc
+  ; rules(VarLoc: name -> loc')
+
+  register-decl-loc(|name): StorageLocationAuto-LL() -> StackKey(name)
+  register-decl-loc(|_): StorageLocationData-LL(nsid, path) -> DataStorage(<transform-nsid> nsid, path)
+
+rules // transform-nsid :: NSID-LL -> NSID
+
+  transform-nsid: NSID-LL(ns, name) -> NSID(ns, name)
+
+rules // data-loc-args(|path_ext) :: string -> List(Arg-ASM)
+
+  data-loc-args = data-loc-args(|Path-LL([]))
+
+  norm-loc-to-data-storage: StackKey(key) ->
+    DataStorage(
+      NSID("gzb", ["_internal"]),
+      Path-LL([
+        Select-LL("_stack"),
+        IndexFix-LL("-1"),
+        Select-LL(key)
+      ])
+    )
+
+  data-loc-args(|path_ext): var -> args
+    with
+      loc@DataStorage(nsid, path_base) := <VarLoc; try(norm-loc-to-data-storage)> var
+    ; args := [
+        Arg-RawString-ASM("storage"),
+        Arg-NSID-ASM(nsid),
+        <path-join; transform-path> [path_base, path_ext]
+      ]
+
+rules // scoreboard-loc-args :: string -> List(Arg-ASM)
+
+  scoreboard-loc-args: var -> dest*
+    with
+      data_loc* := <data-loc-args> var
+    ; player_ident := <newname> "uuidv4_TODO"
+    ; dest* := [
+        Arg-RawString-ASM(player_ident),
+        Arg-RawString-ASM("gzb")
+      ]
+    ; rules(EmitCommand:+ _ -> Command-Plain-ASM(
+        "execute",
+        [
+          Arg-RawString-ASM("store"),
+          Arg-RawString-ASM("result"),
+          Arg-RawString-ASM("score"),
+          dest*,
+          Arg-RedirectSelf-ASM([
+            Arg-RawString-ASM("run"),
+            Arg-Redirect-ASM(Command-Plain-ASM(
+              "data",
+              [
+                Arg-RawString-ASM("get"),
+                data_loc*
+                // could add scaling factor here in float support mode
+              ]
+            ))
+          ])
+        ]
+      ))
+
+rules // transform-block :: Block-LL -> Unit-ASM
+
+  transform-block: FlowGroup-LL(flow_block*) -> Unit-ASM(flow_block'*)
+    with
+      flow_block'* := <map(transform-flow-block)> flow_block*
+  transform-block: BasicBlock-LL(assign*) -> Unit-ASM(assign'*)
+    with
+      assign'* := <map(transform-assign)> assign*
+
+rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
+
+  transform-flow-block: FlowBlock-LL(Unconditional-LL(), _, block) -> Command-AnonSubUnit-ASM(<transform-block> block)
+
+  // TODO: loop
+
+  transform-flow-block: FlowBlock-LL(If-LL(ArgCond-LL(cond)), _, block) ->
+    Command-Plain-ASM("execute", [
+      cond*,
+      Arg-RedirectSelf-ASM([
+        Arg-RawString-ASM("run"),
+        Arg-Redirect-ASM(Command-AnonSubUnit-ASM(<transform-block> block))
+      ])
+    ])
+    with
+      cond* := <transform-cond-exec> cond
+
+rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
+
+  transform-cond-exec: BoolCondCmp-LL(ArgVar-LL(lhs_var), cmp, ArgVar-LL(rhs_var)) ->
+    [
+      Arg-RawString-ASM("if"),
+      Arg-RawString-ASM("score"),
+      lhs*,
+      Arg-RawString-ASM(<
+        \CmpLt-LL() -> "<"\
+      + \CmpLte-LL() -> "<="\
+      + \CmpEq-LL() -> "="\
+      + \CmpGt-LL() -> ">"\
+      + \CmpGte-LL() -> ">="\
+      > cmp),
+      rhs*
+    ]
+    with
+      lhs* := <scoreboard-loc-args> lhs_var
+    ; rhs* := <scoreboard-loc-args> rhs_var
+
+  // if lhs is not ArgVar, but rhs is, flip and try again
+  transform-cond-exec =
+    ?BoolCondCmp-LL(lhs, cmp, rhs@ArgVar-LL(_))
+  ; !lhs; not(?ArgVar-LL(_))
+  ; cmp_inv := <
+      \CmpLt-LL() -> CmpGt-LL()\
+    + \CmpLte-LL() -> CmpGte-LL()\
+    + \CmpEq-LL() -> CmpEq-LL()\
+    + \CmpGt-LL() -> CmpLt-LL()\
+    + \CmpGte-LL() -> CmpLte-LL()\
+    > cmp
+  ; !BoolCondCmp-LL(rhs, cmp_inv, lhs)
+  ; transform-cond-exec
+
+  transform-cond-exec: BoolCondCmp-LL(ArgVar-LL(lhs_var), cmp, num) ->
+    [
+      Arg-RawString-ASM("if"),
+      Arg-RawString-ASM("score"),
+      lhs*,
+      Arg-RawString-ASM("matches"),
+      Arg-RawString-ASM(<concat-strings> [range_prefix, <int-to-string> v_int', range_suffix])
+    ]
+    where
+      // TODO: warn about long
+      !num; is-int-ll => v
+    with
+      lhs* := <scoreboard-loc-args> lhs_var
+    with
+      v_int := <string-to-int> v
+    ; (range_prefix, range_suffix, v_int') := <
+        \CmpLt-LL() -> ("..", "", <subti> (v_int, 1))\
+      + \CmpLte-LL() -> ("..", "", v_int)\
+      + \CmpEq-LL() -> ("", "", v_int)\
+      + \CmpGt-LL() -> ("", "..", <addi> (v_int, 1))\
+      + \CmpGte-LL() -> ("", "..", v_int)\
+      > cmp
+
+  // TODO: move this to separate phase
+  transform-cond-exec: BoolCondCmp-LL(lhs, cmp, rhs) -> args
+    where
+      !lhs; is-numeric-ll => lhs_v
+    ; !rhs; is-numeric-ll => rhs_v
+    with
+      [lhs_v_num, rhs_v_num] := <map(string-to-int <+ string-to-real)> [lhs_v, rhs_v]
+    ; if <eval-cmp-numeric(|cmp)> (lhs_v_num, rhs_v_num) then
+        // true emulation, no args mean it always flows through
+        args := []
+      else
+        // false emulation
+        args := [
+          Arg-RawString-ASM("unless"),
+          Arg-RawString-ASM("entity"),
+          Arg-RawString-ASM("@e")
+        ]
+      end
+  eval-cmp-numeric(|CmpLt-LL()) = lt
+  eval-cmp-numeric(|CmpLte-LL()) = leq
+  eval-cmp-numeric(|CmpEq-LL()) = eq
+  eval-cmp-numeric(|CmpGt-LL()) = gt
+  eval-cmp-numeric(|CmpGte-LL()) = geq
+
+rules // transform-assign :: Assign-LL -> Command-ASM
+
+  transform-assign: AssignOp-LL(dest, op, arg*) -> "TODO: op"
+
+  transform-assign: AssignNew-LL(DestDiscard-LL(), _) -> Command-NoOp-ASM()
+
+  transform-assign: AssignNew-LL(dest, arg) -> "TODO: new"
+
+rules // transform-path :: Path-LL -> Arg-ASM
+
+  transform-path: Path-LL(elems) -> Arg-RawString-ASM(str)
+    with
+      str := <foldl(
+        \(elem, "") -> <transform-path-fold(id)> elem\
+     <+ \(elem, accum) -> <concat-strings> [accum, <transform-path-fold(fail)> elem]\
+      )> (elems, "")
+
+  transform-path-fold(is-first): Select-LL(key) -> <concat-strings> [prefix, <string-denorm> key]
+    with
+      if is-first then
+        prefix := "."
+      else
+        prefix := ""
+      end
+
+  transform-path-fold(is-first): IndexFix-LL(idx) -> <concat-strings> ["[", idx, "]"]
+
+  // TODO: Filter-LL
