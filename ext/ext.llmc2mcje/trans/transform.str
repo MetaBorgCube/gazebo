@@ -100,11 +100,13 @@ rules // transform-block :: Block-LL -> Unit-ASM
     with
       assign'* := <map-with-emitted-commands(transform-assign)> assign*
 
-  // TODO: clear EmitCommand scope, behavior like {...}
   map-with-emitted-commands(s-trans) =
     map({| EmitCommand
-      : s-trans
-      ; ![<bagof-EmitCommand <+ ![]>(), [<id>]]
+      // sentinel value workaround to enforce "empty" dr rhs set
+      // see https://slde.slack.com/archives/C7254SF60/p1640029435083900
+      : with(rules(EmitCommand:+ _ -> "SENTINEL"))
+      ; s-trans
+      ; ![<(bagof-EmitCommand <+ ![]); filter(not(?"SENTINEL"))>(), [<id>]]
       ; concat
       |})
   ; flatten-list
