@@ -102,11 +102,11 @@ rules // transform-block :: Block-LL -> Unit-ASM
 
   map-with-emitted-commands(s-trans) =
     map({| EmitCommand
-      // sentinel value workaround to enforce "empty" dr rhs set
+      // workaround to enforce "empty" dr rhs set
       // see https://slde.slack.com/archives/C7254SF60/p1640029435083900
-      : with(rules(EmitCommand:+ _ -> "SENTINEL"))
+      : with(rules(EmitCommand:+ _ -> <fail>))
       ; s-trans
-      ; ![<(bagof-EmitCommand <+ ![]); filter(not(?"SENTINEL"))>(), [<id>]]
+      ; ![<bagof-EmitCommand <+ ![]>(), [<id>]]
       ; concat
       |})
   ; flatten-list
