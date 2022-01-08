@@ -63,7 +63,7 @@ lexical syntax
 context-free sorts CompoundEntry-LL
 context-free syntax
 
-    CompoundEntry-LL.CompoundEntry-LL = <<ID> <Arg-LL>>
+    CompoundEntry-LL.CompoundEntry-LL = <<STRING> <Arg-LL>>
 
 context-free sorts PosCoordKind-LL
 context-free syntax

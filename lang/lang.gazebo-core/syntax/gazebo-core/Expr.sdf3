@@ -27,7 +27,7 @@ context-free syntax
     }
     >
 
-    NbtCompoundEntry-C.NbtCompoundEntry-C = <<ID>: <Expr-C>>
+    NbtCompoundEntry-C.NbtCompoundEntry-C = <<STRING>: <Expr-C>>
 
     Expr-C.NbtArray-C = <[; <{Expr-C ", "}*>]>
     Expr-C.NbtList-C = <[: <{Expr-C ", "}*>]>

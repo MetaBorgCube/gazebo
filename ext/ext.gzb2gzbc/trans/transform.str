@@ -127,7 +127,8 @@ rules // transform-type :: Type -> Type-C
 rules // transform-expr :: Expr -> Expr-C
 
   transform-expr: NBTCompound(kvs) ->
-    NbtCompound-C(<map(\KeyValue(k, v) -> NbtCompoundEntry-C(k, <transform-expr> v)\)> kvs)
+    // need to denormalize the string here, because in the core language all NBT compound keys must be full strings
+    NbtCompound-C(<map(\KeyValue(k, v) -> NbtCompoundEntry-C(<string-denorm> k, <transform-expr> v)\)> kvs)
   transform-expr: NBTArrayAnonymous(items) -> NbtArray-C(<map(transform-expr)> items)
   // TODO: might want to keep the type info?
   transform-expr: NBTArrayExplicit(_, items) -> NbtArray-C(<map(transform-expr)> items)

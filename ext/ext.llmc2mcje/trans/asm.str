@@ -27,7 +27,7 @@ strategies
 
 rules // asm-command :: Command-ASM -> string
 
-  asm-command: Command-Plain-ASM(cmd, args) -> res
+  asm-command: Command-Plain-ASM(cmd, args) -> <concat-strings> [cmd, " ", res]
     with
       res := <map(asm-arg); intersperse-concat(|" ")> args
 

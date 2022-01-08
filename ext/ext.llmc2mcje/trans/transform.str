@@ -9,9 +9,12 @@ imports
 
 signature
 
+  /** variable location specifier */
   sorts Loc
   constructors
+    /** variable on the local stack */
     StackKey : string -> Loc
+    /** variable in the data storage, identified by the namespace with name and an access path */
     DataStorage : NSID * Path-LL -> Loc
 
 strategies // transform-function :: Function-LL -> Unit-ASM
@@ -113,7 +116,9 @@ rules // transform-block :: Block-LL -> Unit-ASM
 
 rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
 
-  transform-flow-block: FlowBlock-LL(Unconditional-LL(), _, block) -> Command-AnonSubUnit-ASM(<transform-block> block)
+  transform-flow-block: FlowBlock-LL(Unconditional-LL(), _, block) -> Command-AnonSubUnit-ASM(block')
+    with
+      block' := <transform-block> block
 
   // TODO: loop
 
@@ -122,11 +127,12 @@ rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
       cond*,
       Arg-RedirectSelf-ASM([
         Arg-RawString-ASM("run"),
-        Arg-Redirect-ASM(Command-AnonSubUnit-ASM(<transform-block> block))
+        Arg-Redirect-ASM(Command-AnonSubUnit-ASM(block'))
       ])
     ])
     with
       cond* := <transform-cond-exec> cond
+    ; block' := <transform-block> block
 
 rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
 
@@ -215,7 +221,40 @@ rules // transform-assign :: Assign-LL -> Command-ASM
 
   transform-assign: AssignNew-LL(DestDiscard-LL(), _) -> Command-NoOp-ASM()
 
-  transform-assign: AssignNew-LL(dest, arg) -> "TODO: new"
+  // overload for usage of AssignNew-LL(DestVar-LL(_), _)
+  // only works as long as all variables actually support path access
+  transform-assign =
+    AssignNew-LL(\DestVar-LL(var){anno*} -> DestVarPath-LL(var, Path-LL([])){anno*}\, id)
+  ; transform-assign
+
+  // new nbt literal
+  transform-assign: AssignNew-LL(DestVarPath-LL(var, path), <is-lit-nbt-compatible => arg>) ->
+    Command-Plain-ASM("data", [
+      Arg-RawString-ASM("modify"),
+      dest_loc*,
+      Arg-RawString-ASM("set"),
+      Arg-RawString-ASM("value"),
+      Arg-RawString-ASM(<nbt-to-string> arg)
+    ])
+    with
+      dest_loc* := <data-loc-args(|path)> var
+
+  // var copy
+  transform-assign: AssignNew-LL(DestVarPath-LL(var_dest, path), ArgVar-LL(var_src)) ->
+    Command-Plain-ASM("data", [
+      Arg-RawString-ASM("modify"),
+      dest_loc*,
+      Arg-RawString-ASM("set"),
+      Arg-RawString-ASM("from"),
+      src_loc*
+    ])
+    with
+      dest_loc* := <data-loc-args(|path)> var_dest
+    ; src_loc* := <data-loc-args> var_src
+
+  transform-assign: _ -> <fail>
+    with
+      err(|"Assign not recognized, is partial evaluation OK?")
 
 rules // transform-path :: Path-LL -> Arg-ASM
 

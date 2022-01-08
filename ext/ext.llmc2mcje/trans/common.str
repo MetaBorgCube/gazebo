@@ -70,3 +70,43 @@ strategies
   ; !v
 
   is-numeric-ll = is-int-ll + is-float-ll
+
+  is-lit-nbt-compatible =
+    ?ArgString-LL(_)
+  + ?ArgIntB-LL(_)
+  + ?ArgIntS-LL(_)
+  + ?ArgIntI-LL(_)
+  + ?ArgIntL-LL(_)
+  + ?ArgFloatS-LL(_)
+  + ?ArgFloatD-LL(_)
+  + ArgList-LL(all(is-lit-nbt-compatible))
+  + ArgArray-LL(all(is-lit-nbt-compatible))
+  + ArgCompound-LL(all(CompoundEntry-LL(id, is-lit-nbt-compatible)))
+
+rules // nbt-to-string :: Arg-LL -> string
+
+  // don't need to denorm the str value because it is already in denorm form
+  nbt-to-string: ArgString-LL(str) -> str
+  nbt-to-string: ArgIntB-LL(int) -> <concat-strings> [int, "b"]
+  nbt-to-string: ArgIntS-LL(int) -> <concat-strings> [int, "s"]
+  nbt-to-string: ArgIntI-LL(int) -> int
+  nbt-to-string: ArgIntL-LL(int) -> <concat-strings> [int, "L"]
+  nbt-to-string: ArgFloatS-LL(float) -> float
+  nbt-to-string: ArgFloatD-LL(float) -> <concat-strings> [float, "d"]
+  nbt-to-string: ArgList-LL(elems*) -> <concat-strings> ["[", elems'*, "]"]
+    with
+      elems'* := <map(nbt-to-string); intersperse(|", ")> elems*
+  nbt-to-string: ArgArray-LL(elems*) -> <concat-strings> ["[", type, "; ", elems'*, "]"]
+    with
+      type := "TODO_Array_Type"
+    ; elems'* := <map(nbt-to-string); intersperse(|", ")> elems*
+  nbt-to-string: ArgCompound-LL(entries) -> <concat-strings> ["{", entries'*, "}"]
+    with
+      entries'* := <
+        map(
+          // also don't need to denorm this key because it's already in denorm form
+          \CompoundEntry-LL(key, value) -> [key, ": ", <nbt-to-string> value]\
+        ; concat-strings
+        )
+      ; intersperse(|", ")
+        > entries
