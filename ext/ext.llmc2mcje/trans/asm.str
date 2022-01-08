@@ -13,17 +13,30 @@ strategies
     ; (<bagof-EmitFunction>() <+ ![])
     |}
 
-strategies
+strategies // asm-unit :: Unit-ASM -> string(nsid)
 
   asm-unit = asm-unit(|<newname> "-anon-")
 
   asm-unit(|name) = ?Unit-ASM(<id>)
   ; with(
       map(asm-command)
+    ; wrap-gzb-callee(|name)
     ; intersperse-concat(|"\n") => content
     ; rules(EmitFunction:+ _ -> (name, content))
     )
   ; <concat-strings> [<BaseNSID>, "/", name]
+
+  wrap-gzb-callee(|<not(?"")>) = id
+  wrap-gzb-callee(|""): commands* -> [pre*, commands*, post*]
+    with
+      pre* := [
+        // push stack frame. storage container and path don't need to exist yet, will be created implicitly
+        "data modify storage gzb:_internal _stack append value {}"
+      ]
+    ; post* := [
+        // pop stack frame
+        "data remove storage gzb:_internal _stack[-1]"
+      ]
 
 rules // asm-command :: Command-ASM -> string
 
