@@ -12,7 +12,7 @@ context-free syntax
 context-free sorts PathElem-LL
 context-free syntax
 
-    PathElem-LL.Select-LL = ID
+    PathElem-LL.Select-LL = STRING
     PathElem-LL.IndexFix-LL = <[<INT>]>
     PathElem-LL.IndexDyn-LL = <[<ID>]>
     PathElem-LL.Filter-LL = <[<PathCond-LL>]>

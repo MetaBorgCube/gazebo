@@ -7,6 +7,9 @@ imports
 
   common
 
+  // BUF: transitive from 'common', but included here because otherwise the eclipse editor complains
+  str_common
+
 signature
 
   /** variable location specifier */
@@ -48,9 +51,9 @@ rules // data-loc-args(|path_ext) :: string -> List(Arg-ASM)
     DataStorage(
       NSID("gzb", ["_internal"]),
       Path-LL([
-        Select-LL("_stack"),
+        Select-LL(<string-denorm> "_stack"),
         IndexFix-LL("-1"),
-        Select-LL(key)
+        Select-LL(<string-denorm> key)
       ])
     )
 
@@ -73,7 +76,7 @@ rules // scoreboard-loc-args :: string -> List(Arg-ASM)
         Arg-RawString-ASM(player_ident),
         Arg-RawString-ASM("gzb")
       ]
-    ; rules(EmitCommand:+ _ -> Command-Plain-ASM(
+    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
         "execute",
         [
           Arg-RawString-ASM("store"),
@@ -104,12 +107,13 @@ rules // transform-block :: Block-LL -> Unit-ASM
       assign'* := <map-with-emitted-commands(transform-assign)> assign*
 
   map-with-emitted-commands(s-trans) =
-    map({| EmitCommand
+    map({| EmitCommand-Pre, EmitCommand-Post
       // workaround to enforce "empty" dr rhs set
       // see https://slde.slack.com/archives/C7254SF60/p1640029435083900
-      : with(rules(EmitCommand:+ _ -> <fail>))
+      : with(rules(EmitCommand-Pre:+ _ -> <fail>))
+      ; with(rules(EmitCommand-Post:+ _ -> <fail>))
       ; s-trans
-      ; ![<bagof-EmitCommand; reverse <+ ![]>(), [<id>]]
+      ; ![<bagof-EmitCommand-Pre; reverse <+ ![]>(), [<id>], <bagof-EmitCommand-Post; reverse <+ ![]>()]
       ; concat
       |})
   ; flatten-list
@@ -227,34 +231,83 @@ rules // transform-assign :: Assign-LL -> Command-ASM
     AssignNew-LL(\DestVar-LL(var){anno*} -> DestVarPath-LL(var, Path-LL([])){anno*}\, id)
   ; transform-assign
 
-  // new nbt literal
-  transform-assign: AssignNew-LL(DestVarPath-LL(var, path), <is-lit-nbt-compatible => arg>) ->
+  transform-assign: AssignNew-LL(DestVarPath-LL(var, path), <is-new-compatible => arg>) ->
     Command-Plain-ASM("data", [
       Arg-RawString-ASM("modify"),
       dest_loc*,
       Arg-RawString-ASM("set"),
       Arg-RawString-ASM("value"),
-      Arg-RawString-ASM(<nbt-to-string> arg)
+      Arg-RawString-ASM(value)
     ])
     with
       dest_loc* := <data-loc-args(|path)> var
-
-  // var copy
-  transform-assign: AssignNew-LL(DestVarPath-LL(var_dest, path), ArgVar-LL(var_src)) ->
-    Command-Plain-ASM("data", [
-      Arg-RawString-ASM("modify"),
-      dest_loc*,
-      Arg-RawString-ASM("set"),
-      Arg-RawString-ASM("from"),
-      src_loc*
-    ])
-    with
-      dest_loc* := <data-loc-args(|path)> var_dest
-    ; src_loc* := <data-loc-args> var_src
+    ; value := <transform-assign-new-arg(|var, path); opt-unwrap(!"$placeholder"; string-denorm)> arg
 
   transform-assign: _ -> <fail>
     with
       err(|"Assign not recognized, is partial evaluation OK?")
+
+rules // transform-assign-new-arg(|Path-LL) :: Arg-LL -> Optional(string)
+
+  transform-assign-new-arg(|_, _): ArgString-LL(str) -> Some(str)
+  transform-assign-new-arg(|_, _): ArgIntB-LL(int) -> Some(<concat-strings> [int, "b"])
+  transform-assign-new-arg(|_, _): ArgIntS-LL(int) -> Some(<concat-strings> [int, "s"])
+  transform-assign-new-arg(|_, _): ArgIntI-LL(int) -> Some(int)
+  transform-assign-new-arg(|_, _): ArgIntL-LL(int) -> Some(<concat-strings> [int, "L"])
+  transform-assign-new-arg(|_, _): ArgFloatS-LL(float) -> Some(float)
+  transform-assign-new-arg(|_, _): ArgFloatD-LL(float) -> Some(<concat-strings> [float, "d"])
+
+  transform-assign-new-arg(|v, p): ArgList-LL(elems*) -> Some(<concat-strings> ["[", elems'*, "]"])
+    with
+      elems'* := <enumerate-map-intersperse({p':
+        with(p' := <Fst; int-to-string; ![p, Path-LL([IndexFix-LL(<id>)])]; path-join>)
+      ; Snd
+      ; transform-assign-new-arg(|v, p')
+      ; opt-unwrap(!"0")
+      })> elems*
+
+  transform-assign-new-arg(|v, p): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type, "; ", elems'*, "]"])
+    with
+      type := "TODO_Array_Type"
+    ; elems'* := <enumerate-map-intersperse({p':
+        with(p' := <Fst; int-to-string; ![p, Path-LL([IndexFix-LL(<id>)])]; path-join>)
+      ; Snd
+      ; transform-assign-new-arg(|v, p')
+      ; opt-unwrap(!"0") // TODO: use correct placeholder based on array type
+      })> elems*
+
+  transform-assign-new-arg(|v, p): ArgCompound-LL(entries) -> Some(<concat-strings> ["{", entries'*, "}"])
+    with
+      entries'* := <
+        map(
+          // also don't need to denorm this key because it's already in denorm form
+          {p': \CompoundEntry-LL(key, value) ->
+            [key, ": ", <transform-assign-new-arg(|v, p'); opt-unwrap(!"$placeholder"; string-denorm)> value]
+            with
+              p' := <path-join> [p, Path-LL([Select-LL(key)])]
+          \}
+        ; concat-strings
+        )
+      ; intersperse(|", ")
+        > entries
+
+  transform-assign-new-arg(|v, p): ArgVar-LL(var) -> None()
+    with
+      dest_loc* := <data-loc-args(|p)> v
+    ; src_loc* := <data-loc-args> var
+    ; rules(EmitCommand-Post:+ _ -> Command-Plain-ASM(
+        "data", [
+          Arg-RawString-ASM("modify"),
+          dest_loc*,
+          Arg-RawString-ASM("set"),
+          Arg-RawString-ASM("from"),
+          src_loc*
+        ])
+      )
+
+  transform-assign-new-arg(|_, _): ArgRaw-LL(_) -> None() // TODO: raw
+  transform-assign-new-arg(|_, _): ArgUnsafe-LL(_) -> None() // TODO: unsafe
+  transform-assign-new-arg(|_, _): ArgUnsafe-LL(_) -> None() // TODO: cond
 
 rules // transform-path :: Path-LL -> Arg-ASM
 
@@ -265,7 +318,8 @@ rules // transform-path :: Path-LL -> Arg-ASM
      <+ \(elem, accum) -> <concat-strings> [accum, <transform-path-fold(fail)> elem]\
       )> (elems, "")
 
-  transform-path-fold(is-first): Select-LL(key) -> <concat-strings> [prefix, <string-denorm> key]
+  // key is already in denorm form
+  transform-path-fold(is-first): Select-LL(key) -> <concat-strings> [prefix, key]
     with
       if is-first then
         prefix := ""

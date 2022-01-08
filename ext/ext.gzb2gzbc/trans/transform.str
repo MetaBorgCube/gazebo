@@ -178,7 +178,7 @@ rules // transform-expr :: Expr -> Expr-C
      > nsid
 
   transform-expr: FindIndex(e, i) -> FindIndex-C(<transform-expr> e, <transform-expr> i)
-  transform-expr: FindPath(e, memb) -> FindPath(<transform-expr> e, memb)
+  transform-expr: FindPath(e, memb) -> FindKey-C(<transform-expr> e, <string-denorm> memb)
 
   transform-expr: InvokeArgs(e, Args(args)) -> Invoke-C(<transform-expr> e, <map(transform-expr)> args)
 
