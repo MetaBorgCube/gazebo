@@ -19,7 +19,7 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
     with
       {| RegisterDecl
       : block' := <transform-block; simplify-block> block
-      ; decl_gen* := <bagof-RegisterDecl <+ ![]>()
+      ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
       |}
     ; decl_sign* := [/*TODO*/]
     ; decl_global* := [/*TODO*/]
@@ -48,7 +48,7 @@ rules // transform-block :: Block-C -> Block-LL
       BasicBlock-LL(<
         map({| EmitAssign
           : transform-stmt-basic
-          ; ![<bagof-EmitAssign <+ ![]>(), [<id>]]
+          ; ![<bagof-EmitAssign; reverse <+ ![]>(), [<id>]]
           ; concat
           |})
       ; flatten-list

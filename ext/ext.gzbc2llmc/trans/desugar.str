@@ -19,7 +19,7 @@ strategies
   with-added-tlis(s) =
     {| TliAdd
     : s
-    ; ![<bagof-TliAdd <+ ![]>(), <id>]
+    ; ![<bagof-TliAdd; reverse <+ ![]>(), <id>]
     ; concat
     |}
 

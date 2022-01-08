@@ -10,7 +10,7 @@ strategies
     {| BaseNSID, EmitFunction
     : with(rules(BaseNSID: _ -> function_base))
     ; asm-unit(|"")
-    ; (<bagof-EmitFunction>() <+ ![])
+    ; <bagof-EmitFunction; reverse <+ ![]>()
     |}
 
 strategies // asm-unit :: Unit-ASM -> string(nsid)
@@ -20,13 +20,12 @@ strategies // asm-unit :: Unit-ASM -> string(nsid)
   asm-unit(|name) = ?Unit-ASM(<id>)
   ; with(
       map(asm-command)
-    ; wrap-gzb-callee(|name)
+    ; try(wrap-gzb-callee(|name))
     ; intersperse-concat(|"\n") => content
     ; rules(EmitFunction:+ _ -> (name, content))
     )
   ; <concat-strings> [<BaseNSID>, "/", name]
 
-  wrap-gzb-callee(|<not(?"")>) = id
   wrap-gzb-callee(|""): commands* -> [pre*, commands*, post*]
     with
       pre* := [

@@ -109,7 +109,7 @@ rules // transform-block :: Block-LL -> Unit-ASM
       // see https://slde.slack.com/archives/C7254SF60/p1640029435083900
       : with(rules(EmitCommand:+ _ -> <fail>))
       ; s-trans
-      ; ![<bagof-EmitCommand <+ ![]>(), [<id>]]
+      ; ![<bagof-EmitCommand; reverse <+ ![]>(), [<id>]]
       ; concat
       |})
   ; flatten-list
