@@ -1,0 +1,36 @@
+module a:b
+
+func other(i Int) {}
+
+func very_first_test
+{
+    mut a := 0
+    c := 3
+    if 1 <= c
+    {
+        a = 5
+        const idx := 0
+        b := [1 + 2]
+        b[idx] += 6
+        a = b[idx]
+    }
+
+    // TODO: needs implementation of new(ArgCond-LL)
+    //testbool := a <= 10
+
+    other(2+3)
+
+    const nbt_var_const := {
+        a: 4,
+        b: ["World!"],
+        "my key": [; 3, 4, 5],
+        bool: true
+    }
+    nbt_var_dyn := {
+        a: a,
+        b: ["Hello ", nbt_var_const.b[0]],
+        nested: {
+            "other\" key": [; c]
+        }
+    }
+}

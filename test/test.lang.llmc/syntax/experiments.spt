@@ -4,28 +4,79 @@ module syntax/experiments
 test experiment 1 [[[
 function exp:a
 
-global
-    dummy b = data example:abc/def 'Path.to."some thing"[0]'
+global dummy iS = data example:abc/def '"Path" "to" "some thing"[0]'
 
-sign
-    _ret b
+sign _ret iS
 
-local
-    a r[minecraft:block]
-    b @
-    c iI
+local a r[minecraft:block]
+local b @
+local c iI
 
 body {
-    a <- r[minecraft:block, minecraft:chest]+[facing="south", waterlogged=false][c[
-        Items l[c[
-            Slot 0B,
-            id r[minecraft:item, minecraft:stone],
-            Count 64B
+    a <- r[minecraft:block, minecraft:chest]+[facing="south", waterlogged=0B][c[
+        "Items" l[c[
+            "Slot" 0B,
+            "id" r[minecraft:item, minecraft:stone],
+            "Count" 64B
         ]]
     ]]
     b <- @r[level=7I]
     c <- |[(default) "say hello"]
-    dummy <- false
-    _ret <- true
+    dummy <- 0B
+    _ret <- 1B
 }
 ]]] parse succeeds
+
+test experiment 2 from actual gzb source [[[[
+function a:b/very_first_test
+
+local a s
+local c s
+local $if_not_taken14 iB
+local .const idx s
+local b s
+local $arith28 s
+local $rv_from_lv14 s
+local $find20 s
+local $arith29 s
+local $invoke14 s
+local .const nbt_var_const s
+local nbt_var_dyn s
+local $find21 s
+
+body
+    {
+        a <- 0I
+        c <- 3I
+    }
+    {
+        {
+            $if_not_taken14 <- 1B
+        }
+        if 1I <= c {
+            {
+                $if_not_taken14 <- 0B
+            }
+            {
+                a <- 5I
+                idx <- 0I
+                $arith28 <- add 1I 2I
+                b <- l[$arith28]
+                $rv_from_lv14 <- find b '[idx]'
+                b, '[idx]' <- add $rv_from_lv14 6I
+                $find20 <- find b '[idx]'
+                a <- $find20
+            }
+        }
+        if $if_not_taken14 = 1B {
+        }
+    }
+    {
+        $arith29 <- add 2I 3I
+        $invoke14 <- ivk a:b/other $arith29
+        _ <- $invoke14
+        nbt_var_const <- c["a" 4I, "b" l["World!"], "my key" a[3I, 4I, 5I], "bool" 1B]
+        $find21 <- find nbt_var_const '"b" [0]'
+        nbt_var_dyn <- c["a" a, "b" l["Hello ", $find21], "nested" c["other\" key" a[c]]]
+    }
+]]]] parse succeeds

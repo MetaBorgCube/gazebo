@@ -1,0 +1,55 @@
+module experiment:a
+
+global alias @e = @e
+global alias @a = @e[type == $player]
+
+type MyEnum enum {a, b, c}
+
+type MyInterface interface { a String b enum Float {X=5,Y=3} }
+
+alias @Programmer = @a[is "programmer"]
+
+alias @SpecialProgrammer = @Programmer[is "special"]
+
+const use_special_programmer := @SpecialProgrammer[is "OK"]
+const tliref := "hello"
+alias @y = @a[level > |say %(tliref)|]
+
+dynamic registry $<myns:ok>
+
+static registry $<minecraft:entity_type>
+{
+    protocol_id 5
+
+    register minecraft:player
+    {
+        protocol_id 0
+    }
+    register minecraft:spider
+    {
+        protocol_id 5
+    }
+}
+
+func a(x, y String) -> String = x
+
+func b(aa, const bc Int, c Float) -> Float
+{
+    mut local := "a"
+    a(local, tliref)
+    local = "b"
+    const enumref := MyEnum::c
+
+    mut localenum := enum{A,B}::A
+    localenum = ::B
+
+    raw |tellraw @r [%(quote a)]|
+
+    if 1 + 5 > 10
+    {
+        anchored feet
+        {
+            return 50
+        }
+    }
+}
