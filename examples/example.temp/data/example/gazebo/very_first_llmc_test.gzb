@@ -10,9 +10,13 @@ func very_first_test
     {
         a = 5
         const idx := 0
-        b := [1 + 2]
-        b[idx] += 6
-        a = b[idx]
+        const two := 2
+        b := [1 + two]
+        // TODO: uncomment when const eval is implemented
+        //b[idx] += 6
+        //a = b[idx]
+        b[0] += 6
+        a = b[0]
     }
 
     // TODO: needs implementation of new(ArgCond-LL)
