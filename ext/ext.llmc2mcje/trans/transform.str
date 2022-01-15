@@ -6,19 +6,11 @@ imports
   signatures/-
 
   common
+  loc
+  transfer
 
-  // BUF: transitive from 'common', but included here because otherwise the eclipse editor complains
+  // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
-
-signature
-
-  /** variable location specifier */
-  sorts Loc
-  constructors
-    /** variable on the local stack */
-    StackKey : string -> Loc
-    /** variable in the data storage, identified by the namespace with name and an access path */
-    DataStorage : NSID * Path-LL -> Loc
 
 strategies // transform-function :: Function-LL -> Unit-ASM
 
@@ -29,73 +21,9 @@ strategies // transform-function :: Function-LL -> Unit-ASM
     ; <transform-block> body_block
     |}
 
-strategies // register-decl :: Decl-LL -> _
-
-  register-decl =
-    ?Decl-LL(scope, mods, name, _, loc)
-  ; loc' := <register-decl-loc(|name)> loc
-  ; rules(VarLoc: name -> loc')
-
-  register-decl-loc(|name): StorageLocationAuto-LL() -> StackKey(name)
-  register-decl-loc(|_): StorageLocationData-LL(nsid, path) -> DataStorage(<transform-nsid> nsid, path)
-
 rules // transform-nsid :: NSID-LL -> NSID
 
   transform-nsid: NSID-LL(ns, name) -> NSID(ns, name)
-
-rules // data-loc-args(|path_ext) :: string -> List(Arg-ASM)
-
-  data-loc-args = data-loc-args(|Path-LL([]))
-
-  norm-loc-to-data-storage: StackKey(key) ->
-    DataStorage(
-      NSID("gzb", ["_internal"]),
-      Path-LL([
-        Select-LL(<string-denorm> "_stack"),
-        IndexFix-LL("-1"),
-        Select-LL(<string-denorm> key)
-      ])
-    )
-
-  data-loc-args(|path_ext): var -> args
-    with
-      loc@DataStorage(nsid, path_base) := <VarLoc; try(norm-loc-to-data-storage)> var
-    ; args := [
-        Arg-RawString-ASM("storage"),
-        Arg-NSID-ASM(nsid),
-        <path-join; transform-path> [path_base, path_ext]
-      ]
-
-rules // scoreboard-loc-args :: string -> List(Arg-ASM)
-
-  scoreboard-loc-args: var -> dest*
-    with
-      data_loc* := <data-loc-args> var
-    ; player_ident := <newname> "uuidv4_TODO"
-    ; dest* := [
-        Arg-RawString-ASM(player_ident),
-        Arg-RawString-ASM("gzb")
-      ]
-    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
-        "execute",
-        [
-          Arg-RawString-ASM("store"),
-          Arg-RawString-ASM("result"),
-          Arg-RawString-ASM("score"),
-          dest*,
-          Arg-RedirectSelf-ASM([
-            Arg-RawString-ASM("run"),
-            Arg-Redirect-ASM(Command-Plain-ASM(
-              "data",
-              [
-                Arg-RawString-ASM("get"),
-                data_loc*
-                // could add scaling factor here in float support mode
-              ]
-            ))
-          ])
-        ]
-      ))
 
 rules // transform-block :: Block-LL -> Unit-ASM
 
@@ -140,7 +68,7 @@ rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
 
 rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
 
-  transform-cond-exec: BoolCondCmp-LL(ArgVar-LL(lhs_var), cmp, ArgVar-LL(rhs_var)) ->
+  transform-cond-exec: BoolCondCmp-LL(<is-locatable => lhs>, cmp, <is-locatable => rhs>) ->
     [
       Arg-RawString-ASM("if"),
       Arg-RawString-ASM("score"),
@@ -155,24 +83,23 @@ rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
       rhs*
     ]
     with
-      lhs* := <scoreboard-loc-args> lhs_var
-    ; rhs* := <scoreboard-loc-args> rhs_var
+      lhs* := <arg-to-loc; loc-args-scoreboard> lhs
+    ; rhs* := <arg-to-loc; loc-args-scoreboard> rhs
 
-  // if lhs is not ArgVar, but rhs is, flip and try again
-  transform-cond-exec =
-    ?BoolCondCmp-LL(lhs, cmp, rhs@ArgVar-LL(_))
-  ; !lhs; not(?ArgVar-LL(_))
-  ; cmp_inv := <
-      \CmpLt-LL() -> CmpGt-LL()\
-    + \CmpLte-LL() -> CmpGte-LL()\
-    + \CmpEq-LL() -> CmpEq-LL()\
-    + \CmpGt-LL() -> CmpLt-LL()\
-    + \CmpGte-LL() -> CmpLte-LL()\
-    > cmp
-  ; !BoolCondCmp-LL(rhs, cmp_inv, lhs)
-  ; transform-cond-exec
+  // case(overload): compare numeric value with scoreboard-compatible value
+  transform-cond-exec: BoolCondCmp-LL(<not(is-locatable) => lhs>, cmp, <is-locatable => rhs>) ->
+    <transform-cond-exec> BoolCondCmp-LL(rhs, cmp_inv, lhs)
+    with
+      cmp_inv := <
+        \CmpLt-LL() -> CmpGt-LL()\
+      + \CmpLte-LL() -> CmpGte-LL()\
+      + \CmpEq-LL() -> CmpEq-LL()\
+      + \CmpGt-LL() -> CmpLt-LL()\
+      + \CmpGte-LL() -> CmpLte-LL()\
+      > cmp
 
-  transform-cond-exec: BoolCondCmp-LL(ArgVar-LL(lhs_var), cmp, num) ->
+  // case: compare scoreboard-compatible lhs with numeric value
+  transform-cond-exec: BoolCondCmp-LL(lhs, cmp, num) ->
     [
       Arg-RawString-ASM("if"),
       Arg-RawString-ASM("score"),
@@ -183,8 +110,9 @@ rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
     where
       // TODO: warn about long
       !num; is-int-ll => v
+    ; <is-locatable> lhs
     with
-      lhs* := <scoreboard-loc-args> lhs_var
+      lhs* := <arg-to-loc; loc-args-scoreboard> lhs
     with
       v_int := <string-to-int> v
     ; (range_prefix, range_suffix, v_int') := <
@@ -195,6 +123,7 @@ rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
       + \CmpGte-LL() -> ("", "..", v_int)\
       > cmp
 
+  // case: compare two numeric values
   // TODO: move this to separate phase
   transform-cond-exec: BoolCondCmp-LL(lhs, cmp, rhs) -> args
     where
@@ -221,89 +150,77 @@ rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
 
 rules // transform-assign :: Assign-LL -> Command-ASM
 
-  transform-assign: AssignOp-LL(dest, op, arg*) -> "TODO: op"
+  transform-assign: AssignOp-LL(dest, op, arg*) -> res
+    with
+      dest_loc := <dest-to-loc> dest
+    ; res := <transform-assign-op(|dest_loc)> (op, arg*)
 
   transform-assign: AssignNew-LL(DestDiscard-LL(), _) -> Command-NoOp-ASM()
 
-  // overload for usage of AssignNew-LL(DestVar-LL(_), _)
-  // only works as long as all variables actually support path access
-  transform-assign =
-    AssignNew-LL(\DestVar-LL(var){anno*} -> DestVarPath-LL(var, Path-LL([])){anno*}\, id)
-  ; transform-assign
-
-  transform-assign: AssignNew-LL(DestVarPath-LL(var, path), <is-new-compatible => arg>) ->
-    Command-Plain-ASM("data", [
-      Arg-RawString-ASM("modify"),
-      dest_loc*,
-      Arg-RawString-ASM("set"),
-      Arg-RawString-ASM("value"),
-      Arg-RawString-ASM(value)
-    ])
+  transform-assign: AssignNew-LL(dest, <is-new-compatible => arg>) ->
+    <transfer-raw(|dest_loc)> value
     with
-      dest_loc* := <data-loc-args(|path)> var
-    ; value := <transform-assign-new-arg(|var, path); opt-unwrap(!"$placeholder"; string-denorm)> arg
+      dest_loc := <dest-to-loc> dest
+    ; value := <transform-assign-new-arg(|dest_loc); opt-unwrap(!"$placeholder"; string-denorm)> arg
 
   transform-assign: _ -> <fail>
     with
       err(|"Assign not recognized, is partial evaluation OK?")
 
-rules // transform-assign-new-arg(|Path-LL) :: Arg-LL -> Optional(string)
+rules // transform-assign-op :: (Op-LL, List(Arg-LL)) -> Command-ASM
 
-  transform-assign-new-arg(|_, _): ArgString-LL(str) -> Some(str)
-  transform-assign-new-arg(|_, _): ArgIntB-LL(int) -> Some(<concat-strings> [int, "b"])
-  transform-assign-new-arg(|_, _): ArgIntS-LL(int) -> Some(<concat-strings> [int, "s"])
-  transform-assign-new-arg(|_, _): ArgIntI-LL(int) -> Some(int)
-  transform-assign-new-arg(|_, _): ArgIntL-LL(int) -> Some(<concat-strings> [int, "L"])
-  transform-assign-new-arg(|_, _): ArgFloatS-LL(float) -> Some(float)
-  transform-assign-new-arg(|_, _): ArgFloatD-LL(float) -> Some(<concat-strings> [float, "d"])
+  transform-assign-op(|dest): (_, _) -> Command-Plain-ASM("say", [Arg-RawString-ASM("TODO: implement assign-op")])
 
-  transform-assign-new-arg(|v, p): ArgList-LL(elems*) -> Some(<concat-strings> ["[", elems'*, "]"])
+rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
+
+  transform-assign-new-arg(|_): ArgString-LL(str) -> Some(str)
+  transform-assign-new-arg(|_): ArgIntB-LL(int) -> Some(<concat-strings> [int, "b"])
+  transform-assign-new-arg(|_): ArgIntS-LL(int) -> Some(<concat-strings> [int, "s"])
+  transform-assign-new-arg(|_): ArgIntI-LL(int) -> Some(int)
+  transform-assign-new-arg(|_): ArgIntL-LL(int) -> Some(<concat-strings> [int, "L"])
+  transform-assign-new-arg(|_): ArgFloatS-LL(float) -> Some(float)
+  transform-assign-new-arg(|_): ArgFloatD-LL(float) -> Some(<concat-strings> [float, "d"])
+
+  transform-assign-new-arg(|loc): ArgList-LL(elems*) -> Some(<concat-strings> ["[", elems'*, "]"])
     with
-      elems'* := <enumerate-map-intersperse({p':
-        with(p' := <Fst; int-to-string; ![p, Path-LL([IndexFix-LL(<id>)])]; path-join>)
+      elems'* := <enumerate-map-intersperse({loc':
+        with(loc' := <Fst; int-to-string; !(loc, Path-LL([IndexFix-LL(<id>)])); loc-access-path>)
       ; Snd
-      ; transform-assign-new-arg(|v, p')
+      ; transform-assign-new-arg(|loc')
       ; opt-unwrap(!"0")
       })> elems*
 
-  transform-assign-new-arg(|v, p): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type, "; ", elems'*, "]"])
+  transform-assign-new-arg(|loc): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type, "; ", elems'*, "]"])
     with
       type := "TODO_Array_Type"
-    ; elems'* := <enumerate-map-intersperse({p':
-        with(p' := <Fst; int-to-string; ![p, Path-LL([IndexFix-LL(<id>)])]; path-join>)
+    ; elems'* := <enumerate-map-intersperse({loc':
+        with(loc' := <Fst; int-to-string; !(loc, Path-LL([IndexFix-LL(<id>)])); loc-access-path>)
       ; Snd
-      ; transform-assign-new-arg(|v, p')
+      ; transform-assign-new-arg(|loc')
       ; opt-unwrap(!"0") // TODO: use correct placeholder based on array type
       })> elems*
 
-  transform-assign-new-arg(|v, p): ArgCompound-LL(entries) -> Some(<concat-strings> ["{", entries'*, "}"])
+  transform-assign-new-arg(|loc): ArgCompound-LL(entries) -> Some(<concat-strings> ["{", entries'*, "}"])
     with
       entries'* := <
         map(
           // also don't need to denorm this key because it's already in denorm form
-          {p': \CompoundEntry-LL(key, value) ->
-            [key, ": ", <transform-assign-new-arg(|v, p'); opt-unwrap(!"$placeholder"; string-denorm)> value]
+          {loc': \CompoundEntry-LL(key, value) ->
+            [key, ": ", <transform-assign-new-arg(|loc'); opt-unwrap(!"$placeholder"; string-denorm)> value]
             with
-              p' := <path-join> [p, Path-LL([Select-LL(key)])]
+              loc' := <loc-access-path> (loc, Path-LL([Select-LL(key)]))
           \}
         ; concat-strings
         )
       ; intersperse(|", ")
         > entries
 
-  transform-assign-new-arg(|v, p): ArgVar-LL(var) -> None()
+  transform-assign-new-arg(|loc): locatable_arg -> None()
+    where
+      src_loc := <arg-to-loc> locatable_arg
     with
-      dest_loc* := <data-loc-args(|p)> v
-    ; src_loc* := <data-loc-args> var
-    ; rules(EmitCommand-Post:+ _ -> Command-Plain-ASM(
-        "data", [
-          Arg-RawString-ASM("modify"),
-          dest_loc*,
-          Arg-RawString-ASM("set"),
-          Arg-RawString-ASM("from"),
-          src_loc*
-        ])
-      )
+      transfer_cmd := <transfer-loc(|loc)> src_loc
+    ; rules(EmitCommand-Post:+ _ -> transfer_cmd)
 
   transform-assign-new-arg(|_, _): ArgRaw-LL(_) -> None() // TODO: raw
   transform-assign-new-arg(|_, _): ArgUnsafe-LL(_) -> None() // TODO: unsafe

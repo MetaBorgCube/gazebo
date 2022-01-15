@@ -49,7 +49,7 @@ rules // asm-command :: Command-ASM -> string
     with
       res := <intersperse-concat(|" ")> ["function", <asm-unit> unit]
 
-  asm-command: Command-NoOp-ASM() -> ""
+  asm-command: Command-NoOp-ASM() -> "# no-op"
 
   asm-command: str -> str
     where is-string

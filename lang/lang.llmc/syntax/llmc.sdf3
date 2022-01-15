@@ -32,3 +32,4 @@ context-free syntax
     DeclScope-LL.SLocal-LL = <local>
     StorageLocation-LL.StorageLocationAuto-LL = <>
     StorageLocation-LL.StorageLocationData-LL = <= data <NSID-LL> <Path-LL>>
+    StorageLocation-LL.StorageLocationScoreboard-LL = <= scoreboard <ID> <ID>>

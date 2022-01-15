@@ -1,0 +1,150 @@
+module loc
+
+imports
+
+  signatures/llmc/-
+  signatures/-
+
+  common
+  transform
+
+  // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
+  str_common
+
+signature
+
+  /** variable location specifier */
+  sorts Loc
+  constructors
+    /** variable on the local stack, including an optional access path */
+    StackKey : string * Path-LL -> Loc
+    /** variable in the data storage, identified by the namespace with name and an access path */
+    DataStorage : NSID * Path-LL -> Loc
+    /** variable in the scoreboard, identified by the 'fake player' and 'objective' */
+    Scoreboard : string * string -> Loc
+    /** discard location, value not of interest */
+    Discard : Loc
+
+strategies // register-decl :: Decl-LL -> _
+
+  register-decl =
+    ?Decl-LL(scope, mods, name, _, loc)
+  ; loc' := <register-decl-loc(|name)> loc
+  ; rules(VarLoc: name -> loc')
+
+  register-decl-loc(|name): StorageLocationAuto-LL() -> StackKey(name, Path-LL([]))
+  register-decl-loc(|_): StorageLocationData-LL(nsid, path) -> DataStorage(<transform-nsid> nsid, path)
+  register-decl-loc(|_): StorageLocationScoreboard-LL(player, objective) -> Scoreboard(player, objective)
+
+rules // loc-access-path :: (Loc, Path-LL) -> Loc
+
+  loc-access-path: (loc, Path-LL([])) -> loc
+  loc-access-path: (StackKey(key, path), path_access) -> StackKey(key, <path-join> [path, path_access])
+  loc-access-path: (DataStorage(nsid, path), path_access) -> DataStorage(nsid, <path-join> [path, path_access])
+  loc-access-path: (Scoreboard(_, _), Path-LL([_|_])) -> <with(fail)>
+  loc-access-path: (Discard(), _) -> Discard()
+
+strategies // loc-is-data :: Loc
+
+  loc-is-data =
+    ?StackKey(_, _)
+  + ?DataStorage(_, _)
+
+strategies // is-locatable :: Arg-LL
+
+  is-locatable = where(arg-to-loc)
+
+rules // dest-to-loc :: AssignDest-LL -> Loc
+
+  dest-to-loc: DestDiscard-LL() -> Discard()
+  dest-to-loc: DestVar-LL(var) -> <VarLoc> var
+  dest-to-loc: DestVarPath-LL(var, path) -> final_loc
+    with
+      var_loc := <VarLoc> var
+    ; final_loc := <loc-access-path> (var_loc, path)
+
+rules // arg-to-loc :: Arg-LL -> Loc
+
+  arg-to-loc: ArgVar-LL(var) -> <VarLoc> var
+  // TODO: ArgRef-LL
+
+rules // loc-args-data :: Loc -> List(Arg-ASM)
+
+  loc-args-data: StackKey(key, access_path) ->
+    [
+      Arg-RawString-ASM("storage"),
+      Arg-NSID-ASM(NSID("gzb", ["_internal"])),
+      <path-join; transform-path> [stack_select_path, access_path]
+    ]
+    with
+      stack_select_path := Path-LL([
+        Select-LL(<string-denorm> "_stack"),
+        IndexFix-LL("-1"),
+        Select-LL(<string-denorm> key)
+      ])
+
+  loc-args-data: DataStorage(nsid, access_path) ->
+    [
+      Arg-RawString-ASM("storage"),
+      Arg-NSID-ASM(nsid),
+      <transform-path> access_path
+    ]
+
+  loc-args-data: loc@Scoreboard(player, objective) -> loc'*
+    with
+      new_key := <newname> "$sb_access"
+    ; loc'* := <loc-args-data> StackKey(new_key, Path-LL([]))
+    ; loc_args_sb* := <loc-args-scoreboard> loc
+    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
+        "execute",
+        [
+          Arg-RawString-ASM("store"),
+          Arg-RawString-ASM("result"),
+          loc'*,
+          Arg-RedirectSelf-ASM([
+            Arg-RawString-ASM("run"),
+            Arg-Redirect-ASM(Command-Plain-ASM(
+              "scoreboard",
+              [
+                Arg-RawString-ASM("players"),
+                Arg-RawString-ASM("get"),
+                loc_args_sb*
+              ]
+            ))
+          ])
+        ]
+      ))
+
+rules // loc-args-scoreboard :: Loc -> List(Arg-ASM)
+
+  loc-args-scoreboard: <loc-is-data => loc> -> loc'*
+    with
+      player_ident := <newname> "uuidv4_TODO"
+    ; loc'* := <loc-args-scoreboard> Scoreboard(player_ident, "gzb")
+    ; loc_args_data* := <loc-args-data> loc
+    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
+        "execute",
+        [
+          Arg-RawString-ASM("store"),
+          Arg-RawString-ASM("result"),
+          Arg-RawString-ASM("score"),
+          loc'*,
+          Arg-RedirectSelf-ASM([
+            Arg-RawString-ASM("run"),
+            Arg-Redirect-ASM(Command-Plain-ASM(
+              "data",
+              [
+                Arg-RawString-ASM("get"),
+                loc_args_data*
+                // could add scaling factor here in float support mode
+              ]
+            ))
+          ])
+        ]
+      ))
+
+  loc-args-scoreboard: Scoreboard(player, objective) ->
+    [
+      Arg-RawString-ASM(player),
+      Arg-RawString-ASM(objective)
+    ]
