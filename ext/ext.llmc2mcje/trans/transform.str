@@ -77,6 +77,7 @@ rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
 
 rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
 
+  // case: compare two nonliteral values
   transform-cond-exec: BoolCondCmp-LL(<is-locatable => lhs>, cmp, <is-locatable => rhs>) ->
     [
       Arg-RawString-ASM("if"),
@@ -291,9 +292,12 @@ rules // transform-path :: Path-LL -> Arg-ASM
 
   // TODO: Filter-LL
 
-rules // assign-arg-to-loc(|Loc) :: Arg-LL -> Command-ASM
+strategies // assign-arg-to-loc(|Loc) :: Arg-LL -> Command-ASM
 
-  assign-arg-to-loc(|dest): <is-new-compatible => arg> ->
-    <transfer-raw(|dest)> value
-    with
-      value := <transform-assign-new-arg(|dest); opt-unwrap(!"$placeholder"; string-denorm)> arg
+  assign-arg-to-loc(|dest) =
+    is-new-compatible
+  ; transform-assign-new-arg(|dest)
+    // transfer the initial value immediately if it is present
+  ; opt-map(transfer-raw(|dest))
+    // else simply do nothing, because the value will be filled in emitted post
+  ; opt-unwrap(!Command-NoOp-ASM())
