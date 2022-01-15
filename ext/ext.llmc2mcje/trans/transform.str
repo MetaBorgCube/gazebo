@@ -12,6 +12,27 @@ imports
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
 
+strategies
+
+  map-with-emitted-commands(s-trans) =
+    map({| EmitCommand-Pre, EmitCommand-Post
+      // workaround to enforce "empty" dr rhs set
+      // see https://slde.slack.com/archives/C7254SF60/p1640029435083900
+      : with(rules(EmitCommand-Pre:+ _ -> <fail>))
+      ; with(rules(EmitCommand-Post:+ _ -> <fail>))
+      ; s-trans
+      ; ![<bagof-EmitCommand-Pre; reverse <+ ![]>(), [<id>], <bagof-EmitCommand-Post; reverse <+ ![]>()]
+      ; concat
+      |})
+  ; flatten-list
+
+  /** Enforce that a the command produced by 's' has all its pre and post emissions tightly clustered.
+    * This should be used to guarantee command execution order if necessary. */
+  command-force-cluster(s) =
+    ![<id>]
+  ; map-with-emitted-commands(s)
+  ; !Command-AnonSubUnit-ASM(Unit-ASM(<id>))
+
 strategies // transform-function :: Function-LL -> Unit-ASM
 
   transform-function =
@@ -33,18 +54,6 @@ rules // transform-block :: Block-LL -> Unit-ASM
   transform-block: BasicBlock-LL(assign*) -> Unit-ASM(assign'*)
     with
       assign'* := <map-with-emitted-commands(transform-assign)> assign*
-
-  map-with-emitted-commands(s-trans) =
-    map({| EmitCommand-Pre, EmitCommand-Post
-      // workaround to enforce "empty" dr rhs set
-      // see https://slde.slack.com/archives/C7254SF60/p1640029435083900
-      : with(rules(EmitCommand-Pre:+ _ -> <fail>))
-      ; with(rules(EmitCommand-Post:+ _ -> <fail>))
-      ; s-trans
-      ; ![<bagof-EmitCommand-Pre; reverse <+ ![]>(), [<id>], <bagof-EmitCommand-Post; reverse <+ ![]>()]
-      ; concat
-      |})
-  ; flatten-list
 
 rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
 
@@ -153,23 +162,57 @@ rules // transform-assign :: Assign-LL -> Command-ASM
   transform-assign: AssignOp-LL(dest, op, arg*) -> res
     with
       dest_loc := <dest-to-loc> dest
-    ; res := <transform-assign-op(|dest_loc)> (op, arg*)
+    ; res := <command-force-cluster(transform-assign-op(|dest_loc))> (op, arg*)
 
   transform-assign: AssignNew-LL(DestDiscard-LL(), _) -> Command-NoOp-ASM()
 
-  transform-assign: AssignNew-LL(dest, <is-new-compatible => arg>) ->
-    <transfer-raw(|dest_loc)> value
+  transform-assign: AssignNew-LL(dest, arg) -> <assign-arg-to-loc(|dest_loc)> arg
     with
       dest_loc := <dest-to-loc> dest
-    ; value := <transform-assign-new-arg(|dest_loc); opt-unwrap(!"$placeholder"; string-denorm)> arg
 
   transform-assign: _ -> <fail>
     with
       err(|"Assign not recognized, is partial evaluation OK?")
 
-rules // transform-assign-op :: (Op-LL, List(Arg-LL)) -> Command-ASM
+rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
 
-  transform-assign-op(|dest): (_, _) -> Command-Plain-ASM("say", [Arg-RawString-ASM("TODO: implement assign-op")])
+  // TODO: generalize over all arithmetic ops
+  transform-assign-op(|dest): (OpAdd-LL(), [lhs, rhs]) ->
+    <transfer-loc(|dest)> interm_result
+    with
+      interm_result := Scoreboard("arith_a", "gzb")
+    ; interm_lit := Scoreboard("arith_b", "gzb")
+    ; interm_result_args* := <loc-args-scoreboard> interm_result
+    ; interm_lit_args* := <loc-args-scoreboard> interm_lit
+    with
+      transfer_lhs_to_interm_result := <command-force-cluster(assign-arg-to-loc(|interm_result))> lhs
+    ; rules(EmitCommand-Pre:+ _ -> transfer_lhs_to_interm_result)
+    ; transfer_rhs_to_interm_lit := <command-force-cluster(assign-arg-to-loc(|interm_lit))> rhs
+    ; rules(EmitCommand-Pre:+ _ -> transfer_rhs_to_interm_lit)
+    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
+        "scoreboard",
+        [
+          Arg-RawString-ASM("players"),
+          Arg-RawString-ASM("operation"),
+          interm_result_args*,
+          Arg-RawString-ASM("+="),
+          interm_lit_args*
+        ]
+      ))
+
+  // TODO: OpFind
+
+  transform-assign-op(|dest): (OpFind-LL(), [src, ArgPath-LL(path)]) ->
+    <transfer-loc(|dest)> loc_src'
+    with
+      loc_src := <arg-to-loc> src
+    with
+      loc_src' := <loc-access-path(|loc_src)> path
+
+  // TODO: all other ops
+
+  transform-assign-op(|_): (op#(_), _) ->
+    Command-Plain-ASM("say", [Arg-RawString-ASM(<concat-strings> ["TODO: assign ", op])])
 
 rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
 
@@ -184,7 +227,7 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
   transform-assign-new-arg(|loc): ArgList-LL(elems*) -> Some(<concat-strings> ["[", elems'*, "]"])
     with
       elems'* := <enumerate-map-intersperse({loc':
-        with(loc' := <Fst; int-to-string; !(loc, Path-LL([IndexFix-LL(<id>)])); loc-access-path>)
+        with(loc' := <Fst; int-to-string; !Path-LL([IndexFix-LL(<id>)]); loc-access-path(|loc)>)
       ; Snd
       ; transform-assign-new-arg(|loc')
       ; opt-unwrap(!"0")
@@ -194,7 +237,7 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
     with
       type := "TODO_Array_Type"
     ; elems'* := <enumerate-map-intersperse({loc':
-        with(loc' := <Fst; int-to-string; !(loc, Path-LL([IndexFix-LL(<id>)])); loc-access-path>)
+        with(loc' := <Fst; int-to-string; !Path-LL([IndexFix-LL(<id>)]); loc-access-path(|loc)>)
       ; Snd
       ; transform-assign-new-arg(|loc')
       ; opt-unwrap(!"0") // TODO: use correct placeholder based on array type
@@ -208,7 +251,7 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
           {loc': \CompoundEntry-LL(key, value) ->
             [key, ": ", <transform-assign-new-arg(|loc'); opt-unwrap(!"$placeholder"; string-denorm)> value]
             with
-              loc' := <loc-access-path> (loc, Path-LL([Select-LL(key)]))
+              loc' := <loc-access-path(|loc)> Path-LL([Select-LL(key)])
           \}
         ; concat-strings
         )
@@ -247,3 +290,10 @@ rules // transform-path :: Path-LL -> Arg-ASM
   transform-path-fold(is-first): IndexFix-LL(idx) -> <concat-strings> ["[", idx, "]"]
 
   // TODO: Filter-LL
+
+rules // assign-arg-to-loc(|Loc) :: Arg-LL -> Command-ASM
+
+  assign-arg-to-loc(|dest): <is-new-compatible => arg> ->
+    <transfer-raw(|dest)> value
+    with
+      value := <transform-assign-new-arg(|dest); opt-unwrap(!"$placeholder"; string-denorm)> arg

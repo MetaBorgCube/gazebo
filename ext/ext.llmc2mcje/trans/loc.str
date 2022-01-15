@@ -6,6 +6,7 @@ imports
   signatures/-
 
   common
+  transfer
   transform
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
@@ -38,11 +39,11 @@ strategies // register-decl :: Decl-LL -> _
 
 rules // loc-access-path :: (Loc, Path-LL) -> Loc
 
-  loc-access-path: (loc, Path-LL([])) -> loc
-  loc-access-path: (StackKey(key, path), path_access) -> StackKey(key, <path-join> [path, path_access])
-  loc-access-path: (DataStorage(nsid, path), path_access) -> DataStorage(nsid, <path-join> [path, path_access])
-  loc-access-path: (Scoreboard(_, _), Path-LL([_|_])) -> <with(fail)>
-  loc-access-path: (Discard(), _) -> Discard()
+  loc-access-path(|loc): Path-LL([]) -> loc
+  loc-access-path(|StackKey(key, path)): path_access -> StackKey(key, <path-join> [path, path_access])
+  loc-access-path(|DataStorage(nsid, path)): path_access -> DataStorage(nsid, <path-join> [path, path_access])
+  loc-access-path(|Scoreboard(_, _)): Path-LL([_|_]) -> <with(fail)>
+  loc-access-path(|Discard()): _ -> Discard()
 
 strategies // loc-is-data :: Loc
 
@@ -61,7 +62,7 @@ rules // dest-to-loc :: AssignDest-LL -> Loc
   dest-to-loc: DestVarPath-LL(var, path) -> final_loc
     with
       var_loc := <VarLoc> var
-    ; final_loc := <loc-access-path> (var_loc, path)
+    ; final_loc := <loc-access-path(|var_loc)> path
 
 rules // arg-to-loc :: Arg-LL -> Loc
 
@@ -90,61 +91,70 @@ rules // loc-args-data :: Loc -> List(Arg-ASM)
       <transform-path> access_path
     ]
 
-  loc-args-data: loc@Scoreboard(player, objective) -> loc'*
+  loc-args-data: loc@Scoreboard(_, _) -> loc'*
     with
       new_key := <newname> "$sb_access"
-    ; loc'* := <loc-args-data> StackKey(new_key, Path-LL([]))
-    ; loc_args_sb* := <loc-args-scoreboard> loc
-    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
-        "execute",
-        [
-          Arg-RawString-ASM("store"),
-          Arg-RawString-ASM("result"),
-          loc'*,
-          Arg-RedirectSelf-ASM([
-            Arg-RawString-ASM("run"),
-            Arg-Redirect-ASM(Command-Plain-ASM(
-              "scoreboard",
-              [
-                Arg-RawString-ASM("players"),
-                Arg-RawString-ASM("get"),
-                loc_args_sb*
-              ]
-            ))
-          ])
-        ]
-      ))
+    ; loc' := StackKey(new_key, Path-LL([]))
+    ; loc'* := <loc-args-data> loc'
+    ; cmd_transfer := <transfer-loc(|loc')> loc
+    ; rules(EmitCommand-Pre:+ _ -> cmd_transfer)
 
 rules // loc-args-scoreboard :: Loc -> List(Arg-ASM)
 
   loc-args-scoreboard: <loc-is-data => loc> -> loc'*
     with
       player_ident := <newname> "uuidv4_TODO"
-    ; loc'* := <loc-args-scoreboard> Scoreboard(player_ident, "gzb")
-    ; loc_args_data* := <loc-args-data> loc
-    ; rules(EmitCommand-Pre:+ _ -> Command-Plain-ASM(
-        "execute",
-        [
-          Arg-RawString-ASM("store"),
-          Arg-RawString-ASM("result"),
-          Arg-RawString-ASM("score"),
-          loc'*,
-          Arg-RedirectSelf-ASM([
-            Arg-RawString-ASM("run"),
-            Arg-Redirect-ASM(Command-Plain-ASM(
-              "data",
-              [
-                Arg-RawString-ASM("get"),
-                loc_args_data*
-                // could add scaling factor here in float support mode
-              ]
-            ))
-          ])
-        ]
-      ))
+    ; loc' := Scoreboard(player_ident, "gzb")
+    ; loc'* := <loc-args-scoreboard> loc'
+    ; cmd_transfer := <transfer-loc(|loc')> loc
+    ; rules(EmitCommand-Pre:+ _ -> cmd_transfer)
 
   loc-args-scoreboard: Scoreboard(player, objective) ->
     [
       Arg-RawString-ASM(player),
       Arg-RawString-ASM(objective)
     ]
+
+rules // loc-args-execute :: Loc -> List(Arg-ASM)
+
+  loc-args-execute--is-data-compat =
+    ?StackKey(_, _)
+  + ?DataStorage(_, _)
+
+  loc-args-execute =
+    loc-args-execute--is-data-compat
+  ; loc-args-data
+
+  loc-args-execute: Scoreboard(player, objective) ->
+    [
+       Arg-RawString-ASM("score"),
+       Arg-RawString-ASM(player),
+       Arg-RawString-ASM(objective)
+    ]
+
+rules // loc-get :: Loc -> Command-ASM
+
+  loc-get: <loc-is-data => src> ->
+    Command-Plain-ASM(
+      "data",
+      [
+        Arg-RawString-ASM("get"),
+        src_args*
+      ]
+    )
+    with
+      src_args* := <loc-args-data> src
+
+  loc-get: src@Scoreboard(_, _) ->
+    Command-Plain-ASM(
+      "scoreboard",
+      [
+        Arg-RawString-ASM("players"),
+        Arg-RawString-ASM("get"),
+        src_args*
+      ]
+    )
+    with
+      src_args* := <loc-args-scoreboard> src
+
+  loc-get: Discard() -> <with(fail)>

@@ -29,39 +29,30 @@ rules // transfer-raw(|Loc) :: string -> Command-ASM
     Command-Plain-ASM("scoreboard", [
       Arg-RawString-ASM("players"),
       Arg-RawString-ASM("set"),
-      Arg-RawString-ASM("value"),
+      loc_args_sb*,
       Arg-RawString-ASM(raw_string)
     ])
+    with
+      loc_args_sb* := <loc-args-scoreboard> loc
 
   transfer-raw(|Discard()): _ -> Command-NoOp-ASM()
 
 /** Transfer the value of the source Loc to the given destination Loc. */
 rules // transfer-loc(|Loc) :: Loc -> Command-ASM
 
-  transfer-loc(|<loc-is-data => loc_dest>): <loc-is-data => loc_src> ->
-    Command-Plain-ASM("data", [
-      Arg-RawString-ASM("modify"),
+  transfer-loc(|loc_dest): loc_src ->
+    Command-Plain-ASM("execute", [
+      Arg-RawString-ASM("store"),
+      Arg-RawString-ASM("result"),
       loc_dest_args*,
-      Arg-RawString-ASM("set"),
-      Arg-RawString-ASM("from"),
-      loc_src_args*
+      Arg-RedirectSelf-ASM([
+        Arg-RawString-ASM("run"),
+        Arg-Redirect-ASM(cmd_get)
+      ])
     ])
     with
-      loc_dest_args* := <loc-args-data> loc_dest
-    ; loc_src_args* := <loc-args-data> loc_src
+      loc_dest_args* := <loc-args-execute> loc_dest
+    ; cmd_get := <loc-get> loc_src
 
-  transfer-loc(|loc_dest@Scoreboard(_, _)): loc_src@Scoreboard(_, _) ->
-    Command-Plain-ASM("scoreboard", [
-      Arg-RawString-ASM("players"),
-      Arg-RawString-ASM("operation"),
-      loc_dest_args*,
-      Arg-RawString-ASM("="),
-      loc_src_args*
-    ])
-    with
-      loc_dest_args* := <loc-args-scoreboard> loc_dest
-    ; loc_src_args* := <loc-args-scoreboard> loc_src
-
-  // TODO: cross-transfer (e.g. between scoreboards and data)
-
+  // _ <- ANY
   transfer-loc(|Discard()): _ -> Command-NoOp-ASM()
