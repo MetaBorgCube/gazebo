@@ -4,22 +4,27 @@ imports
 
   common
 
+/**
+ * NOTE:
+ * Being at "top level" means not being inside an argument, for all practical purposes.
+ */
+
 strategies
 
   asm(|function_base) =
     {| BaseNSID, EmitFunction
     : with(rules(BaseNSID: _ -> function_base))
-    ; asm-unit(|"")
+    ; asm-unit(true|"")
     ; <bagof-EmitFunction; reverse <+ ![]>()
     |}
 
-strategies // asm-unit :: Unit-ASM -> string(nsid)
+strategies // asm-unit(is-toplevel) :: Unit-ASM -> string(nsid)
 
-  asm-unit = asm-unit(|<newname> "-anon-")
+  asm-unit(is-toplevel) = asm-unit(is-toplevel|<newname> "-anon-")
 
-  asm-unit(|name) = ?Unit-ASM(<id>)
+  asm-unit(is-toplevel|name) = ?Unit-ASM(<id>)
   ; with(
-      map(asm-command)
+      map(asm-command(is-toplevel))
     ; try(wrap-gzb-callee(|name))
     ; intersperse-concat(|"\n") => content
     ; rules(EmitFunction:+ _ -> (name, content))
@@ -37,21 +42,26 @@ strategies // asm-unit :: Unit-ASM -> string(nsid)
         "data remove storage gzb:_internal _stack[-1]"
       ]
 
-rules // asm-command :: Command-ASM -> string
+rules // asm-command(is-toplevel) :: Command-ASM -> string
 
-  asm-command: Command-Plain-ASM(cmd, args) -> <concat-strings> [cmd, " ", res]
+  asm-command(is-toplevel): Command-Plain-ASM(cmd, args) -> <concat-strings> [cmd, " ", res]
     with
       res := <map(asm-arg); intersperse-concat(|" ")> args
 
-  asm-command: Command-CallGzb-ASM(nsid, args) -> "say todo: do gzb call here"
+  asm-command(is-toplevel): Command-CallGzb-ASM(nsid, args) -> "say todo: do gzb call here"
 
-  asm-command: Command-AnonSubUnit-ASM(unit) -> res
+  asm-command(is-toplevel): Command-AnonSubUnit-ASM(unit@Unit-ASM(commands)) -> res
     with
-      res := <intersperse-concat(|" ")> ["function", <asm-unit> unit]
+      if is-toplevel then
+        // flatten the sub unit if still at top level
+        res := <map(asm-command(is-toplevel)); intersperse-concat(|"\n")> commands
+      else
+        res := <intersperse-concat(|" ")> ["function", <asm-unit(true)> unit]
+      end
 
-  asm-command: Command-NoOp-ASM() -> "# no-op"
+  asm-command(is-toplevel): Command-NoOp-ASM() -> "#no op"
 
-  asm-command: str -> str
+  asm-command(is-toplevel): str -> str
     where is-string
 
 rules // asm-arg :: Arg-ASM -> string
@@ -62,7 +72,7 @@ rules // asm-arg :: Arg-ASM -> string
 
   asm-arg: Arg-Redirect-ASM(cmd) -> res
     with
-      res := <asm-command> cmd
+      res := <asm-command(false)> cmd
 
   asm-arg: Arg-NSID-ASM(NSID(namespace, name)) -> <concat-strings> [namespace, ":" | name]
 
