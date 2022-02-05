@@ -20,6 +20,7 @@ rules
     aliasOk(s_root, s, GlobalAlias(Selector(name, []), Selector(name, []))) :- {s_sel_root}
         new s_sel_root,
         !name_rel[name] in s_sel_root,
+        !alias_root[1] in s_sel_root,
         declareAlias(s_root, name, s_sel_root).
 
 rules

@@ -55,6 +55,7 @@ signature
         enumkey : -> string
         tinj : -> TYPE
         ret : -> TYPE
+        alias_root : -> int
 
 rules
 

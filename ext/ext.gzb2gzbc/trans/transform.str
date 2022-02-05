@@ -139,11 +139,13 @@ rules // transform-expr :: Expr -> Expr-C
     with
       a := <stx-get-ast-analysis> sel
     ; s_sel := <stx-get-ast-type(|a); ?SELECTOR(<id>)> sel
-    // TODO: stop when a global alias is reached
-    ; bases := <rec x(\s -> [
-                <stx-get-scopegraph-data(|a, "statics/common!name_rel"); ?[<id>]> s
-              | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
-              ]\); reverse> s_sel
+    ; bases := <rec x(
+        \s -> <stx-get-scopegraph-data(|a, "statics/common!alias_root"); debug(!"s.root="); ?[1]; ![]>\
+     <+ \s -> [
+          <stx-get-scopegraph-data(|a, "statics/common!name_rel"); ?[<id>]> s
+        | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
+        ]\
+      ); reverse> s_sel
 
   transform-expr: Tag(nsid) -> TagInst-C(Tag-C(<identf-from-nsid> nsid))
 
