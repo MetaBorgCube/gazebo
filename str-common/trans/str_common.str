@@ -52,13 +52,18 @@ rules // intersperse(|sep:T) :: List(U) -> List(T|U)
   intersperse(|sep) : [x] -> [x]
   intersperse(|sep) : [x|xs] -> [x, sep | <intersperse(|sep)> xs]
 
+rules // enumerate-map(s) :: List(T) -> List(U) ; s :: (int, T) -> U
+
+  enumerate-map(s) =
+    !(<length; range>, <id>)
+  ; zip
+  ; map(s)
+
 rules // enumerate-map-intersperse(s|sep:V=", ") :: List(T) -> List(U|V) ; s :: (int, T) -> U
 
   enumerate-map-intersperse(s) = enumerate-map-intersperse(s|", ")
   enumerate-map-intersperse(s|sep) =
-    !(<length; range>, <id>)
-  ; zip
-  ; map(s)
+    enumerate-map(s)
   ; intersperse(|sep)
 
 strategies
