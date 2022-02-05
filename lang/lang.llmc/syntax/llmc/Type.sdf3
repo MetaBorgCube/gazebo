@@ -34,4 +34,4 @@ context-free syntax
 context-free sorts TypeCompoundEntry-LL
 context-free syntax
 
-    TypeCompoundEntry-LL.TypeCompoundEntry-LL = <<ID> <Type-LL>>
+    TypeCompoundEntry-LL.TypeCompoundEntry-LL = <<STRING> <Type-LL>>

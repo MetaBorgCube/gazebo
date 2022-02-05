@@ -1,9 +1,16 @@
 module a:b
 
+// from stdlib:
+global alias @e = @e
+
+alias @Example = @e[tag == "example", level > 5+6]
+
 func other(i Int) {}
 
 func very_first_test
 {
+    const sel := @Example
+
     mut a := 0
     c := 3
     if 1 <= c
@@ -37,4 +44,12 @@ func very_first_test
             "other\" key": [; c]
         }
     }
+
+    for str <- nbt_var_dyn.b
+    {
+        copy := str
+    }
+
+    //for str_a, str_b <- [["he", "ll"], ["o", "world"]]
+    //{}
 }

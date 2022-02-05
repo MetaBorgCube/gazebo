@@ -30,55 +30,96 @@ body {
 test experiment 2 from actual gzb source [[[[
 function a:b/very_first_test
 
+local .const sel s
+local $sel_prop0 s
 local a s
 local c s
-local $if_not_taken1 iB
+local $if_not_taken0 iB
 local .const idx s
 local .const two s
 local b s
-local $arith2 s
-local $rv_from_lv1 s
-local $find2 s
-local $arith3 s
-local $invoke1 s
+local $arith0 s
+local $rv_from_lv0 s
+local $find0 s
+local $arith1 s
+local $invoke0 s
 local .const nbt_var_const s
 local nbt_var_dyn s
+local $find1 s
+local _iterLA0$flag s
+local _iterLA0$subj s
+local $find2 s
+local $if_not_taken1 iB
+local $count0 iI
+local _iterLA0$curr s
 local $find3 s
+local str s
+local copy s
 
 body
     {
+        $sel_prop0 <-| add $sel_prop0 1B
+        sel <- @e[tag = "example", level = ..[$sel_prop0, ]]
         a <- 0I
         c <- 3I
     }
     {
         {
-            $if_not_taken1 <- 1B
+            $if_not_taken0 <- 1B
         }
         if 1I <= c {
             {
-                $if_not_taken1 <- 0B
+                $if_not_taken0 <- 0B
             }
             {
                 a <- 5I
                 idx <- 0I
                 two <- 2I
-                $arith2 <- add 1I two
-                b <- l[$arith2]
-                $rv_from_lv1 <- find b '[0]'
-                b, '[0]' <- add $rv_from_lv1 6I
-                $find2 <- find b '[0]'
-                a <- $find2
+                $arith0 <-| add 1I two
+                b <- l[$arith0]
+                $rv_from_lv0 <-| find b '[0]'
+                b, '[0]' <-| add $rv_from_lv0 6I
+                $find0 <-| find b '[0]'
+                a <- $find0
             }
         }
-        if $if_not_taken1 = 1B {
+        if $if_not_taken0 = 1B {
         }
     }
     {
-        $arith3 <- add 2I 3I
-        $invoke1 <- ivk a:b/other $arith3
-        _ <- $invoke1
+        $arith1 <-| add 2I 3I
+        $invoke0 <-| ivk a:b/other $arith1
+        _ <- $invoke0
         nbt_var_const <- c["a" 4I, "b" l["World!"], "my key" a[3I, 4I, 5I], "bool" 1B]
-        $find3 <- find nbt_var_const '"b" [0]'
-        nbt_var_dyn <- c["a" a, "b" l["Hello ", $find3], "nested" c["other\" key" a[c]]]
+        $find1 <-| find nbt_var_const '"b" [0]'
+        nbt_var_dyn <- c["a" a, "b" l["Hello ", $find1], "nested" c["other\" key" a[c]]]
+        _iterLA0$flag <- 1B
+        $find2 <-| find nbt_var_dyn '"b"'
+        _iterLA0$subj <- $find2
+    }
+    loop _iterLA0$flag = 1B {
+        {
+            $count0 <-| count _iterLA0$subj
+        }
+        {
+            {
+                $if_not_taken1 <- 1B
+            }
+            if $count0 > 0I {
+                {
+                    $if_not_taken1 <- 0B
+                }
+                {
+                    $find3 <-| find _iterLA0$subj '[0]'
+                    _iterLA0$curr <- $find3
+                    _iterLA0$subj, '[0]' <-| del
+                    str <- _iterLA0$subj
+                    copy <- str
+                }
+            }
+            if $if_not_taken1 = 1B {
+                _iterLA0$flag <- 0B
+            }
+        }
     }
 ]]]] parse succeeds
