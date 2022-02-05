@@ -10,6 +10,8 @@ menus
 
   menu: "LLMC (Low-Level Minecraft Commands)" (openeditor) (meta) (realtime)
 
+    action: "Desugar (local)" = editor-desugar-gzbc-local
+    action: "Desugar (local, PP source)" = editor-desugar-gzbc-local-pp
     action: "Generate (shared)" = editor-generate-llmc-shared
     action: "Generate (shared, PP source)" = editor-generate-llmc-shared-pp
     //action: "Generate (local)" = editor-generate-llmc-local

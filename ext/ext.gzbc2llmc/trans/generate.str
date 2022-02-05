@@ -18,6 +18,10 @@ imports
 
 rules
 
+  generate-llmc-desugar-only: Start-C(nsid, tlis) -> Start-C(nsid, tlis')
+    with
+      tlis' := <map(implicate-injections-gazebo-core); desugar-all; filter(relevant-tli)> tlis
+
   generate-llmc: Start-C(IdentFull-C(ns, name*), tlis) -> transformed
     with // the implicate-injections-gazebo-core is a temporary workaround for it not working correctly in Statix runtime
       desugared := <map(implicate-injections-gazebo-core); desugar-all> tlis
