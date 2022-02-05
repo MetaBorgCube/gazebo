@@ -28,6 +28,10 @@ signature
     Command-CallGzb-ASM : NSID * List(string) -> Command-ASM
     /** anonymous sub-unit (assembled in new function file x:y/z, expanded to 'function x:y/z') */
     Command-AnonSubUnit-ASM : Unit-ASM -> Command-ASM
+    /** callable sub-unit (assembled similar to AnonSubUnit, but referenceable) */
+    Command-CallableSubUnit-ASM : string * Unit-ASM -> Command-ASM
+    /** call callable sub unit */
+    Command-CallSubUnit-ASM : string -> Command-ASM
     /** no-op */
     Command-NoOp-ASM : Command-ASM
     /** command self-redirection (e.g. 'execute if abc' -> 'if xyz'), mainly used for execute chains */

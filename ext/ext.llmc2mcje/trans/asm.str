@@ -14,22 +14,26 @@ strategies
   asm(|function_base) =
     {| BaseNSID, EmitFunction
     : with(rules(BaseNSID: _ -> function_base))
-    ; asm-unit(true|"")
+    ; asm-unit(true|"", "")
     ; <bagof-EmitFunction; reverse <+ ![]>()
     |}
 
 strategies // asm-unit(is-toplevel) :: Unit-ASM -> string(nsid)
 
-  asm-unit(is-toplevel) = asm-unit(is-toplevel|<newname> "-anon-")
+  asm-unit(is-toplevel) = asm-unit(is-toplevel|"")
 
-  asm-unit(is-toplevel|name) = ?Unit-ASM(<id>)
+  asm-unit(is-toplevel|key) = asm-unit(is-toplevel|key, <newname> "-anon-")
+
+  asm-unit(is-toplevel|key,name) = ?Unit-ASM(<id>)
   ; with(
-      map(asm-command(is-toplevel))
-    ; try(wrap-gzb-callee(|name))
-    ; intersperse-concat(|"\n") => content
-    ; rules(EmitFunction:+ _ -> (name, content))
+      unit_id := <concat-strings> [<BaseNSID>, "/", name]
+    ; if <not(?"")> key then rules(UnitLookup: key -> unit_id) end
     )
-  ; <concat-strings> [<BaseNSID>, "/", name]
+  ; map(asm-command(is-toplevel))
+  ; try(wrap-gzb-callee(|name))
+  ; intersperse-concat(|"\n") => content
+  ; rules(EmitFunction:+ _ -> (name, content))
+  ; !unit_id
 
   wrap-gzb-callee(|""): commands* -> [pre*, commands*, post*]
     with
@@ -58,6 +62,14 @@ rules // asm-command(is-toplevel) :: Command-ASM -> string
       else
         res := <intersperse-concat(|" ")> ["function", <asm-unit(true)> unit]
       end
+
+  asm-command(is-toplevel): Command-CallableSubUnit-ASM(key, unit) -> res
+    with
+      res := <intersperse-concat(|" ")> ["function", <asm-unit(true|key)> unit]
+
+  asm-command(is-toplevel): Command-CallSubUnit-ASM(key) -> res
+    with
+      res := <intersperse-concat(|" ")> ["function", <UnitLookup> key]
 
   asm-command(is-toplevel): Command-NoOp-ASM() -> "#no op"
 
