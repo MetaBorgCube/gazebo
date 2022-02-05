@@ -103,8 +103,7 @@ rules // loc-args-scoreboard :: Loc -> List(Arg-ASM)
 
   loc-args-scoreboard: <loc-is-data => loc> -> loc'*
     with
-      player_ident := <newname> "uuidv4_TODO"
-    ; loc' := Scoreboard(player_ident, "gzb")
+      loc' := <loc-new-scoreboard>
     ; loc'* := <loc-args-scoreboard> loc'
     ; cmd_transfer := <transfer-loc(|loc')> loc
     ; rules(EmitCommand-Pre:+ _ -> cmd_transfer)
@@ -158,3 +157,9 @@ rules // loc-get :: Loc -> Command-ASM
       src_args* := <loc-args-scoreboard> src
 
   loc-get: Discard() -> <with(fail)>
+
+strategies
+
+  /** create a new and unique Loc instance which is Scoreboard */
+  loc-new-scoreboard =
+    !Scoreboard(<newname> "uuidv4_TODO", "gzb")
