@@ -46,13 +46,13 @@ strategies
     ?None(); fallback
   <+ ?Some(<id>)
 
-rules // intersperse(|sep:T) :: [U] -> [T|U]
+rules // intersperse(|sep:T) :: List(U) -> List(T|U)
 
   intersperse(|sep) : [] -> []
   intersperse(|sep) : [x] -> [x]
   intersperse(|sep) : [x|xs] -> [x, sep | <intersperse(|sep)> xs]
 
-rules // enumerate-map-intersperse(s|sep:V=", ") :: [T] -> [U|V] ; s :: (int, T) -> U
+rules // enumerate-map-intersperse(s|sep:V=", ") :: List(T) -> List(U|V) ; s :: (int, T) -> U
 
   enumerate-map-intersperse(s) = enumerate-map-intersperse(s|", ")
   enumerate-map-intersperse(s|sep) =
