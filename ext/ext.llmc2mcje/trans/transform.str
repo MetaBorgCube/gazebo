@@ -208,7 +208,22 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
         ]
       ))
 
-  // TODO: OpFind
+  // count elements: if a list or array is moved into a scoreboard,
+  // its length is stored instead of the actual values; this functions as a count/length operation
+  transform-assign-op(|dest): (OpCountElements-LL(), [src]) -> res
+    with
+      loc_src := <arg-to-loc> src
+    ; if <?Scoreboard(_, _)> dest then
+        // if already scoreboard desination, don't need to do anything; just transfer
+        res := <transfer-loc(|dest)> loc_src
+      else
+        // if not yet a scoreboard destination, force the src to be transferred to a scoreboard ...
+        loc_intermediate := <loc-new-scoreboard>
+      ; transfer_to_loc_intermediate := <transfer-loc(|loc_intermediate)> loc_src
+      ; rules(EmitCommand-Pre:+ _ -> transfer_to_loc_intermediate)
+        // ... and then just transfer that to the actual destination
+      ; res := <transfer-loc(|dest)> loc_intermediate
+      end
 
   transform-assign-op(|dest): (OpFind-LL(), [src, ArgPath-LL(path)]) ->
     <transfer-loc(|dest)> loc_src'
