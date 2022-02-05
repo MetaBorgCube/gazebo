@@ -75,31 +75,50 @@ rules
     ; name' := <strip-annos> name
     ; rules(MixinLookup: name' -> props')
 
+rules // destruction: desugar-destruct(|List(string)) :: Expr-C -> List(Statement-C)
+
+  // single variable destruction: simply move
+  desugar-destruct(|[ident]): e ->
+    [
+      Decl-C(DeclKindVal-C(), ident, e)
+    ]
+
+  // multi variable destruction: access by index
+  desugar-destruct(|destruction): e -> decls
+    where
+      <geq> (<length => len> destruction, 2)
+    with
+      decls := <map(\(i, ident) ->
+        Decl-C(DeclKindVal-C(), ident, FindIndex-C(e, NumI-C(<int-to-string> i)))
+      \)> destruction
+
 rules // statement desugaring
 
   // NOTE: works for lists and arrays ONLY
   desugar: IterateStmt-C(subj, destruction, block) ->
     Block-C([
       // loop flag
-      Decl-C(DeclKindVar-C(), ident_flag, BoolT-C()),
+      Decl-C(DeclKindVar-C(), ident_flag, <desugar> BoolT-C()),
       // loop subject
       Decl-C(DeclKindVar-C(), ident_subj, subj),
       LoopStmt-C(
         ref_flag,
         Block-C([IfStmt-C(
-          // if __count(flag) > 0
-          Cmp-C(Count-C(ref_flag), CmpGt-C(), NumI-C("1")),
+          // if __count(subj) > 0
+          Cmp-C(Count-C(ref_subj), CmpGt-C(), NumI-C("0")),
           // ... then
           Block-C([
             // get subj[0]
-            AssignStmt-C(ref_curr, AssignOperatorEq-C(), FindIndex-C(ref_subj, NumI-C("0"))),
+            Decl-C(DeclKindVal-C(), ident_curr, FindIndex-C(ref_subj, NumI-C("0"))),
             // del subj[0]
             DeleteStmt-C(FindIndex-C(ref_subj, NumI-C("0"))),
+            // destruct value
+            destruct*,
             // continue to original loop body
             block
           ]),
           // ... else: set flag to false
-          Block-C([AssignStmt-C(ref_flag, AssignOperatorEq-C(), BoolF-C())])
+          Block-C([AssignStmt-C(ref_flag, AssignOperatorEq-C(), <desugar> BoolF-C())])
         )])
       )
     ])
@@ -108,7 +127,9 @@ rules // statement desugaring
     ; [ident_subj, ident_curr, ident_flag] :=
         <map(![ident_base, "$", <id>]; concat-strings)> ["subj", "curr", "flag"]
     ; [ref_subj, ref_curr, ref_flag] :=
-        <map(!RefLocal-C(IdentLocal-C(<id>)))> [ident_base, ident_curr, ident_flag]
+        <map(!RefLocal-C(IdentLocal-C(<id>)))> [ident_subj, ident_curr, ident_flag]
+    with
+      destruct* := <desugar-destruct(|destruction)> ref_subj
 
   desugar: MatchStmt-C(subj, cases, default_case) ->
     Block-C([

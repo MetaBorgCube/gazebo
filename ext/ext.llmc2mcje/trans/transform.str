@@ -61,7 +61,31 @@ rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
     with
       block' := <transform-block> block
 
-  // TODO: loop
+  /* recursive loop:
+   * loop a = 1B { BODY }
+   * -->
+   * rec x { if a = 1B { BODY; x() } }
+   */
+  transform-flow-block: FlowBlock-LL(Loop-LL(ArgCond-LL(cond)), _, block) ->
+    Command-CallableSubUnit-ASM(key, Unit-ASM([body_command]))
+    with
+      key := <newname> "uuidv4_TODO"
+      // force cluster because the loop condition MUST be evaluated every iteration
+    ; body_command := <command-force-cluster(\_ ->
+        Command-Plain-ASM("execute", [
+          cond*,
+          Arg-RedirectSelf-ASM([
+            Arg-RawString-ASM("run"),
+            Arg-Redirect-ASM(Command-AnonSubUnit-ASM(Unit-ASM([
+              Command-AnonSubUnit-ASM(block'),
+              Command-CallSubUnit-ASM(key)
+            ])))
+          ])
+        ])
+        with
+          cond* := <transform-cond-exec> cond
+        ; block' := <transform-block> block
+      \)>
 
   transform-flow-block: FlowBlock-LL(If-LL(ArgCond-LL(cond)), _, block) ->
     Command-Plain-ASM("execute", [
@@ -185,13 +209,13 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
     ; interm_result_args* := <loc-args-scoreboard> interm_result
     ; interm_lit_args* := <loc-args-scoreboard> interm_lit
     with
-      op_arg := <map(
+      op_arg := <
         \OpAdd-LL() -> "+="\
       + \OpSub-LL() -> "-="\
       + \OpMul-LL() -> "*="\
       + \OpDiv-LL() -> "/="\
       + \OpMod-LL() -> "%="\
-      )> op
+      > op
     with
       transfer_lhs_to_interm_result := <command-force-cluster(assign-arg-to-loc(|interm_result))> lhs
     ; rules(EmitCommand-Pre:+ _ -> transfer_lhs_to_interm_result)
