@@ -177,14 +177,21 @@ rules // transform-assign :: Assign-LL -> Command-ASM
 
 rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
 
-  // TODO: generalize over all arithmetic ops
-  transform-assign-op(|dest): (OpAdd-LL(), [lhs, rhs]) ->
+  transform-assign-op(|dest): (<is-op-arith => op>, [lhs, rhs]) ->
     <transfer-loc(|dest)> interm_result
     with
       interm_result := Scoreboard("arith_a", "gzb")
     ; interm_lit := Scoreboard("arith_b", "gzb")
     ; interm_result_args* := <loc-args-scoreboard> interm_result
     ; interm_lit_args* := <loc-args-scoreboard> interm_lit
+    with
+      op_arg := <map(
+        \OpAdd-LL() -> "+="\
+      + \OpSub-LL() -> "-="\
+      + \OpMul-LL() -> "*="\
+      + \OpDiv-LL() -> "/="\
+      + \OpMod-LL() -> "%="\
+      )> op
     with
       transfer_lhs_to_interm_result := <command-force-cluster(assign-arg-to-loc(|interm_result))> lhs
     ; rules(EmitCommand-Pre:+ _ -> transfer_lhs_to_interm_result)
@@ -196,7 +203,7 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
           Arg-RawString-ASM("players"),
           Arg-RawString-ASM("operation"),
           interm_result_args*,
-          Arg-RawString-ASM("+="),
+          Arg-RawString-ASM(op_arg),
           interm_lit_args*
         ]
       ))

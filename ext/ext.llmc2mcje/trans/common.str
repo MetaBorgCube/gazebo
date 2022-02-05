@@ -92,3 +92,10 @@ strategies
   + ?ArgRaw-LL(_)
   + ?ArgUnsafe-LL(_)
   + ?ArgCond-LL(_)
+
+  is-op-arith =
+    ?OpAdd-LL()
+  + ?OpSub-LL()
+  + ?OpMul-LL()
+  + ?OpDiv-LL()
+  + ?OpMod-LL()
