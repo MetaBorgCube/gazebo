@@ -26,8 +26,16 @@ strategies
   desugar-all =
     {| MixinLookup
     : with-added-tlis(map(try(desugar-mixin)))
-    ; with-added-tlis(map(bottomup(try(desugar))))
+    ; with-added-tlis(map(bottomup(try(desugar)); bottomup(try(flatten-block))))
     |}
+
+rules
+
+  flatten-block =
+    Block-C(
+      map(try(\Block-C(stmts) -> stmts\))
+    ; flatten-list
+    )
 
 rules
 
@@ -35,8 +43,8 @@ rules
   mixin MyMixin [tag = "example", level > 5+6]
   const my_sel := @(e, MyMixin, [])
   -->
-  const _mixin.MyMixin.level0 := 5 + 6
-  const my_sel := @(e, [tag = "example", level > _mixin.MyMixin.level.0])
+  const _mixin$MyMixin$level0 := 5 + 6
+  const my_sel := @(e, [tag = "example", level > _mixin$MyMixin$level0])
   */
 
   desugar-mixin-prop-lift(|ident_base): e -> e'
@@ -50,16 +58,16 @@ rules
       end
 
   desugar-mixin-prop(|name): PropKv-C(k, v) ->
-    PropKv-C(k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k])> v)
+    PropKv-C(k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k])> v)
   desugar-mixin-prop(|name): PropCmp-C(k, cmp, v) ->
-    PropCmp-C(k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k])> v)
+    PropCmp-C(k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k])> v)
   desugar-mixin-prop(|name): PropMap-C(k, entries) ->
     PropMap-C(k, <desugar-mixin-prop-entry(|name, k)> entries)
 
   desugar-mixin-prop-entry(|name, k): PropMapEntryKv-C(map_k, map_v) ->
-    PropMapEntryKv-C(map_k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k, ".", map_k])> map_v)
+    PropMapEntryKv-C(map_k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k, "$", map_k])> map_v)
   desugar-mixin-prop-entry(|name, k): PropMapEntryCmp-C(map_k, cmp, map_v) ->
-    PropMapEntryCmp-C(map_k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin.", name, ".", k, ".", map_k])> map_v)
+    PropMapEntryCmp-C(map_k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k, "$", map_k])> map_v)
 
   desugar-mixin: m@Mixin-C(name, Props-C(props)) -> m
     with
@@ -98,7 +106,7 @@ rules // statement desugaring
     with
       ident_base := <newname> "_iterLA"
     ; [ident_subj, ident_curr, ident_flag] :=
-        <map(![ident_base, ".", <id>]; concat-strings)> ["subj", "curr", "flag"]
+        <map(![ident_base, "$", <id>]; concat-strings)> ["subj", "curr", "flag"]
     ; [ref_subj, ref_curr, ref_flag] :=
         <map(!RefLocal-C(IdentLocal-C(<id>)))> [ident_base, ident_curr, ident_flag]
 
@@ -118,7 +126,7 @@ rules // statement desugaring
       \)> (<reverse> cases, default_case)
     ])
     with
-      ident := <newname> "_match.subj"
+      ident := <newname> "_match$subj"
 
 rules // expression desugaring
 
