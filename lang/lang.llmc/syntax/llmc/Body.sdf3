@@ -29,7 +29,7 @@ context-free syntax
 context-free sorts Assign-LL
 context-free syntax
 
-    Assign-LL.AssignOp-LL = [[AssignDest-LL] <- [Op-LL] [Arg-LL*]]
+    Assign-LL.AssignOp-LL = [[AssignDest-LL] <-| [Op-LL] [Arg-LL*]]
     Assign-LL.AssignNew-LL = [[AssignDest-LL] <- [Arg-LL]]
 
 context-free sorts AssignDest-LL
