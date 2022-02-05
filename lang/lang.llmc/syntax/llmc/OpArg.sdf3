@@ -47,7 +47,7 @@ context-free syntax
 context-free sorts RangePart-LL
 context-free syntax
 
-    RangePart-LL.RangePartNone-LL = <..>
+    RangePart-LL.RangePartNone-LL = <>
     RangePart-LL.RangePartSome-LL = <<Arg-LL>>
 
 context-free sorts BoolCond-LL Cmp-LL
