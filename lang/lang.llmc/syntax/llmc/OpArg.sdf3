@@ -15,8 +15,6 @@ context-free syntax
     Op-LL.OpMod-LL = <mod>
     Op-LL.OpCountElements-LL = <count>
     Op-LL.OpFind-LL = <find>
-    Op-LL.OpGetBlockEntityData-LL = <getbe>
-    Op-LL.OpPopLeft-LL = <popl>
     Op-LL.OpDel-LL = <del>
     Op-LL.OpInvoke-LL = <ivk>
 
@@ -35,6 +33,7 @@ context-free syntax
     Arg-LL.ArgList-LL = <l[<{Arg-LL ", "}*>]>
     Arg-LL.ArgArray-LL = <a[<{Arg-LL ", "}*>]>
     Arg-LL.ArgCompound-LL = <c[<{CompoundEntry-LL ", "}*>]>
+    Arg-LL.ArgRange-LL = <..[<RangePart-LL>, <RangePart-LL>]>
     Arg-LL.ArgPos-LL = <p[<PosKind-LL>; <PosCoordKind-LL> <Arg-LL>, <PosCoordKind-LL> <Arg-LL>, <PosCoordKind-LL> <Arg-LL>]>
     Arg-LL.ArgRes-LL = <r[<NSID-LL>, <NSID-LL>]<ResourceState-LL>>
     Arg-LL.ArgTag-LL = <t[<NSID-LL>]>
@@ -44,6 +43,12 @@ context-free syntax
     Arg-LL.ArgUnsafe-LL = </[<{UnsafePart-LL ", "}+>]>
 
     Arg-LL.ArgCond-LL = BoolCond-LL
+
+context-free sorts RangePart-LL
+context-free syntax
+
+    RangePart-LL.RangePartNone-LL = <..>
+    RangePart-LL.RangePartSome-LL = <<Arg-LL>>
 
 context-free sorts BoolCond-LL Cmp-LL
 context-free syntax
