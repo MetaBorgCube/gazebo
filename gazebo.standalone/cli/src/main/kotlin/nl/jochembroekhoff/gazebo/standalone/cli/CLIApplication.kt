@@ -1,7 +1,10 @@
 package nl.jochembroekhoff.gazebo.standalone.cli
 
 import nl.jochembroekhoff.gazebo.standalone.lib.*
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.CompressDataPack
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitDataPack
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitStxLib
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.TaskUtil.chain
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.resource.IResourceService
 import org.metaborg.util.log.LoggerUtils
@@ -9,6 +12,16 @@ import org.metaborg.util.time.Timer
 import picocli.CommandLine.*
 import java.io.File
 import java.util.concurrent.Callable
+
+inline fun <T, U : T, V : T> U.runIf(cond: Boolean, block: U.() -> V): T {
+    return run {
+        if (cond) {
+            block()
+        } else {
+            this
+        }
+    }
+}
 
 @Command(
     mixinStandardHelpOptions = true,
@@ -23,6 +36,12 @@ class CLIApplication : Callable<Int> {
         arity = "0..1",
     )
     var root: File = File(".")
+
+    @Option(
+        names = ["--compress"],
+        description = ["Compress the output into a single .zip"],
+    )
+    var compress: Boolean = false
 
     @Option(
         names = ["--language-archive"],
@@ -64,8 +83,18 @@ class CLIApplication : Callable<Int> {
                         libs = setOf("std.mcje.gzb", "std.mcje.gzbc")
                     )
                 ).use { spoofax ->
-                    GazeboRunner(runnerConfig).run(spoofax)
+                    val packTaskChain = EmitDataPack()
+                        .runIf(compress) {
+                            chain { dpLoc -> CompressDataPack(dpLoc) }
+                        }
+                    GazeboRunner(runnerConfig)
+                        .withAdditionalTask(packTaskChain)
+                        .run(spoofax)
                     // TODO: get error messages and print them here, instead of letting GazeboRunner do it
+
+                    packTaskChain.result()?.let {
+                        logger.info("Data pack output can be found at {}", it)
+                    }
                 }
             }
             InternalAction.STDLIB -> {
