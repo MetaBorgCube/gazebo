@@ -2,6 +2,7 @@ package nl.jochembroekhoff.gazebo.standalone.lib
 
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.AdditionalTask
 import org.metaborg.core.action.CompileGoal
+import org.metaborg.core.action.NamedGoal
 import org.metaborg.core.build.BuildInputBuilder
 import org.metaborg.core.messages.WithLocationStreamMessagePrinter
 import org.metaborg.core.project.IProject
@@ -28,7 +29,13 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
 
     private fun buildProject(spoofax: Spoofax, project: IProject): ISpoofaxBuildOutput? {
         val buildInput = BuildInputBuilder(project)
-            .withTransformGoals(listOf(CompileGoal()))
+            .withTransformGoals(listOf(
+                CompileGoal(),
+                // FIXME: adding this explicit NamedGoal is necessary because the LLMC language doesn't have analysis
+                //  and it is currently impossible to disable the analysis requirement for "on save" handlers,
+                //  i.e. compile goals
+                NamedGoal(listOf("Minecraft: Java Edition", "Generate function (shared)"))
+            ))
             .withSourcesFromDefaultSourceLocations(true)
             .withMessagePrinter(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
             .build(spoofax.dependencyService, spoofax.languagePathService)

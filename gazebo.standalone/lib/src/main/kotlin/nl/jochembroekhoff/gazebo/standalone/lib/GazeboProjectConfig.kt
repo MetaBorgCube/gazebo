@@ -47,7 +47,7 @@ class GazeboProjectConfig(
         return listOf(
             LangSource("gazebo", "./data"),
             LangSource("gazebo-core", "./src-gen/gzb-interm"),
-            LangSource("llmc", "./src-gen/gzb-interm"),
+            LangSource("llmc", "./src-gen/llmc-interm"),
         )
     }
 
