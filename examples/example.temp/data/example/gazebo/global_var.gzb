@@ -1,8 +1,10 @@
 module example:global_var
 
-mut my_var := 1
+mut my_first := 4
+mut my_var := 1 + my_first
 
 func example
 {
     my_var = 2
+    my_var = 3
 }

@@ -64,18 +64,9 @@ rules // dest-to-loc :: AssignDest-LL -> Loc
       var_loc := <VarLoc> var
     ; final_loc := <loc-access-path(|var_loc)> path
 
-rules // loc-to-dest :: Loc -> AssignDest-LL
-
-  // TODO
-
 rules // arg-to-loc :: Arg-LL -> Loc
 
   arg-to-loc: ArgVar-LL(var) -> <VarLoc> var
-  arg-to-loc: ArgRef-LL(NSID-LL(ns, name)) ->
-    DataStorage(NSID(ns, name'), Path-LL([Select-LL(<string-denorm> name_last)]))
-    where
-      name' := <init> name
-    ; name_last := <last> name
 
 rules // loc-args-data :: Loc -> List(Arg-ASM)
 

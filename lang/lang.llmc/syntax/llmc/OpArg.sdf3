@@ -22,7 +22,6 @@ context-free sorts Arg-LL
 context-free syntax
 
     Arg-LL.ArgVar-LL = ID
-    Arg-LL.ArgRef-LL = NSID-LL
     Arg-LL.ArgString-LL = STRING
     Arg-LL.ArgIntB-LL = <<INT>B>
     Arg-LL.ArgIntS-LL = <<INT>S>

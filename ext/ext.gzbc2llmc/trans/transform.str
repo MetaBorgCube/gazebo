@@ -20,24 +20,31 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       Body-LL(block')
     )
     with
-      {| RegisterDecl
-      : block' := <transform-block; simplify-block> block
+      {| RegisterDecl, GlobalLookup
+      : block' := <transform-block> block
       ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
       |}
     ; decl_sign* := [/*TODO*/]
-    ; decl_global* := [/*TODO*/]
-    ; decls := [decl_sign*, decl_global*, decl_gen*]
+    ; decls := [decl_sign*, decl_gen*]
 
-  simplify-block = bottomup(try(id)) // TODO: implement
-
-  transform-tli(|base): Decl-C(_, name, e) ->
+  transform-tli(|base@[ns|basename]): Decl-C(_, name, e) ->
     Function-LL(
       <newname; ![name, <id>]; nsid-from-base(|base)> "_global.init",
-      [],
-      Body-LL(FlowGroup-LL([
-        // TODO: implement global var
-      ]))
+      decls,
+      Body-LL(block')
     )
+    with
+      {| RegisterDecl, GlobalLookup
+      : block' := <transform-block> Block-C([
+          AssignStmt-C(
+            RefFull-C(IdentFull-C(ns, <concat> [basename, [name]])),
+            AssignOperatorEq-C(),
+            e
+          )
+        ])
+      ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
+      |}
+    ; decls := [decl_gen*]
 
 rules // transform-block :: Block-C -> Block-LL
 
@@ -199,7 +206,23 @@ rules // transform-expr :: Expr-C -> Arg-LL
 
   // TODO: res, tag
 
-  transform-expr: RefFull-C(ident_full) -> ArgRef-LL(<transform-ident-full> ident_full)
+  /** global-ident :: NSID-LL -> string */
+  global-ident =
+    GlobalLookup
+ <+ ?NSID-LL(ns, name)
+  ; ident:= <newname> "$glob_ref"
+  ; (name', name_last) := <split-init-last> name
+  ; rules(GlobalLookup: nsid -> ident)
+  ; rules(RegisterDecl:+ _ -> Decl-LL(
+      SGlobal-LL(),
+      [],
+      ident,
+      TypeString-LL(), // TODO: Type-LL
+      StorageLocationData-LL(NSID-LL(ns, name'), Path-LL([Select-LL(<string-denorm> name_last)]))
+    ))
+  ; !ident
+
+  transform-expr: RefFull-C(ident_full) -> ArgVar-LL(<transform-ident-full; global-ident> ident_full)
   transform-expr: RefLocal-C(IdentLocal-C(ident)) -> ArgVar-LL(ident)
 
   transform-expr =
@@ -363,23 +386,10 @@ rules // rvalue/lvalue manipulation
           end
       \})> e
 
-  // lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL
+  /** lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL */
   // case: preexisting local variable
   lvalue-mk-varpath: (ArgVar-LL(var), path) -> DestVarPath-LL(var, path)
-  // case: reference to global variable
-  lvalue-mk-varpath: (ArgRef-LL(NSID-LL(ns, name)), path) -> DestVarPath-LL(ident, path)
-    with
-      name' := <init> name
-    ; name_last := <last> name
-      // TODO: only register global once, can cache this. use DR
-    ; ident := <newname> "$glob_ref"
-    ; rules(RegisterDecl:+ _ -> Decl-LL(
-        SGlobal-LL(),
-        [],
-        ident,
-        TypeString-LL(), // TODO: Type-LL
-        StorageLocationData-LL(NSID-LL(ns, name'), Path-LL([Select-LL(<string-denorm> name_last)]))
-      ))
+  /** lvalue :: Expr-C -> AssignDest-LL */
   lvalue =
     unwrap-find
   ; lvalue-mk-varpath
