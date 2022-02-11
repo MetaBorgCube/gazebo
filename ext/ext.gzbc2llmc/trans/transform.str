@@ -8,6 +8,9 @@ imports
 
   common
 
+  // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
+  str_common
+
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
   transform-tli(|base): Function-C(name, _, block) ->
@@ -360,11 +363,28 @@ rules // rvalue/lvalue manipulation
           end
       \})> e
 
-  lvalue-mk: (ArgVar-LL(var), Path-LL([])) -> DestVar-LL(var)
-  lvalue-mk: (ArgVar-LL(var), path@Path-LL([_|_])) -> DestVarPath-LL(var, path)
+  // lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL
+  // case: preexisting local variable
+  lvalue-mk-varpath: (ArgVar-LL(var), path) -> DestVarPath-LL(var, path)
+  // case: reference to global variable
+  lvalue-mk-varpath: (ArgRef-LL(NSID-LL(ns, name)), path) -> DestVarPath-LL(ident, path)
+    with
+      name' := <init> name
+    ; name_last := <last> name
+      // TODO: only register global once, can cache this. use DR
+    ; ident := <newname> "$glob_ref"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SGlobal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationData-LL(NSID-LL(ns, name'), Path-LL([Select-LL(<string-denorm> name_last)]))
+      ))
   lvalue =
     unwrap-find
-  ; lvalue-mk
+  ; lvalue-mk-varpath
+    // simplfy to DestVar-LL if the path happened to be empty
+  ; try(\DestVarPath-LL(var, Path-LL([])) -> DestVar-LL(var)\)
 
   rvalue-from-lvalue: DestVar-LL(var) -> ArgVar-LL(var)
   rvalue-from-lvalue: DestVarPath-LL(var, path) -> ArgVar-LL(ident)

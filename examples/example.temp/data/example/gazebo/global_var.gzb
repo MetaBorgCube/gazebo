@@ -1,0 +1,8 @@
+module example:global_var
+
+mut my_var := 1
+
+func example
+{
+    my_var = 2
+}
