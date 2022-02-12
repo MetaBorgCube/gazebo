@@ -83,7 +83,7 @@ class CLIApplication : Callable<Int> {
                         libs = setOf("std.mcje.gzb", "std.mcje.gzbc")
                     )
                 ).use { spoofax ->
-                    val packTaskChain = EmitDataPackTask()
+                    val packTaskChain = EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_8)
                         .runIf(compress) {
                             chain { dpLoc ->
                                 CompressDataPackTask(dpLoc)

@@ -10,7 +10,20 @@ import org.metaborg.spoofax.core.build.ISpoofaxBuildOutput
 import org.metaborg.spoofax.core.shell.CLIUtils
 import org.metaborg.util.resource.AntPatternFileSelector
 
-class EmitDataPackTask : AdditionalTask<FileObject?>("emit-data-pack") {
+class EmitDataPackTask(private val format: PackFormat) : AdditionalTask<FileObject?>("emit-data-pack") {
+
+    enum class PackFormat(val intValue: Int) {
+        /** MC:JE 1.13-1.14 */
+        VERSION_4(4),
+        /** MC:JE 1.15-1.16.1 */
+        VERSION_5(5),
+        /** MC:JE 1.16.2-1.16.5 */
+        VERSION_6(6),
+        /** MC:JE 1.17 */
+        VERSION_7(7),
+        /** MC:JE 1.18 */
+        VERSION_8(8),
+    }
 
     private var result: FileObject? = null
 
@@ -37,7 +50,11 @@ class EmitDataPackTask : AdditionalTask<FileObject?>("emit-data-pack") {
         // TODO: write tag files
 
         packDir.resolveFile("pack.mcmeta").content.outputStream.use {
-            IOUtils.write("""{"pack":{"pack_format":8},"description":"Gazebo Data Pack Output"}""", it, Charsets.UTF_8)
+            IOUtils.write(
+                """{"pack":{"pack_format":${format.intValue}},"description":"Gazebo Data Pack Output"}""",
+                it,
+                Charsets.UTF_8
+            )
         }
     }
 
