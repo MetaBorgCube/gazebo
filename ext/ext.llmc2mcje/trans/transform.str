@@ -282,12 +282,13 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
 
   transform-assign-new-arg(|loc): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type, "; ", elems'*, "]"])
     with
-      type := "TODO_Array_Type"
+      // TODO: Type-LL
+      type := "I"
     ; elems'* := <enumerate-map-intersperse({loc':
         with(loc' := <Fst; int-to-string; !Path-LL([IndexFix-LL(<id>)]); loc-access-path(|loc)>)
       ; Snd
       ; transform-assign-new-arg(|loc')
-      ; opt-unwrap(!"0") // TODO: use correct placeholder based on array type
+      ; opt-unwrap(!"0") // TODO: Type-LL: use correct placeholder based on array type
       })> elems*
 
   transform-assign-new-arg(|loc): ArgCompound-LL(entries) -> Some(<concat-strings> ["{", entries'*, "}"])
