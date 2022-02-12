@@ -1,10 +1,10 @@
 package nl.jochembroekhoff.gazebo.standalone.cli
 
 import nl.jochembroekhoff.gazebo.standalone.lib.*
-import nl.jochembroekhoff.gazebo.standalone.lib.tasks.CompressDataPack
-import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitDataPack
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitStxLib
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.TaskUtil.chain
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack.CompressDataPackTask
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack.EmitDataPackTask
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.resource.IResourceService
 import org.metaborg.util.log.LoggerUtils
@@ -83,9 +83,11 @@ class CLIApplication : Callable<Int> {
                         libs = setOf("std.mcje.gzb", "std.mcje.gzbc")
                     )
                 ).use { spoofax ->
-                    val packTaskChain = EmitDataPack()
+                    val packTaskChain = EmitDataPackTask()
                         .runIf(compress) {
-                            chain { dpLoc -> CompressDataPack(dpLoc) }
+                            chain { dpLoc ->
+                                CompressDataPackTask(dpLoc)
+                            }
                         }
                     GazeboRunner(runnerConfig)
                         .withAdditionalTask(packTaskChain)
