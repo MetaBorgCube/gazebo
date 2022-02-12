@@ -122,6 +122,12 @@ rules // loc-args-execute :: Loc -> List(Arg-ASM)
   loc-args-execute =
     loc-args-execute--is-data-compat
   ; loc-args-data
+    // append dest type indicator, required for NBT
+  ; ![<id>, [
+      Arg-RawString-ASM("int"), // TODO: Type-LL
+      Arg-RawString-ASM("1")
+    ]]
+  ; concat
 
   loc-args-execute: Scoreboard(player, objective) ->
     [

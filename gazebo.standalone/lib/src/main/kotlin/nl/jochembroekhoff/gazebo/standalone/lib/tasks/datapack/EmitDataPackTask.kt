@@ -51,7 +51,7 @@ class EmitDataPackTask(private val format: PackFormat) : AdditionalTask<FileObje
 
         packDir.resolveFile("pack.mcmeta").content.outputStream.use {
             IOUtils.write(
-                """{"pack":{"pack_format":${format.intValue}},"description":"Gazebo Data Pack Output"}""",
+                """{"pack":{"pack_format":${format.intValue},"description":"Gazebo Data Pack Output"}}""",
                 it,
                 Charsets.UTF_8
             )
