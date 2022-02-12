@@ -330,7 +330,13 @@ rules // transform-expr :: Expr-C -> Arg-LL
   // TODO: range
   // TODO: pos
   // TODO: enum ref
-  // TODO: raw
+
+  transform-expr: Raw-C(parts) -> ArgRaw-LL(parts')
+    with
+      parts' := <map(
+        \RawText-C(str) -> UnsafePartString-LL(str)\
+      + \RawFormat-C(format_id, e) -> UnsafePartFormatted-LL(<opt-unwrap(!"none")> format_id, <transform-expr> e)\
+      )> parts
 
   transform-expr: Count-C(e) -> ArgVar-LL(ident)
     with
@@ -372,7 +378,7 @@ rules // rvalue/lvalue manipulation
       end
   unwrap-find-inner: FindKey-C(e, key) -> (e, Some(Select-LL(key)))
   unwrap-find-inner: e -> (e, None())
-  unwrap-find: e -> (<transform-expr> e', Path-LL(<reverse> parts))
+  unwrap-find: e -> (e_out, Path-LL(<reverse> parts))
     with
       (e', parts) := <rec x({e', part, part', tail, parts: \e -> (e'', parts)
         with
@@ -385,6 +391,8 @@ rules // rvalue/lvalue manipulation
           ; parts := []
           end
       \})> e
+    with
+      e_out := <transform-expr> e'
 
   /** lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL */
   // case: preexisting local variable
@@ -527,7 +535,12 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
         StorageLocationAuto-LL()
       ))
 
-  // TODO: ReturnExprStmt-C, ReturnVoidStmt-C
+  // TODO: ReturnExprStmt-C
+  transform-stmt-flow: ReturnExprStmt-C(e) ->
+    FlowBlock-LL(Unconditional-LL(), [], FlowGroup-LL([]))
+  // TODO: ReturnVoidStmt-C
+  transform-stmt-flow: ReturnVoidStmt-C() ->
+    FlowBlock-LL(Unconditional-LL(), [], FlowGroup-LL([]))
 
 rules // ensure-bool-cond :: Arg-LL -> Arg-LL
 

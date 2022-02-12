@@ -100,4 +100,5 @@ context-free syntax
 context-free sorts UnsafePart-LL
 context-free syntax
 
+    UnsafePart-LL.UnsafePartString-LL = <<STRING>>
     UnsafePart-LL.UnsafePartFormatted-LL = <(<ID>) <Arg-LL>>
