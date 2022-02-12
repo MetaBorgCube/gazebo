@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="compile default project" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="nl.jochembroekhoff.gazebo.standalone.cli.Main" />
+    <module name="Gazebo_Standalone.cli.main" />
+    <option name="PROGRAM_PARAMETERS" value="./project --compress --language-archive ../../lang/lang.gazebo/target/lang.gazebo-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../lang/lang.gazebo-core/target/lang.gazebo-core-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../lang/lang.llmc/target/lang.llmc-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../ext/ext.gzb2gzbc/target/ext.gzb2gzbc-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../ext/ext.gzbc2llmc/target/ext.gzbc2llmc-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../ext/ext.llmc2mcje/target/ext.llmc2mcje-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../tools/lib.std.mcje.gzb-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../tools/lib.std.mcje.gzbc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language --language-archive ../../tools/lib.std.mcje.llmc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language --internal-action=DEFAULT" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Xss16M -Dorg.slf4j.simpleLogger.log.org.metaborg=debug -Dorg.slf4j.simpleLogger.log.nl.jochembroekhoff=debug" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cli" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

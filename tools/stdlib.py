@@ -65,6 +65,26 @@ exports:
 """
 
 
+MB_COMP_TEMPLATE_LLMC = """---
+metaborgVersion: "{metaborgVersion}"
+contributions:
+- name: "llmc"
+  id: "nl.jochembroekhoff.gazebo:lang.llmc:${{gazeboVersion}}"
+gazeboVersion: "{gazeboVersion}"
+name: "gazebo-lib-std-mcje-llmc"
+id: "nl.jochembroekhoff.gazebo:lib.std.mcje.gzbc:${{gazeboVersion}}"
+dependencies:
+  compile:
+  - "nl.jochembroekhoff.gazebo:lang.llmc:${{gazeboVersion}}"
+  source: []
+exports:
+- language: llmc
+  includes:
+  - "**/*.llmc"
+  directory: "./src-gen/llmc-interm"
+"""
+
+
 def write_dir_to_zip(zf: zipfile.ZipFile, root: pathlib.Path, *, prefix: Optional[str]):
     def iter(path: pathlib.Path):
         if path.is_dir():
@@ -86,13 +106,15 @@ def spoofax_language(root: pathlib.Path, gzb_rev: str, cat: str, name: str):
     return root / cat / f"{cat}.{name}" / "target" / f"{cat}.{name}-{gzb_rev}.spoofax-language"
 
 
-def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pathlib.Path, out_gzbc: pathlib.Path):
+def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pathlib.Path, out_gzbc: pathlib.Path, out_llmc: pathlib.Path):
     ver, gzb_rev, mb_ver = ver
 
     spoofax_languages = [
         spoofax_language(root, gzb_rev, "lang", "gazebo"),
         spoofax_language(root, gzb_rev, "lang", "gazebo-core"),
+        spoofax_language(root, gzb_rev, "lang", "llmc"),
         spoofax_language(root, gzb_rev, "ext", "gzb2gzbc"),
+        spoofax_language(root, gzb_rev, "ext", "gzbc2llmc"),
     ]
 
     proj_data = proj_wd / "data"
@@ -132,6 +154,11 @@ def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.P
         f.write(stxlib_gzbc, f"lib/std-gzbc-{ver}.stxlib")
         write_dir_to_zip(f, proj_wd / "src-gen" / "gzb-interm", prefix="src-gen/gzb-interm")
 
+    with zipfile.ZipFile(out_llmc, "w", zipfile.ZIP_DEFLATED) as f:
+        f.writestr("src-gen/metaborg.component.yaml", MB_COMP_TEMPLATE_LLMC.format(metaborgVersion=mb_ver, gazeboVersion=gzb_rev))
+        # no stxlibs
+        write_dir_to_zip(f, proj_wd / "src-gen" / "llmc-interm", prefix="src-gen/llmc-interm")
+
 
 if __name__ == "__main__":
 
@@ -142,9 +169,10 @@ if __name__ == "__main__":
 
     out_gzb = pathlib.Path(f"./lib.std.mcje.gzb-{mc_rev}-{gzb_rev}.spoofax-language")
     out_gzbc = pathlib.Path(f"./lib.std.mcje.gzbc-{mc_rev}-{gzb_rev}.spoofax-language")
+    out_llmc = pathlib.Path(f"./lib.std.mcje.llmc-{mc_rev}-{gzb_rev}.spoofax-language")
 
     with tempfile.TemporaryDirectory() as tmp_proj:
         tmp_proj = pathlib.Path(tmp_proj)
-        gen_stdlib(ver, root, tmp_proj, out_gzb, out_gzbc)
+        gen_stdlib(ver, root, tmp_proj, out_gzb, out_gzbc, out_llmc)
 
     # gen_stdlib(ver, root, pathlib.Path("./proj_wd").resolve(), out_gzb, out_gzbc)

@@ -80,7 +80,7 @@ class CLIApplication : Callable<Int> {
             InternalAction.DEFAULT -> {
                 GazeboSpoofaxFactory.createGazeboSpoofax(
                     GazeboProjectConfigServiceConfig(
-                        libs = setOf("std.mcje.gzb", "std.mcje.gzbc")
+                        libs = setOf("std.mcje.gzb", "std.mcje.gzbc", "std.mcje.llmc")
                     )
                 ).use { spoofax ->
                     val packTaskChain = EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_8)
@@ -102,8 +102,8 @@ class CLIApplication : Callable<Int> {
             InternalAction.STDLIB -> {
                 GazeboSpoofaxFactory.createGazeboSpoofax(
                     GazeboProjectConfigServiceConfig(
-                        languages = setOf(GazeboLang.GZB, GazeboLang.GZBC),
-                        extensions = setOf(GazeboExt.GZB2GZBC)
+                        languages = setOf(GazeboLang.GZB, GazeboLang.GZBC, GazeboLang.LLMC),
+                        extensions = setOf(GazeboExt.GZB2GZBC, GazeboExt.GZBC2LLMC),
                     )
                 ).use { spoofax ->
                     GazeboRunner(runnerConfig)
