@@ -51,9 +51,20 @@ strategies
   + ?RefFull-C(_)
   + ?RefLocal-C(_)
 
+rules // nsid-ensure-valid :: string -> string
+
+  nsid-ensure-valid =
+    explode-string
+  ; map(try(
+      \<is-upper> -> ['-', <to-lower>]\
+    + \'$' -> ['-', '-']\
+    ))
+  ; flatten-list
+  ; implode-string
+
 rules // nsid-from-base(|[ns | basename]) :: a | List(a) -> NSID-LL
 
-  nsid-from-base(|[ns | basename]): name -> NSID-LL(ns, <concat> [basename, name])
+  nsid-from-base(|[ns | basename]): name -> NSID-LL(ns, <concat; map(nsid-ensure-valid)> [basename, name])
     where is-list
   nsid-from-base(|base): name -> <nsid-from-base(|base)> [name]
     where not(is-list)
