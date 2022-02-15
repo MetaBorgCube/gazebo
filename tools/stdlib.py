@@ -72,7 +72,7 @@ contributions:
   id: "nl.jochembroekhoff.gazebo:lang.llmc:${{gazeboVersion}}"
 gazeboVersion: "{gazeboVersion}"
 name: "gazebo-lib-std-mcje-llmc"
-id: "nl.jochembroekhoff.gazebo:lib.std.mcje.gzbc:${{gazeboVersion}}"
+id: "nl.jochembroekhoff.gazebo:lib.std.mcje.llmc:${{gazeboVersion}}"
 dependencies:
   compile:
   - "nl.jochembroekhoff.gazebo:lang.llmc:${{gazeboVersion}}"
