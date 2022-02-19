@@ -31,5 +31,5 @@ rules
         subtype(Tnbt, Tconstr) | error $[expression is not a subtype of the given constructor type ([Tconstr])]@constr.
 
     constructOk(s, T, constr@ConstructEnum(key)) :- {s_enum}
-        T == ENUM(s_enum) | error $[context type is not an enum]@constr,
+        T == ENUM(s_enum, _) | error $[context type is not an enum]@constr,
         resolveMembLocal(s_enum, key, MEMB_ENUMKEY()) == (_, ENUMKEY()) | error $[key does not exist on enum]@key.

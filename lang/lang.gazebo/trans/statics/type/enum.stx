@@ -12,12 +12,12 @@ rules
 
     typeOfEnum : scope * Type -> TYPE
 
-    typeOfEnum(s, TypeEnumTyped(t, membs)) = ENUM(s_enum_t) :- {T}
+    typeOfEnum(s, TypeEnumTyped(t, membs)) = ENUM(s_enum_t, T) :-
         T == typeOfType(s, t),
         new s_enum_t,
         enumTypedMembsOk(s, s_enum_t, T, membs).
 
-    typeOfEnum(s, TypeEnumUntyped(membs)) = ENUM(s_enum) :-
+    typeOfEnum(s, TypeEnumUntyped(membs)) = ENUM(s_enum, INT()) :-
         new s_enum,
         declareEnumKeys(s_enum, membs).
 

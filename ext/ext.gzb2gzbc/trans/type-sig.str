@@ -1,0 +1,65 @@
+module type-sig
+
+imports
+
+  statix/api
+
+  common
+
+signature
+
+    sorts TYPE
+
+    constructors
+
+        // Primitives
+        STRING : TYPE
+        BOOL : TYPE
+        INT : TYPE
+        FLOAT : TYPE
+        ENUM : Scope * TYPE -> TYPE
+
+        // Basic constructs
+        POS : POS_KIND * TYPE -> TYPE
+        RANGE : TYPE -> TYPE
+
+        // Specific types
+        SELECTOR : Scope -> TYPE
+        TAG : TYPE
+        /** registry */
+        RESOURCE : NSIDi -> TYPE
+        ITER : TYPE -> TYPE
+        VOID : TYPE
+
+        // NBT-related exclusive types
+        COMPOUND : Scope -> TYPE
+        LIST : TYPE -> TYPE
+        ARRAY : TYPE -> TYPE
+
+        // Modules
+        MOD : Scope -> TYPE
+
+        // Function & Lambda
+        FUNC : [(ID, TYPE)] * TYPE -> TYPE
+        LAMBDA : TYPE
+
+        // Misc
+        /** univeral top type, anything is a subtype of UNK */
+        UNK : TYPE
+        /** universal bottom type, nothing is a subtype of BOTTOM */
+        BOTTOM : TYPE
+        ENUMKEY : TYPE
+        OPTIONAL : TYPE -> TYPE
+
+    sorts POS_KIND
+
+    constructors
+
+        /** absolute */
+        POS_ABS : POS_KIND
+        /** relative ("tilde notation") */
+        POS_REL : POS_KIND
+        /** local ("caret notation") */
+        POS_LOC : POS_KIND
+        /** any (only orignates from use-site) */
+        POS_ANY : POS_KIND

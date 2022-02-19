@@ -1,0 +1,150 @@
+module transform-type
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/gazebo/-
+  signatures/-
+
+  statix/api
+
+  common
+
+  str_common
+
+  transform
+  type-sig
+
+rules // transform-type :: Type -> Type-C
+
+  transform-type: TypeString() -> TypeString-C()
+  transform-type: TypeBool() -> TypeBool-C()
+  transform-type: TypeInt() -> TypeInt-C()
+  transform-type: TypeFloat() -> TypeFloat-C()
+
+  transform-type: TypeResourceRegistry(nsid) -> TypeResourceRegistry-C(<identf-from-nsid> nsid)
+  transform-type: TypeTag() -> TypeTag-C()
+
+  transform-type: TypeSelector() -> TypeSelector-C()
+
+  transform-type: TypeBottom() -> TypeBottom-C()
+  transform-type: TypeVoid() -> TypeVoid-C()
+
+  // alias for transform-type-lookup, because all Type AST nodes should have an AST type set
+  transform-type = transform-type-lookup
+
+strategies // transform-type-lookup :: * -> Type-C
+
+  transform-type-lookup =
+    where(stx-get-ast-analysis => a)
+  ; stx-get-ast-type(|a)
+  ; type-convert(|a)
+
+rules // type-convert(|Analysis) :: TYPE -> Type-C
+
+  type-convert(|a) = {| RefId, References
+  : type-convert-(|a)
+  |}
+
+  type-convert-(|a): STRING() -> TypeString-C()
+  type-convert-(|a): BOOL() -> TypeBool-C()
+  type-convert-(|a): INT() -> TypeInt-C()
+  type-convert-(|a): FLOAT() -> TypeFloat-C()
+  type-convert-(|a): ENUM(s, t) -> TypeEnum-C(t', members)
+    with
+      t' := <type-convert-(|a)> t
+    with
+      members := <
+        stx-get-scopegraph-data(|a, "statics/common!memb")
+      ; filter(?(_, ENUMKEY()))
+        // TODO: convert to actual value location
+      ; map(\((name, _), _) -> EnumMemb-C(name, IdentFull-C("myns", ["myname"]))\)
+      > s
+
+  type-convert-(|a): POS(kind, t) -> TypePos-C(kind', t')
+    with
+      kind' := <
+        \POS_ABS() -> PosKindAbs-C()\
+      + \POS_REL() -> PosKindRel-C()\
+      + \POS_LOC() -> PosKindLoc-C()\
+      + \POS_ANY() -> PosKindAny-C()\
+      > kind
+    with
+      t' := <type-convert-(|a)> t
+  // TODO: implement TypeRange-C()
+  type-convert-(|a): RANGE(t) -> <with(fail)>
+
+  type-convert-(|a): SELECTOR(_) -> TypeSelector-C()
+  type-convert-(|a): TAG() -> TypeTag-C()
+  type-convert-(|a): RESOURCE(nsidi) -> TypeResourceRegistry-C(<identf-from-nsid> nsidi)
+  type-convert-(|a): VOID() -> TypeVoid-C()
+
+  type-convert-(|a) = ?c@COMPOUND(s);
+    tt-use-ref-if-present
+  ; opt-unwrap(!c; tt-produce-ref-opt(
+      fields := <
+        tt-scope-query-fields-recursive(|a)
+      ; tt-fields-shadow
+      ; map(\(name, t) -> InterfaceMemb-C(name, <type-convert-(|a)> t)\)
+      > s
+    ); !TypeInterface-C(<id>, fields))
+
+  type-convert-(|a) = ?l@LIST(t);
+    tt-use-ref-if-present
+  ; opt-unwrap(!l;
+      tt-produce-ref-opt(t' := <type-convert-(|a)> t)
+    ; !TypeListDynamic-C(<id>, t'))
+
+  type-convert-(|a) = ?ar@ARRAY(t);
+    tt-use-ref-if-present
+  ; opt-unwrap(!ar;
+      tt-produce-ref-opt(t' := <type-convert-(|a)> t)
+    ; !TypeArrayDynamic-C(<id>, t'))
+
+  type-convert-(|a): BOTTOM() -> TypeBottom-C()
+
+  type-convert-(|_): _ -> <fail>
+    with
+      warn(|"type-convert failed or not implemented for this type")
+
+strategies // AUX
+
+  /**
+  query all field relations on a scope, following any B edges
+  same as the following scopegraph query:
+    query field
+      filter B* and true
+      min $ < B and false
+      in s |-> p
+  note the "false" shadow rule: no shadowing occurs, so use tt-fields-shadow to perform shadowing
+  */
+  tt-scope-query-fields-recursive(|a): s -> <concat> [fields, edges'*]
+    with
+      fields := <stx-get-scopegraph-data(|a, "statics/common!field")> s
+    ; edges := <stx-get-scopegraph-edges(|a, "statics/common!B")> s
+    ; edges'* := <map(tt-scope-query-fields-recursive(|a))> edges
+
+  tt-fields-shadow: [] -> []
+  tt-fields-shadow: [x@(name, _)|xs] -> [x | <remove-all(?(name, _)); tt-fields-shadow> xs]
+
+strategies // AUX
+
+  tt-next-id = <next-counter> "gzb-type-transform"
+
+  tt-produce-ref-opt(s) = ?t;
+    identifier := <tt-next-id>
+  ; with(rules(RefId: t -> identifier))
+  ; <s> identifier
+  ; if bagof-References; !(identifier, <id>); elem then
+      !Some(TypeRefCreate-C(<int-to-string> identifier))
+    else
+      !None()
+    end
+
+  tt-use-ref-if-present =
+    if RefId => identifier then
+      with(rules(References:+ _ -> identifier))
+    ; !Some(TypeRef-C(<int-to-string> identifier))
+    else
+      !None()
+    end

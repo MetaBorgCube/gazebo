@@ -34,4 +34,3 @@ context-free syntax
     Tli-C = Function-C
     Tli-C = Decl-C
     Tli-C = Registry-C
-    Tli-C = TypeDecl-C

@@ -12,7 +12,9 @@ imports
 
   str_common
 
-rules // transform-tli :: Tli -> Tli-C
+  transform-type
+
+rules // transform-tli :: Tli -> Tli-C|List(Tli-C)
 
   transform-tli: Alias(Selector(name, _), Selector(_, props)) ->
     Mixin-C(name, <opt-map(transform-props); opt-unwrap(!Props-C([]))> props)
@@ -48,7 +50,8 @@ rules // transform-tli :: Tli -> Tli-C
         )
       \)> entries
 
-  transform-tli: TypeDecl(name, t) -> TypeDecl-C(name, <transform-type> t)
+  // TODO: lift enum values into new globals
+  transform-tli: TypeDecl(name, t) -> []
 
 rules // transform-props :: Props -> Props-C
 
@@ -86,45 +89,6 @@ rules // transform-sign :: Sign -> Signature-C
         \))
       ; flatten-list
       > params
-
-rules // transform-type :: Type -> Type-C
-
-  transform-type: TypeRef(nsid) -> TypeRef-C(<identf-from-nsid> nsid)
-
-  transform-type: TypeString() -> TypeString-C()
-  transform-type: TypeBool() -> TypeBool-C()
-  transform-type: TypeInt() -> TypeInt-C()
-  transform-type: TypeFloat() -> TypeFloat-C()
-
-  transform-type: TypePos(kind, t) -> TypePos-C(kind', <transform-type> t)
-    with
-      kind' := <
-        (PosAbs() -> PosKindAbs-C())
-      + (PosRel() -> PosKindRel-C())
-      + (PosLoc() -> PosKindLoc-C())
-      + (PosAny() -> PosKindAny-C())
-      > kind
-
-  transform-type: TypeResourceRegistry(nsid) -> TypeResourceRegistry-C(<identf-from-nsid> nsid)
-  transform-type: TypeTag() -> TypeTag-C()
-
-  transform-type: TypeSelector() -> TypeSelector-C()
-
-  transform-type: TypeArrayDynamic(t) -> TypeArrayDynamic-C(<transform-type> t)
-  transform-type: TypeArrayFixedAnonymous(t, n) -> TypeArrayFixedAnonymous-C(<transform-type> t, n)
-  transform-type: TypeArrayFixedNamed(t, names) -> TypeArrayFixedNamed-C(<transform-type> t, names)
-  transform-type: TypeListDynamic(t) -> TypeListDynamic-C(<transform-type> t)
-  transform-type: TypeListFixedAnonymous(t, n) -> TypeListFixedAnonymous-C(<transform-type> t, n)
-  transform-type: TypeListFixedNamed(t, names) -> TypeListFixedNamed-C(<transform-type> t, names)
-
-  transform-type: TypeEnumTyped(t, membs) ->
-    TypeEnum-C(<transform-type> t, <map(\EnumTypedMemb(name, e) -> EnumMemb-C(name, <transform-expr> e)\)> membs)
-
-  transform-type: TypeInterfaceCompose(bases, membs) ->
-    TypeInterface-C(<map(transform-type)> bases, <map(\InterfaceMember(name, t) -> InterfaceMemb-C(name, <transform-type> t)\)> membs)
-
-  transform-type: TypeBottom() -> TypeBottom-C()
-  transform-type: TypeVoid() -> TypeVoid-C()
 
 rules // transform-expr :: Expr -> Expr-C
 
@@ -207,8 +171,8 @@ rules // transform-expr :: Expr -> Expr-C
         otherwise: !PositionKindAbs-C()
       end => kind
 
-  transform-expr: ConstructExplicit(t, ConstructEnum(key)) -> EnumRefExplicit-C(<transform-type> t, key)
-  transform-expr: ConstructInfer(ConstructEnum(key)) -> EnumRefImplicit-C(key)
+  transform-expr: ConstructExplicit(t, ConstructEnum(key)) -> EnumRef-C(<transform-type> t, key)
+  transform-expr: ConstructInfer(ConstructEnum(key)) -> EnumRef-C(<transform-type-lookup>, key)
 
   // explicit type hint for NBT is only relevant during first analysis because hints need to be propagated, but this information is not relevant later on
   transform-expr: ConstructExplicit(_, ConstructNBT(nbt)) -> <transform-expr> nbt
@@ -230,7 +194,7 @@ rules // transform-stmt :: Statement -> Statement-C
 
   transform-stmt: InvokeStmt(ivk) -> DiscardStmt-C(<transform-expr> ivk)
 
-  transform-stmt: Decl(mod*, name, e) -> Decl-C(kind, name, <transform-expr> e)
+  transform-stmt: Decl(mod*, name, e) -> Decl-C(kind, name, <transform-type-lookup> name, <transform-expr> e)
     with
       switch !mod*
         case fetch(?DmodMut()): !DeclKindVar-C()

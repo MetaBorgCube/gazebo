@@ -24,7 +24,9 @@ context-free syntax
     Type-LL.TypeSelector-LL = <@>
     // type for path not accounted for: abstract type
 
-    Type-LL.TypeRefReference-LL = <`<INT>>
+    Type-LL.TypeRef-LL = <`<INT>>
+
+    Type-LL.TypeUnk-LL = <?>
 
 context-free sorts TypeRefCreate-LL
 context-free syntax

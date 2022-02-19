@@ -5,6 +5,7 @@ imports
     gazebo-core/Common
     gazebo-core/Expr
     gazebo-core/Identifier
+    gazebo-core/Type
 
 context-free sorts
 
@@ -13,7 +14,7 @@ context-free sorts
 
 context-free syntax
 
-    Decl-C.Decl-C = <<DeclKind-C> <ID> := <Expr-C>>
+    Decl-C.Decl-C = <<DeclKind-C> <ID> : <Type-C> = <Expr-C>>
 
     DeclKind-C.DeclKindVar-C = <var>
     DeclKind-C.DeclKindVal-C = <val>

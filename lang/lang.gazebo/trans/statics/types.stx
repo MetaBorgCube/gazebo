@@ -23,7 +23,7 @@ signature
         BOOL : TYPE
         INT : TYPE
         FLOAT : TYPE
-        ENUM : scope -> TYPE
+        ENUM : scope * TYPE -> TYPE
 
         // Basic constructs
         POS : POS_KIND * TYPE -> TYPE
@@ -74,59 +74,65 @@ rules
 
     typeOfType : scope * Type -> TYPE
 
-    typeOfType(_, TypeString()) = STRING().
-    typeOfType(_, TypeBool()) = BOOL().
-    typeOfType(_, TypeInt()) = INT().
-    typeOfType(_, TypeFloat()) = FLOAT().
+    typeOfType(s, t) = T@typeOfTypeImpl(s, t) :-
+        @t.type := T.
 
-    typeOfType(s, TypePos(PosAbs(), t)) = POS(POS_ABS(), typeOfType(s, t)).
-    typeOfType(s, TypePos(PosRel(), t)) = POS(POS_REL(), typeOfType(s, t)).
-    typeOfType(s, TypePos(PosLoc(), t)) = POS(POS_LOC(), typeOfType(s, t)).
-    typeOfType(s, TypePos(PosAny(), t)) = POS(POS_ANY(), typeOfType(s, t)).
+    /** do not reference directly, use typeOfType */
+    typeOfTypeImpl : scope * Type -> TYPE
 
-    typeOfType(_, TypeTag()) = TAG().
+    typeOfTypeImpl(_, TypeString()) = STRING().
+    typeOfTypeImpl(_, TypeBool()) = BOOL().
+    typeOfTypeImpl(_, TypeInt()) = INT().
+    typeOfTypeImpl(_, TypeFloat()) = FLOAT().
+
+    typeOfTypeImpl(s, TypePos(PosAbs(), t)) = POS(POS_ABS(), typeOfType(s, t)).
+    typeOfTypeImpl(s, TypePos(PosRel(), t)) = POS(POS_REL(), typeOfType(s, t)).
+    typeOfTypeImpl(s, TypePos(PosLoc(), t)) = POS(POS_LOC(), typeOfType(s, t)).
+    typeOfTypeImpl(s, TypePos(PosAny(), t)) = POS(POS_ANY(), typeOfType(s, t)).
+
+    typeOfTypeImpl(_, TypeTag()) = TAG().
 
     // TODO: distinguish between different array/list fixed types
 
-    typeOfType(s, TypeRef(nsid)) = T :-
+    typeOfTypeImpl(s, TypeRef(nsid)) = T :-
         T == resolveMembRef(s, nsid, MEMB_TYPE()).
 
-    typeOfType(s, TypeResourceRegistry(id_registry)) = RESOURCE(id_registry_full) :-
+    typeOfTypeImpl(s, TypeResourceRegistry(id_registry)) = RESOURCE(id_registry_full) :-
         resolveRegistryRel(s, nsidi(id_registry)) == (id_registry_full, _)
         | error $[registry not found]@id_registry,
         @id_registry.ref := id_registry_full.
 
-    typeOfType(s, TypeSelector()) = SELECTOR(s_sel_t) :-
+    typeOfTypeImpl(s, TypeSelector()) = SELECTOR(s_sel_t) :-
         new s_sel_t.
 
-    typeOfType(s, TypeArrayDynamic(t)) = ARRAY(T) :-
+    typeOfTypeImpl(s, TypeArrayDynamic(t)) = ARRAY(T) :-
         T == typeOfType(s, t).
-    typeOfType(s, TypeArrayFixedAnonymous(t, size)) = ARRAY(T) :-
+    typeOfTypeImpl(s, TypeArrayFixedAnonymous(t, size)) = ARRAY(T) :-
         T == typeOfType(s, t).
-    typeOfType(s, TypeArrayFixedNamed(t, names)) = ARRAY(T) :-
-        T == typeOfType(s, t).
-
-    typeOfType(s, TypeListDynamic(t)) = LIST(T) :-
-        T == typeOfType(s, t).
-    typeOfType(s, TypeListFixedAnonymous(t, size)) = LIST(T) :-
-        T == typeOfType(s, t).
-    typeOfType(s, TypeListFixedNamed(t, names)) = LIST(T) :-
+    typeOfTypeImpl(s, TypeArrayFixedNamed(t, names)) = ARRAY(T) :-
         T == typeOfType(s, t).
 
-    typeOfType(s, T@TypeEnumUntyped(_)) =
+    typeOfTypeImpl(s, TypeListDynamic(t)) = LIST(T) :-
+        T == typeOfType(s, t).
+    typeOfTypeImpl(s, TypeListFixedAnonymous(t, size)) = LIST(T) :-
+        T == typeOfType(s, t).
+    typeOfTypeImpl(s, TypeListFixedNamed(t, names)) = LIST(T) :-
+        T == typeOfType(s, t).
+
+    typeOfTypeImpl(s, T@TypeEnumUntyped(_)) =
         typeOfEnum(s, T).
-    typeOfType(s, T@TypeEnumTyped(_, _)) =
+    typeOfTypeImpl(s, T@TypeEnumTyped(_, _)) =
         typeOfEnum(s, T).
 
-    typeOfType(s, TypeInterface(membs)) =
+    typeOfTypeImpl(s, TypeInterface(membs)) =
         typeOfInterface(s, membs, []).
-    typeOfType(s, TypeInterfaceCompose(bases, membs)) =
+    typeOfTypeImpl(s, TypeInterfaceCompose(bases, membs)) =
         typeOfInterface(s, membs, bases).
 
-    typeOfType(s, TypeBottom()) = BOTTOM().
-    typeOfType(s, TypeVoid()) = VOID().
+    typeOfTypeImpl(s, TypeBottom()) = BOTTOM().
+    typeOfTypeImpl(s, TypeVoid()) = VOID().
 
-    typeOfType(_, _) = UNK() :-
+    typeOfTypeImpl(_, _) = UNK() :-
         try { false } | note $[todo: other types].
 
 rules
@@ -187,7 +193,8 @@ rules
     typeComparableEqual(BOOL(), BOOL()).
     typeComparableEqual(INT(), INT()).
     typeComparableEqual(FLOAT(), FLOAT()).
-    typeComparableEqual(ENUM(s_en), ENUM(s_en)).
+    typeComparableEqual(ENUM(s_en, Tl), ENUM(s_en, Tr)) :-
+        typeComparableEqual(Tl, Tr).
     typeComparableEqual(POS(_, Tl), POS(_, Tr)) :-
         typeComparableEqual(Tl, Tr).
     typeComparableEqual(RANGE(Tl), RANGE(Tr)) :-

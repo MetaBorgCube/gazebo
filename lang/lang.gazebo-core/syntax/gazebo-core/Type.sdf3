@@ -8,7 +8,7 @@ imports
 
 context-free sorts
 
-    TypeDecl-C
+    TypeRefCreate-C
 
     Type-C
     PosKind-C
@@ -17,11 +17,11 @@ context-free sorts
 
 context-free syntax
 
-    TypeDecl-C.TypeDecl-C = <type <ID> <Type-C>>
+    TypeRefCreate-C.TypeRefCreate-C = <<INT>`>
 
 context-free syntax
 
-    Type-C.TypeRef-C = <<IdentFull-C>>
+    Type-C.TypeRef-C = <`<INT>>
 
 context-free syntax
 
@@ -49,12 +49,12 @@ context-free syntax
 
 context-free syntax
 
-    Type-C.TypeArrayDynamic-C = <[<Type-C>;]>
-    Type-C.TypeArrayFixedAnonymous-C = <[<Type-C>; <INT>]>
-    Type-C.TypeArrayFixedNamed-C = <[<Type-C>; <{ID ", "}+>]>
-    Type-C.TypeListDynamic-C = <[<Type-C>]>
-    Type-C.TypeListFixedAnonymous-C = <[<Type-C>: <INT>]>
-    Type-C.TypeListFixedNamed-C = <[<Type-C>: <{ID ", "}+>]>
+    Type-C.TypeArrayDynamic-C = <<TypeRefCreate-C?>[<Type-C>;]>
+    //Type-C.TypeArrayFixedAnonymous-C = <<TypeRefCreate-C?>[<Type-C>; <INT>]>
+    //Type-C.TypeArrayFixedNamed-C = <<TypeRefCreate-C?>[<Type-C>; <{ID ", "}+>]>
+    Type-C.TypeListDynamic-C = <<TypeRefCreate-C?>[<Type-C>]>
+    //Type-C.TypeListFixedAnonymous-C = <<TypeRefCreate-C?>[<Type-C>: <INT>]>
+    //Type-C.TypeListFixedNamed-C = <<TypeRefCreate-C?>[<Type-C>: <{ID ", "}+>]>
 
 context-free syntax
 
@@ -65,12 +65,12 @@ context-free syntax
         }
     >
 
-    EnumMemb-C.EnumMemb-C = <<ID> = <Expr-C>>
+    EnumMemb-C.EnumMemb-C = <<ID> = <IdentFull-C>>
 
 context-free syntax
 
     Type-C.TypeInterface-C = <
-        interface : <{Type-C ", "}*>
+        <TypeRefCreate-C?>interface
         {
             <{InterfaceMemb-C ",\n"}*>
         }
@@ -81,5 +81,6 @@ context-free syntax
 
 context-free syntax
 
+    Type-C.TypeUnk-C = <__UNK>
     Type-C.TypeBottom-C = <__BOTTOM>
     Type-C.TypeVoid-C = <__VOID>

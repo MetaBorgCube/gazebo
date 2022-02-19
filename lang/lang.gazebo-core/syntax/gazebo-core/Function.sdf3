@@ -21,10 +21,18 @@ context-free syntax
 
     Param-C.Param-C = <<ParamKind-C> <ID> <Type-C>>
 
-    Signature-C.Signature-C = [([{Param-C ", "}*]) -> [Type-C]]
+    Signature-C.Signature-C = [
+    (
+        [{Param-C ",\n"}*]
+    ) -> [Type-C]
+    ]
 
     Function-C.Function-C = <
-        func <ID><Signature-C>
+        func <ID>
+        <Signature-C>
         <Block-C>
     >
-    Function-C.FunctionExt-C = <extern func <ID><Signature-C>>
+    Function-C.FunctionExt-C = <
+        extern func <ID>
+        <Signature-C>
+    >

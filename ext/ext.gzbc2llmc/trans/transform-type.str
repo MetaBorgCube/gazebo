@@ -1,0 +1,61 @@
+module transform-type
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/llmc/-
+  signatures/-
+
+  common
+
+  // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
+  str_common
+
+rules // transform-type :: Type-C -> Type-LL
+
+  transform-type: TypeRef-C(idx) -> TypeRef-LL(idx)
+
+  transform-type: TypeString-C() -> TypeString-LL()
+  transform-type: TypeBool-C() -> TypeIntB-LL()
+  transform-type: TypeInt-C() -> TypeIntI-LL()
+  transform-type: TypeFloat-C() -> TypeFloatD-LL()
+
+  transform-type: TypePos-C(kind, t) -> TypePos-LL(kind', <transform-type> t)
+    with
+      kind' := <
+        \PosKindAbs-C() -> PosAbs-LL()\
+      + \PosKindRel-C() -> PosRel-LL()\
+      + \PosKindLoc-C() -> PosLoc-LL()\
+      + \PosKindAny-C() -> PosAny-LL()\
+      > kind
+
+  transform-type: TypeResourceRegistry-C(ident) -> TypeRes-LL(<nsid-from-identf> ident)
+  transform-type: TypeTag-C() -> TypeTag-LL()
+
+  transform-type: TypeSelector-C() -> TypeSelector-LL()
+
+  transform-type: TypeArrayDynamic-C(ref_create, t)
+    -> TypeArray-LL(<transform-type-ref-create-opt> ref_create, <transform-type> t)
+  transform-type: TypeListDynamic-C(ref_create, t)
+    -> TypeList-LL(<transform-type-ref-create-opt> ref_create, <transform-type> t)
+
+  transform-type: TypeEnum-C(t, _) -> <transform-type> t
+
+  transform-type: TypeInterface-C(ref_create, members)
+    -> TypeCompound-LL(<transform-type-ref-create-opt> ref_create, members')
+    with
+      members' := <map(
+        \InterfaceMemb-C(name, t) -> TypeCompoundEntry-LL(<string-denorm> name, <transform-type> t)\
+      )> members
+
+  transform-type: TypeUnk-C() -> TypeUnk-LL()
+  // __BOTTOM and __VOID cannot be expressed in LLMC
+
+  transform-type: _ -> <fail>
+    with
+      warn(|"unsupported/unknown type to transform")
+
+rules // transform-type-ref-create-opt :: TypeRefCreate-C? -> TypeRefCreate-LL?
+
+  transform-type-ref-create-opt =
+    opt-map(\TypeRefCreate-C(idx) -> TypeRefCreate-LL(idx)\)

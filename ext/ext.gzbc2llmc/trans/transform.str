@@ -11,6 +11,8 @@ imports
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
 
+  transform-type
+
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
   transform-tli(|base): Function-C(name, _, block) ->
@@ -27,7 +29,7 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
     ; decl_sign* := [/*TODO*/]
     ; decls := [decl_sign*, decl_gen*]
 
-  transform-tli(|base@[ns|basename]): Decl-C(_, name, e) ->
+  transform-tli(|base@[ns|basename]): Decl-C(_, name, _, e) ->
     Function-LL(
       <newname; ![name, <id>]; nsid-from-base(|base)> "_global.init",
       decls,
@@ -49,7 +51,7 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
 rules // transform-block :: Block-C -> Block-LL
 
   is-basic-stmt =
-    ?Decl-C(_, _, _)
+    ?Decl-C(_, _, _, _)
   + ?DiscardStmt-C(_)
   + ?AssignStmt-C(_, _, _)
   + ?DeleteStmt-C(_)
@@ -157,7 +159,7 @@ rules // transform-prop-selector :: Prop-C -> SelectorProp-LL
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        TypeUnk-LL(), // TODO: Type-LL
         StorageLocationAuto-LL()
       ))
     ; v'' := ArgVar-LL(ident)
@@ -426,7 +428,7 @@ rules // rvalue/lvalue manipulation
 
 rules // transform-stmt-basic :: Stmt-C -> Assign-LL
 
-  transform-stmt-basic: Decl-C(kind, name, e) ->
+  transform-stmt-basic: Decl-C(kind, name, t, e) ->
     <transform-stmt-basic> AssignStmt-C(RefLocal-C(IdentLocal-C(name)), AssignOperatorEq-C(), e)
     with
       if <?DeclKindConst-C()> kind then
@@ -434,11 +436,12 @@ rules // transform-stmt-basic :: Stmt-C -> Assign-LL
       else
         modifiers := []
       end
+    ; t' := <transform-type> t
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         modifiers,
         name, // no need to consider shadowing
-        TypeString-LL(), // TODO: Type-LL
+        t',
         StorageLocationAuto-LL()
       ))
 

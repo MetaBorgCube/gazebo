@@ -1,0 +1,46 @@
+module example:type_flat
+
+global alias @e = @e
+alias @MySelector = @e[is "my_tag"]
+
+type MyBaseType interface
+{
+    a String
+    b Float
+}
+type MyType interface : MyBaseType
+{
+    // override from base, but with a more specific type
+    b Int
+}
+
+type MyCyclicType interface
+{
+    other MyOtherCyclicType
+}
+type MyOtherCyclicType interface
+{
+    others [MyCyclicType]
+}
+
+type MyEnum enum { A, B }
+type MyEnumStr enum String { A = "a", B = "b" }
+
+func my_func(
+    my_param0 MyType,
+    my_param1 MyCyclicType,
+    my_param2 MyEnum,
+    my_param3 MyEnumStr
+) {}
+
+const my_list := [
+    MyType::{
+        a: "Hello",
+        b: 123
+    },
+    MyBaseType::{
+        a: "World!",
+        b: 456.0
+    }
+]
+const value_from_my_list := my_list[0].a

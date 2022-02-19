@@ -36,7 +36,7 @@ strategies
 
   relevant-tli =
     ?Function-C(_, _, _)
-  + ?Decl-C(_, _, _)
+  + ?Decl-C(_, _, _, _)
 
   is-lit-or-ref =
     ?String-C(_)
@@ -61,6 +61,10 @@ rules // nsid-ensure-valid :: string -> string
     ))
   ; flatten-list
   ; implode-string
+
+rules // nsid-from-identf :: IdentFull-C -> NSID-LL
+
+  nsid-from-identf: IdentFull-C(ns, name) -> NSID-LL(ns, name)
 
 rules // nsid-from-base(|[ns | basename]) :: a | List(a) -> NSID-LL
 

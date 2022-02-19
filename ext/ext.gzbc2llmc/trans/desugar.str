@@ -54,7 +54,7 @@ rules
       else
         ident := <newname> ident_base
       ; e' := RefLocal-C(IdentLocal-C(ident))
-      ; <tli-add> Decl-C(DeclKindConst-C(), ident, e)
+      ; <tli-add> Decl-C(DeclKindConst-C(), ident, TypeUnk-C(), e)
       end
 
   desugar-mixin-prop(|name): PropKv-C(k, v) ->
@@ -80,7 +80,7 @@ rules // destruction: desugar-destruct(|List(string)) :: Expr-C -> List(Statemen
   // single variable destruction: simply move
   desugar-destruct(|[ident]): e ->
     [
-      Decl-C(DeclKindVal-C(), ident, e)
+      Decl-C(DeclKindVal-C(), ident, TypeUnk-C(), e)
     ]
 
   // multi variable destruction: access by index
@@ -89,7 +89,7 @@ rules // destruction: desugar-destruct(|List(string)) :: Expr-C -> List(Statemen
       <geq> (<length => len> destruction, 2)
     with
       decls := <map(\(i, ident) ->
-        Decl-C(DeclKindVal-C(), ident, FindIndex-C(e, NumI-C(<int-to-string> i)))
+        Decl-C(DeclKindVal-C(), ident, TypeUnk-C(), FindIndex-C(e, NumI-C(<int-to-string> i)))
       \)> destruction
 
 rules // statement desugaring
@@ -98,9 +98,9 @@ rules // statement desugaring
   desugar: IterateStmt-C(subj, destruction, block) ->
     Block-C([
       // loop flag
-      Decl-C(DeclKindVar-C(), ident_flag, <desugar> BoolT-C()),
+      Decl-C(DeclKindVar-C(), ident_flag, TypeBool-C(), <desugar> BoolT-C()),
       // loop subject
-      Decl-C(DeclKindVar-C(), ident_subj, subj),
+      Decl-C(DeclKindVar-C(), ident_subj, TypeUnk-C(), subj),
       LoopStmt-C(
         ref_flag,
         Block-C([IfStmt-C(
@@ -109,7 +109,7 @@ rules // statement desugaring
           // ... then
           Block-C([
             // get subj[0]
-            Decl-C(DeclKindVal-C(), ident_curr, FindIndex-C(ref_subj, NumI-C("0"))),
+            Decl-C(DeclKindVal-C(), ident_curr, TypeUnk-C(), FindIndex-C(ref_subj, NumI-C("0"))),
             // del subj[0]
             DeleteStmt-C(FindIndex-C(ref_subj, NumI-C("0"))),
             // destruct value
@@ -133,7 +133,7 @@ rules // statement desugaring
 
   desugar: MatchStmt-C(subj, cases, default_case) ->
     Block-C([
-      Decl-C(DeclKindVal-C(), ident, subj),
+      Decl-C(DeclKindVal-C(), ident, TypeUnk-C(), subj),
       <foldl(\(MatchCase-C(case_value, case_block), else_branch) ->
         IfStmt-C(
           Cmp-C(
