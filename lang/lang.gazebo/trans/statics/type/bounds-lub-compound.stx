@@ -13,7 +13,8 @@ rules
     lubCompound : list(scope) -> scope
     lubCompound([]) = s_lubc_anon :- new s_lubc_anon.
     lubCompound([s]) = s.
-    lubCompound(ss) = s_lubc :- {isectEnv}
+    lubCompound([s,s]) = s. // prevent infinite recursion
+    lubCompound(ss@[_,_]) = s_lubc :- {isectEnv}
         new s_lubc,
         linkOriginScopes(s_lubc, ss),
         isectEnv == lubCompoundIntersection(ss),

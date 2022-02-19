@@ -1,0 +1,22 @@
+language gazebo
+module statics/type-cyclic
+
+fixture [[
+module test:Test
+[[...]]
+]]
+
+test correctly resolve cyclic type construction [[
+type Cycle interface
+{
+    [[self]] [Cycle]
+}
+
+const c := Cycle::{
+    [[self]]: ::[::{
+        [[self]]: ::[]
+    }]
+}
+]] analysis succeeds
+   resolve #2 to #1
+   resolve #3 to #1

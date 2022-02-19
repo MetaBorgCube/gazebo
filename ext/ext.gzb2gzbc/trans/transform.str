@@ -10,6 +10,8 @@ imports
 
   common
 
+  str_common
+
 rules // transform-tli :: Tli -> Tli-C
 
   transform-tli: Alias(Selector(name, _), Selector(_, props)) ->

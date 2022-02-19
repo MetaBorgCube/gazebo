@@ -19,3 +19,7 @@ build
 
 # Spoofax
 .polyglot.metaborg.yaml
+
+# Python
+__pycache__
+*.pyc

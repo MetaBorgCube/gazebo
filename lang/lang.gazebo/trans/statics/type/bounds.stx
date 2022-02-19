@@ -44,6 +44,7 @@ rules
     /** check if the first compound scope is a structural subtype of the second compound scope */
     subtypeCompound : scope * scope
 
+    subtypeCompound(s, s) :- true.
     subtypeCompound(s_comp_a, s_comp_b) :- {allmembs_b}
         // all members of 'b' must be present in 'a' with the 'a' items being a subtype of the corresponding 'b' item,
         // but 'a' may have more members

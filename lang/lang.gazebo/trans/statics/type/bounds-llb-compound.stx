@@ -13,7 +13,8 @@ rules
     llbCompound : list(scope) -> scope
     llbCompound([]) = s_llbc_anon :- new s_llbc_anon.
     llbCompound([s]) = s.
-    llbCompound(ss) = s_llbc :- {shadowEnv}
+    llbCompound([s,s]) = s. // prevent infinite recursion
+    llbCompound(ss@[_,_]) = s_llbc :- {shadowEnv}
         new s_llbc,
         linkOriginScopes(s_llbc, ss),
         shadowEnv == llbCompoundUnion([], ss),
