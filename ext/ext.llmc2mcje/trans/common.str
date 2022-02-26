@@ -21,31 +21,6 @@ signature
   constructors
     NSID : string * List(string) -> NSID
 
-  sorts Unit-ASM Command-ASM Arg-ASM
-  constructors
-    /** base unit */
-    Unit-ASM : List(Command-ASM) -> Unit-ASM
-    /** plain command, without formatting */
-    Command-Plain-ASM : string * List(Arg-ASM) -> Command-ASM
-    /** call with GZB calling convention. the arg identifies where the arguments were set */
-    Command-CallGzb-ASM : NSID * List(Arg-ASM) -> Command-ASM
-    /** anonymous sub-unit (assembled in new function file x:y/z, expanded to 'function x:y/z') */
-    Command-AnonSubUnit-ASM : Unit-ASM -> Command-ASM
-    /** callable sub-unit (assembled similar to AnonSubUnit, but referenceable) */
-    Command-CallableSubUnit-ASM : string * Unit-ASM -> Command-ASM
-    /** call callable sub unit */
-    Command-CallSubUnit-ASM : string -> Command-ASM
-    /** no-op */
-    Command-NoOp-ASM : Command-ASM
-    /** command self-redirection (e.g. 'execute if abc' -> 'if xyz'), mainly used for execute chains */
-    Arg-RedirectSelf-ASM : List(Arg-ASM) -> Arg-ASM
-    /** general command redirection (e.g. 'execute ... run' -> 'say hi') */
-    Arg-Redirect-ASM : Command-ASM -> Arg-ASM
-    /** generic NSID arg */
-    Arg-NSID-ASM : NSID -> Arg-ASM
-    /** raw string part, anything allowed */
-    Arg-RawString-ASM : string -> Arg-ASM
-
 strategies
 
   pp-llmc =
