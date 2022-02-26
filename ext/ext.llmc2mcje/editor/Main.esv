@@ -10,5 +10,6 @@ menus
 
   menu: "Minecraft: Java Edition" (source) (openeditor) (meta) (realtime)
 
+    action: "Desugar (local, PP source)" = editor-desugar-llmc-local-pp
     action: "Generate intermediate assembly" = editor-generate-mcfn-asm-local
     action: "Generate function (shared)" = editor-generate-mcfn-shared

@@ -15,7 +15,7 @@ imports
 
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
-  transform-tli(|base): Function-C(name, _, block) ->
+  transform-tli(|base): Function-C(name, Signature-C(params, t_ret), block) ->
     Function-LL(
       <nsid-from-base(|base)> name,
       decls,
@@ -26,7 +26,14 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       : block' := <transform-block> block
       ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
       |}
-    ; decl_sign* := [/*TODO*/]
+    ; decl_sign* := <map(\Param-C(kind, name, t) -> Decl-LL(SSign-LL(), mod*, name, t', StorageLocationAuto-LL())
+          with
+            mod* := <
+              \ParamKindConst-C() -> [ModConst-LL()]\
+           <+ ![]
+            ; flatten-list> kind
+          ; t' := <transform-type> t
+      \)> params
     ; decls := [decl_sign*, decl_gen*]
 
   transform-tli(|base@[ns|basename]): Decl-C(_, name, _, e) ->

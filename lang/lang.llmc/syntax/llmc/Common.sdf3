@@ -16,6 +16,7 @@ lexical syntax
     INSIDE_COMMENT   = COMMENT_CHAR
 
     ID               = [a-zA-Z\-\.\_\$] [a-zA-Z0-9\-\.\_\$]*
+    ID               = "-" [0-9]* {reject} // reject identifiers that are actually ints
 
     STRING           = "\"" STRING_CHAR* "\""
     STRING_CHAR      = ~[\\\"\n]

@@ -12,13 +12,19 @@ imports
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
 
+/*
+Improvements to be made:
+- There are some constructs remaining from when variables on the stack were referenced explicitly.
+  This is no longer the case, as this is handled in the desugar step.
+  But, because of that, there are some simplification here and there that could be made.
+  For example, the loc-is-data strategy is no longer really necessary.
+*/
+
 signature
 
   /** variable location specifier */
   sorts Loc
   constructors
-    /** variable on the local stack, including an optional access path */
-    StackKey : string * Path-LL -> Loc
     /** variable in the data storage, identified by the namespace with name and an access path */
     DataStorage : NSID * Path-LL -> Loc
     /** variable in the scoreboard, identified by the 'fake player' and 'objective' */
@@ -33,14 +39,12 @@ strategies // register-decl :: Decl-LL -> _
   ; loc' := <register-decl-loc(|name)> loc
   ; rules(VarLoc: name -> loc')
 
-  register-decl-loc(|name): StorageLocationAuto-LL() -> StackKey(name, Path-LL([]))
   register-decl-loc(|_): StorageLocationData-LL(nsid, path) -> DataStorage(<transform-nsid> nsid, path)
   register-decl-loc(|_): StorageLocationScoreboard-LL(player, objective) -> Scoreboard(player, objective)
 
 rules // loc-access-path :: (Loc, Path-LL) -> Loc
 
   loc-access-path(|loc): Path-LL([]) -> loc
-  loc-access-path(|StackKey(key, path)): path_access -> StackKey(key, <path-join> [path, path_access])
   loc-access-path(|DataStorage(nsid, path)): path_access -> DataStorage(nsid, <path-join> [path, path_access])
   loc-access-path(|Scoreboard(_, _)): Path-LL([_|_]) -> <with(fail)>
   loc-access-path(|Discard()): _ -> Discard()
@@ -48,8 +52,7 @@ rules // loc-access-path :: (Loc, Path-LL) -> Loc
 strategies // loc-is-data :: Loc
 
   loc-is-data =
-    ?StackKey(_, _)
-  + ?DataStorage(_, _)
+    ?DataStorage(_, _)
 
 strategies // is-locatable :: Arg-LL
 
@@ -70,19 +73,6 @@ rules // arg-to-loc :: Arg-LL -> Loc
 
 rules // loc-args-data :: Loc -> List(Arg-ASM)
 
-  loc-args-data: StackKey(key, access_path) ->
-    [
-      Arg-RawString-ASM("storage"),
-      Arg-NSID-ASM(NSID("gzb", ["_internal"])),
-      <path-join; transform-path> [stack_select_path, access_path]
-    ]
-    with
-      stack_select_path := Path-LL([
-        Select-LL(<string-denorm> "_stack"),
-        IndexFix-LL("-1"),
-        Select-LL(<string-denorm> key)
-      ])
-
   loc-args-data: DataStorage(nsid, access_path) ->
     [
       Arg-RawString-ASM("storage"),
@@ -92,8 +82,7 @@ rules // loc-args-data :: Loc -> List(Arg-ASM)
 
   loc-args-data: loc@Scoreboard(_, _) -> loc'*
     with
-      new_key := <newname> "$sb_access"
-    ; loc' := StackKey(new_key, Path-LL([]))
+      loc' := <loc-new-stack(|"$sb_access")>
     ; loc'* := <loc-args-data> loc'
     ; cmd_transfer := <transfer-loc(|loc')> loc
     ; rules(EmitCommand-Pre:+ _ -> cmd_transfer)
@@ -116,8 +105,7 @@ rules // loc-args-scoreboard :: Loc -> List(Arg-ASM)
 rules // loc-args-execute :: Loc -> List(Arg-ASM)
 
   loc-args-execute--is-data-compat =
-    ?StackKey(_, _)
-  + ?DataStorage(_, _)
+    ?DataStorage(_, _)
 
   loc-args-execute =
     loc-args-execute--is-data-compat
@@ -164,6 +152,17 @@ rules // loc-get :: Loc -> Command-ASM
   loc-get: Discard() -> <with(fail)>
 
 strategies
+
+  /** create a unique stack reference for the given basename */
+  loc-new-stack(|basename) =
+    !DataStorage(
+      NSID("gzb.__temp__", ["_internal"]),
+      Path-LL([
+        Select-LL(<string-denorm> "_stack"),
+        IndexFix-LL("-1"),
+        Select-LL(<newname; string-denorm> basename)
+      ])
+    )
 
   /** create a new and unique Loc instance which is Scoreboard */
   loc-new-scoreboard =

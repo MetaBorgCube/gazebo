@@ -1,0 +1,53 @@
+module desugar
+
+imports
+
+  signatures/llmc/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  common
+  str_common
+
+strategies
+
+  desugar-function =
+    ?Function-LL(nsid, _, _)
+  ; bottomup(try(desugar(|nsid)))
+
+rules
+
+  // concretize argument variable
+  desugar(|NSID-LL(ns, basename)) = Decl-LL(
+    ?SSign-LL(),
+    id,
+    ?name,
+    id,
+    \StorageLocationAuto-LL() ->
+      StorageLocationData-LL(
+        NSID-LL(<concat-strings> [ns, ".__temp__"], basename),
+        Path-LL([
+          Select-LL(<string-denorm> "args"),
+          Select-LL(<string-denorm> name)
+        ])
+      )
+    \
+  )
+
+  // concretize stack variable
+  desugar(|_) = Decl-LL(
+    ?SLocal-LL(),
+    id,
+    ?name,
+    id,
+    \StorageLocationAuto-LL() ->
+      StorageLocationData-LL(
+        NSID-LL("gzb.__temp__", ["_internal"]),
+        Path-LL([
+          Select-LL(<string-denorm> "_stack"),
+          IndexFix-LL("-1"),
+          Select-LL(<string-denorm> name)
+        ])
+      )
+    \
+  )

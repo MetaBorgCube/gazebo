@@ -3,6 +3,7 @@ module asm
 imports
 
   common
+  str_common
 
 /**
  * NOTE:
@@ -86,7 +87,7 @@ rules // asm-arg :: Arg-ASM -> string
     with
       res := <asm-command(false)> cmd
 
-  asm-arg: Arg-NSID-ASM(NSID(namespace, name)) -> <concat-strings> [namespace, ":" | name]
+  asm-arg: Arg-NSID-ASM(NSID(namespace, name)) -> <concat-strings> [namespace, ":" | <intersperse(|"/")> name]
 
   asm-arg: Arg-RawString-ASM(str) -> str
 

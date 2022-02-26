@@ -6,6 +6,9 @@ imports
   // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
   signatures/-
 
+  pp/llmc-parenthesize
+  pp/llmc-pp
+
   libspoofax/-
 
   libstratego-gpp
@@ -42,6 +45,14 @@ signature
     Arg-NSID-ASM : NSID -> Arg-ASM
     /** raw string part, anything allowed */
     Arg-RawString-ASM : string -> Arg-ASM
+
+strategies
+
+  pp-llmc =
+      parenthesize-llmc
+    ; prettyprint-llmc-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
 
 strategies
 

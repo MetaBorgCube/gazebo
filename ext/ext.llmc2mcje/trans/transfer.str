@@ -40,6 +40,18 @@ rules // transfer-raw(|Loc) :: string -> Command-ASM
 /** Transfer the value of the source Loc to the given destination Loc. */
 rules // transfer-loc(|Loc) :: Loc -> Command-ASM
 
+  transfer-loc(|<loc-is-data => loc_dest>): <loc-is-data => loc_src> ->
+    Command-Plain-ASM("data", [
+      Arg-RawString-ASM("modify"),
+      loc_dest_args_data*,
+      Arg-RawString-ASM("set"),
+      Arg-RawString-ASM("from"),
+      loc_src_args_data*
+    ])
+    with
+      loc_dest_args_data* := <loc-args-data> loc_dest
+    ; loc_src_args_data* := <loc-args-data> loc_src
+
   transfer-loc(|loc_dest): loc_src ->
     Command-Plain-ASM("execute", [
       Arg-RawString-ASM("store"),

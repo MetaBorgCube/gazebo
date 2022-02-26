@@ -3,12 +3,18 @@ module editor
 imports
 
   common
+  desugar
   generate
   asm
 
 rules
 
-  editor-generate-mcfn-asm-local: input@(selected, _, ast, path, project-path) -> (filename, result)
+  editor-desugar-llmc-local-pp: input@(selected, _, ast, path, _) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"desugared.llmc")> path
+    ; result := <desugar-function; pp-llmc> ast
+
+  editor-generate-mcfn-asm-local: input@(selected, _, ast, path, _) -> (filename, result)
     with
       filename := <guarantee-extension(|"mcfn-asm.aterm")> path
     ; result := <generate-mcfn-asm> ast
