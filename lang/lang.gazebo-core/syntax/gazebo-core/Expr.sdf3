@@ -95,10 +95,11 @@ context-free syntax
 
 ///
 
+context-free sorts Arg-C
 context-free syntax
 
-    // TODO: keyword args
-    Expr-C.Invoke-C = <<Expr-C>(<{Expr-C ", "}*>)>
+    Expr-C.Invoke-C = <<Expr-C>(<{Arg-C ", "}*>)>
+    Arg-C.Arg-C = <<ID>=<Expr-C>>
 
 ///
 

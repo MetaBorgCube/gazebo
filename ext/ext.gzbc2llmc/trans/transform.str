@@ -26,14 +26,14 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       : block' := <transform-block> block
       ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
       |}
-    ; decl_sign* := <map(\Param-C(kind, name, t) -> Decl-LL(SSign-LL(), mod*, name, t', StorageLocationAuto-LL())
-          with
-            mod* := <
-              \ParamKindConst-C() -> [ModConst-LL()]\
-           <+ ![]
-            ; flatten-list> kind
-          ; t' := <transform-type> t
-      \)> params
+    ; decl_sign* := <map({t': \Param-C(kind, name, t) -> Decl-LL(SSign-LL(), mod*, name, t', StorageLocationAuto-LL())
+        with
+          mod* := <
+            \ParamKindConst-C() -> [ModConst-LL()]\
+         <+ ![]
+          > kind
+        ; t' := <transform-type> t
+      \})> params
     ; decls := [decl_sign*, decl_gen*]
 
   transform-tli(|base@[ns|basename]): Decl-C(_, name, _, e) ->
@@ -257,10 +257,12 @@ rules // transform-expr :: Expr-C -> Arg-LL
     )
   ; !ArgVar-LL(ident)
 
-  transform-expr: Invoke-C(target@RefFull-C(_), arg*) -> ArgVar-LL(ident)
+  transform-expr: Invoke-C(RefFull-C(target), arg*) -> ArgVar-LL(ident)
     with
-      target' := <transform-expr> target
-    ; arg'* := <map(transform-expr)> arg*
+      target' := ArgFunction-LL(<nsid-from-identf> target)
+    ; arg'* := <map(\Arg-C(name, e) ->
+        ArgNamed-LL(name, <transform-expr> e)
+      \)> arg*
     ; ident := <newname> "$invoke"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),

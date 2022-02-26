@@ -11,33 +11,35 @@ rules
 
     typeOfInvoke : scope * Invoke -> TYPE
 
-    typeOfInvoke(s, InvokeNone(Expr2Expr-I(e))) = Tr :- {Tfn}
+    typeOfInvoke(s, ivk@InvokeNone(Expr2Expr-I(e))) = Tr :- {Tfn}
         typeOfExpr(s, e) == Tfn,
-        typeOfInvoke_internal(s, Tfn, Args([])) == Tr | error $[cannot invoke, type [Tfn] is not invokeable]@e.
+        typeOfInvoke_internal(s, ivk, Tfn, Args([])) == Tr | error $[cannot invoke, type [Tfn] is not invokeable]@e.
 
-    typeOfInvoke(s, InvokeArgs(Expr2Expr-I(e), a)) = Tr :- {Tfn}
+    typeOfInvoke(s, ivk@InvokeArgs(Expr2Expr-I(e), a)) = Tr :- {Tfn}
         typeOfExpr(s, e) == Tfn,
-        typeOfInvoke_internal(s, Tfn, a) == Tr | error $[cannot invoke, type [Tfn] is not invokeable]@e.
+        typeOfInvoke_internal(s, ivk, Tfn, a) == Tr | error $[cannot invoke, type [Tfn] is not invokeable]@e.
 
 rules
 
-    typeOfInvoke_internal : scope * TYPE * Args -> TYPE
+    typeOfInvoke_internal : scope * Invoke * TYPE * Args -> TYPE
 
-    typeOfInvoke_internal(_, TAG(), a) = VOID() :-
+    typeOfInvoke_internal(_, _, TAG(), a) = VOID() :-
         a == Args([]) | error $[cannot invoke tag with args]@a.
 
-    typeOfInvoke_internal(s, FUNC(Tparams, Tr), a) = Tr :- {Tparams_remaining}
-        funcArgsOk(s, Tparams, a) == Tparams_remaining.
+    typeOfInvoke_internal(s, ivk, FUNC(Tparams, Tr), a) = Tr :- {param_names Tparams_remaining}
+        funcArgsOk(s, Tparams, a) == (param_names, Tparams_remaining),
+        @ivk.param_names := param_names.
 
 rules
 
-    funcArgsOk : scope * list((ID * TYPE)) * Args -> list((ID * TYPE))
+    funcArgsOk : scope * list((ID * TYPE)) * Args -> (list(string) * list((ID * TYPE)))
 
-    funcArgsOk(_, [], Args(args@[_|_])) = [] :-
+    funcArgsOk(_, [], Args(args@[_|_])) = ([], []) :-
         false | error $[too many positional arguments given]@args.
 
-    funcArgsOk(_, params, Args([])) = params.
+    funcArgsOk(_, params, Args([])) = ([], params).
 
-    funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = funcArgsOk(s, xs, Args(ys)) :- {Te}
+    funcArgsOk(s, [(name, Tpar) | xs], Args([Expr2Expr-I(e) | ys])) = ([name|names], remaining) :- {Te}
         Te == typeOfExpr(withTypeInject(s, Tpar), e),
-        subtype(Te, Tpar) | error $[expression type not suitable for parameter of type [Tpar]]@e.
+        subtype(Te, Tpar) | error $[expression type not suitable for parameter of type [Tpar]]@e,
+        (names, remaining) == funcArgsOk(s, xs, Args(ys)).

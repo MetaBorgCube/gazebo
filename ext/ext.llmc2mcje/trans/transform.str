@@ -258,6 +258,22 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
 
   // TODO: all other ops
 
+  transform-assign-op(|dest): (OpInvoke-LL(), [ArgFunction-LL(fn), args*]) ->
+    Command-AnonSubUnit-ASM(Unit-ASM([
+      init_arg_area,
+      arg_transfers*,
+      Command-CallGzb-ASM(<transform-nsid> fn, <loc-args-data> arg_area)
+      // TODO: transfer return value
+    ]))
+    with
+      arg_area := <loc-new-stack(|"$args")>
+    ; init_arg_area := <transfer-raw(|arg_area)> "{}"
+    ; arg_transfers* := <map(command-force-cluster({arg_dest: \ArgNamed-LL(name, value) ->
+        <assign-arg-to-loc(|arg_dest)> value
+        with
+          arg_dest := <loc-access-path(|arg_area)> Path-LL([Select-LL(<string-denorm> name)])
+      \}))> args*
+
   transform-assign-op(|_): (op#(_), _) ->
     Command-Plain-ASM("say", [Arg-RawString-ASM(<concat-strings> ["TODO: assign ", op])])
 

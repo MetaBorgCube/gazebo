@@ -42,6 +42,8 @@ context-free syntax
     Arg-LL.ArgUnsafe-LL = </[<{UnsafePart-LL ", "}+>]>
 
     Arg-LL.ArgCond-LL = BoolCond-LL
+    Arg-LL.ArgFunction-LL = <<NSID-LL>>
+    Arg-LL.ArgNamed-LL = <<ID>@<Arg-LL>>
 
 context-free sorts RangePart-LL
 context-free syntax

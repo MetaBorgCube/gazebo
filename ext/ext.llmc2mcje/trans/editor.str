@@ -23,7 +23,7 @@ rules
     with
       !ast; ?Function-LL(NSID-LL(namespace, name), decl*, body)
     ; function_path := <intersperse-concat(|"/")> [namespace | name]
-    ; function_base := <concat-strings> [namespace, ":" | <intersperse(|"/")> name]
+    ; function_base := NSID(namespace, name)
     ; asm_tree := <generate-mcfn-asm> ast
     with
       (filenames, results) := <

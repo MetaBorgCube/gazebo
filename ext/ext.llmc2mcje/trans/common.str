@@ -27,8 +27,8 @@ signature
     Unit-ASM : List(Command-ASM) -> Unit-ASM
     /** plain command, without formatting */
     Command-Plain-ASM : string * List(Arg-ASM) -> Command-ASM
-    /** call with GZB calling convention */
-    Command-CallGzb-ASM : NSID * List(string) -> Command-ASM
+    /** call with GZB calling convention. the arg identifies where the arguments were set */
+    Command-CallGzb-ASM : NSID * List(Arg-ASM) -> Command-ASM
     /** anonymous sub-unit (assembled in new function file x:y/z, expanded to 'function x:y/z') */
     Command-AnonSubUnit-ASM : Unit-ASM -> Command-ASM
     /** callable sub-unit (assembled similar to AnonSubUnit, but referenceable) */
@@ -49,10 +49,10 @@ signature
 strategies
 
   pp-llmc =
-      parenthesize-llmc
-    ; prettyprint-llmc-start-symbols
-    ; !V([], <id>)
-    ; box2text-string(|120)
+    parenthesize-llmc
+  ; prettyprint-llmc-start-symbols
+  ; !V([], <id>)
+  ; box2text-string(|120)
 
 strategies
 

@@ -10,7 +10,7 @@ imports
  * Being at "top level" means not being inside an argument, for all practical purposes.
  */
 
-strategies
+strategies // asm(|NSID) :: Unit-ASM
 
   asm(|function_base) =
     {| BaseNSID, EmitFunction
@@ -27,7 +27,7 @@ strategies // asm-unit(is-toplevel) :: Unit-ASM -> string(nsid)
 
   asm-unit(is-toplevel|key,name) = ?Unit-ASM(<id>)
   ; with(
-      unit_id := <concat-strings> [<BaseNSID>, "/", name]
+      unit_id := <concat-strings> [<BaseNSID; asm-nsid>, "/", name]
     ; if <not(?"")> key then rules(UnitLookup: key -> unit_id) end
     )
   ; map(asm-command(is-toplevel))
@@ -53,7 +53,45 @@ rules // asm-command(is-toplevel) :: Command-ASM -> string
     with
       res := <map(asm-arg); intersperse-concat(|" ")> args
 
-  asm-command(is-toplevel): Command-CallGzb-ASM(nsid, args) -> "say todo: do gzb call here"
+  asm-command(is-toplevel): Command-CallGzb-ASM(nsid@NSID(ns, name), arg_area) -> <intersperse-concat(|"\n")> [pre*, call, post*]
+    with
+      BaseNSID; ?NSID(base_ns, base_name)
+    ; area_access_curr* := [
+        "storage",
+        <asm-nsid> NSID(<concat-strings> [base_ns, ".__temp__"], base_name),
+        <string-denorm> "args"
+      ]
+    ; area_access_callee* := [
+        "storage",
+        <asm-nsid> NSID(<concat-strings> [ns, ".__temp__"], name),
+        <string-denorm> "args"
+      ]
+    ; pre* := [
+        // store the current args on the stack
+        <intersperse-concat(|" ")> [
+          "data modify",
+          "storage gzb.__temp__:_internal _stack[-1].\"$args_save\"",
+          "set from",
+          area_access_curr*
+        ],
+        // prepare the args are for the callee
+        <flatten-list; intersperse-concat(|" ")> [
+          "data modify",
+          area_access_callee*,
+          "set from",
+          <map(asm-arg)> arg_area
+        ]
+      ]
+    ; call := <intersperse-concat(|" ")> ["function", <asm-nsid> nsid]
+    ; post* := [
+        // restore the args from the stack
+        <intersperse-concat(|" ")> [
+          "data modify",
+          area_access_curr*,
+          "set from",
+          "storage gzb.__temp__:_internal _stack[-1].\"$args_save\""
+        ]
+      ]
 
   asm-command(is-toplevel): Command-AnonSubUnit-ASM(unit@Unit-ASM(commands)) -> res
     with
@@ -87,9 +125,13 @@ rules // asm-arg :: Arg-ASM -> string
     with
       res := <asm-command(false)> cmd
 
-  asm-arg: Arg-NSID-ASM(NSID(namespace, name)) -> <concat-strings> [namespace, ":" | <intersperse(|"/")> name]
+  asm-arg: Arg-NSID-ASM(nsid) -> <asm-nsid> nsid
 
   asm-arg: Arg-RawString-ASM(str) -> str
 
   asm-arg: str -> str
     where is-string
+
+rules // asm-nsid :: NSID -> string
+
+  asm-nsid: NSID(ns, name) -> <concat-strings> [ns, ":" | <intersperse(|"/")> name]
