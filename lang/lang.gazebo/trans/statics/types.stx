@@ -54,7 +54,8 @@ signature
         UNK : TYPE
         /** universal bottom type, nothing is a subtype of BOTTOM */
         BOTTOM : TYPE
-        ENUMKEY : TYPE
+        ENUM_V_INT : int -> TYPE
+        ENUM_V_STR : string -> TYPE
         OPTIONAL : TYPE -> TYPE
 
     sorts POS_KIND

@@ -14,6 +14,12 @@ imports
 
   transform-type
 
+rules // transform :: List(Tli) -> List(Tli-C)
+
+  transform =
+    map(transform-tli)
+  ; flatten-list
+
 rules // transform-tli :: Tli -> Tli-C|List(Tli-C)
 
   transform-tli: Alias(Selector(name, _), Selector(_, props)) ->
@@ -50,8 +56,11 @@ rules // transform-tli :: Tli -> Tli-C|List(Tli-C)
         )
       \)> entries
 
-  // TODO: lift enum values into new globals
   transform-tli: TypeDecl(name, t) -> []
+    with
+      // transform the type and then simply discard of the result.
+      // this should cause any enum values to be lifted for example
+      _ := <transform-type> t
 
 rules // transform-props :: Props -> Props-C
 

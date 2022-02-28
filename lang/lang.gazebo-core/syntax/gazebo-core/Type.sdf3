@@ -58,14 +58,21 @@ context-free syntax
 
 context-free syntax
 
-    Type-C.TypeEnum-C = <
-        enum <Type-C>
+    Type-C.TypeEnumInt-C = <
+        enum Int
+        {
+            <{EnumMemb-C ",\n"}+>
+        }
+    >
+    Type-C.TypeEnumString-C = <
+        enum String
         {
             <{EnumMemb-C ",\n"}+>
         }
     >
 
-    EnumMemb-C.EnumMemb-C = <<ID> = <IdentFull-C>>
+    EnumMemb-C.EnumMembInt-C = <<ID> = <INT>>
+    EnumMemb-C.EnumMembString-C = <<ID> = <STRING>>
 
 context-free syntax
 

@@ -14,11 +14,11 @@ rules
 
 rules
 
-  desugar: TypeEnumUntyped(memb_keys) -> TypeEnumTyped(TypeInt(), membs)
+  desugar: TypeEnumUntyped(memb_keys){anno*} -> TypeEnumTyped(TypeInt(), membs){anno*}
     with
       membs := <number(!EnumTypedMemb(<Fst>, NumI(<Snd; int-to-string>)))> memb_keys
 
-  desugar: TypeInterface(membs) -> TypeInterfaceCompose([], membs)
+  desugar: TypeInterface(membs){anno*} -> TypeInterfaceCompose([], membs){anno*}
 
 rules
 

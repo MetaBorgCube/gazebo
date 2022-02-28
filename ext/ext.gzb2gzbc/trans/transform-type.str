@@ -21,6 +21,12 @@ rules // transform-type :: Type -> Type-C
   transform-type: TypeBool() -> TypeBool-C()
   transform-type: TypeInt() -> TypeInt-C()
   transform-type: TypeFloat() -> TypeFloat-C()
+  transform-type: TypeEnumTyped(t@TypeInt(), membs) -> TypeEnumInt-C(membs')
+    with
+      membs' := <map(transform-type-enum-memb(|t))> membs
+  transform-type: TypeEnumTyped(t@TypeString(), membs) -> TypeEnumString-C(membs')
+    with
+      membs' := <map(transform-type-enum-memb(|t))> membs
 
   transform-type: TypeResourceRegistry(nsid) -> TypeResourceRegistry-C(<identf-from-nsid> nsid)
   transform-type: TypeTag() -> TypeTag-C()
@@ -32,6 +38,11 @@ rules // transform-type :: Type -> Type-C
 
   // alias for transform-type-lookup, because all Type AST nodes should have an AST type set
   transform-type = transform-type-lookup
+
+strategies // transform-type-enum-memb(|Type) :: EnumTypedMemb -> EnumMemb-C
+
+  transform-type-enum-memb(|TypeInt()): EnumTypedMemb(name, NumI(value)) -> EnumMembInt-C(name, value)
+  transform-type-enum-memb(|TypeString()): EnumTypedMemb(name, String(value)) -> EnumMembString-C(name, value)
 
 strategies // transform-type-lookup :: * -> Type-C
 
@@ -50,15 +61,24 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
   type-convert-(|a): BOOL() -> TypeBool-C()
   type-convert-(|a): INT() -> TypeInt-C()
   type-convert-(|a): FLOAT() -> TypeFloat-C()
-  type-convert-(|a): ENUM(s, t) -> TypeEnum-C(t', members)
-    with
-      t' := <type-convert-(|a)> t
+  type-convert-(|a): ENUM(s, t@INT()) -> TypeEnumInt-C(members)
     with
       members := <
         stx-get-scopegraph-data(|a, "statics/common!memb")
-      ; filter(?(_, ENUMKEY()))
-        // TODO: convert to actual value location
-      ; map(\((name, _), _) -> EnumMemb-C(name, IdentFull-C("myns", ["myname"]))\)
+      ; filter(?(_, ENUM_V_INT(_)) + ?(_, ENUM_V_STR(_)))
+      ; map(
+          \((name, _), ENUM_V_INT(v)) -> EnumMembInt-C(name, <int-to-string> v)\
+        + \((name, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
+        )
+      > s
+  type-convert-(|a): ENUM(s, t@STRING()) -> TypeEnumString-C(members)
+    with
+      members := <
+        stx-get-scopegraph-data(|a, "statics/common!memb")
+      ; filter(?(_, ENUM_V_STR(_)))
+      ; map(
+          \((name, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
+        )
       > s
 
   type-convert-(|a): POS(kind, t) -> TypePos-C(kind', t')

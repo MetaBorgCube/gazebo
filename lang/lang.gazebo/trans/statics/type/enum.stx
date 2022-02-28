@@ -14,25 +14,45 @@ rules
 
     typeOfEnum(s, TypeEnumTyped(t, membs)) = ENUM(s_enum_t, T) :-
         T == typeOfType(s, t),
+        enumTypeOk(T) | error $[type [T] is not a valid type for the enum backing value],
         new s_enum_t,
-        enumTypedMembsOk(s, s_enum_t, T, membs).
+        enumTypedMembsOk(s_enum_t, T, membs).
 
     typeOfEnum(s, TypeEnumUntyped(membs)) = ENUM(s_enum, INT()) :-
         new s_enum,
-        declareEnumKeys(s_enum, membs).
+        declareAutomaticEnumKeys(s_enum, membs).
 
 rules
 
-    enumTypedMembsOk maps enumTypedMembOk(*, *, *, list(*))
-    enumTypedMembOk : scope * scope * TYPE * EnumTypedMemb
-    enumTypedMembOk(s, s_enum_t, Tenum, EnumTypedMemb(name, e)) :- {Tmemb}
-        Tmemb == typeOfExpr(withTypeInject(s, Tenum), e),
-        subtype(Tmemb, Tenum) | error $[type of value is not a subtype of the enum type ([Tenum])]@e,
-        declareEnumKey(s_enum_t, name).
+  enumTypeOk : TYPE
+  enumTypeOk(INT()).
+  enumTypeOk(STRING()).
 
 rules
 
-    declareEnumKeys maps declareEnumKey(*, list(*))
-    declareEnumKey : scope * string
-    declareEnumKey(s, key) :-
-        declareMemb(s, key, MEMB_ENUMKEY(), ENUMKEY()).
+    enumTypedMembsOk maps enumTypedMembOk(*, *, list(*))
+    enumTypedMembOk : scope * TYPE * EnumTypedMemb
+    enumTypedMembOk(s_enum_t, Tenum, EnumTypedMemb(name, Literal2Expr(NumI(value)))) :-
+        declareEnumKeyString(s_enum_t, name, value).
+    enumTypedMembOk(s_enum_t, Tenum, EnumTypedMemb(name, Literal2Expr(String(value)))) :-
+        declareEnumKeyString(s_enum_t, name, value).
+
+rules
+
+    declareAutomaticEnumKeys : scope * list(string)
+    declareAutomaticEnumKeys(s, membs) :- declareAutomaticEnumKey(s, membs, 0).
+
+    declareAutomaticEnumKey : scope * list(string) * int
+    declareAutomaticEnumKey(s, [], _).
+    declareAutomaticEnumKey(s, [key|tail], idx) :- {idx'}
+        idx' #= idx + 1,
+        declareEnumKeyInteger(s, key, idx),
+        declareAutomaticEnumKey(s, tail, idx').
+
+    declareEnumKeyInteger : scope * string * int
+    declareEnumKeyInteger(s, key, value) :-
+        declareMemb(s, key, MEMB_ENUMKEY(), ENUM_V_INT(value)).
+
+    declareEnumKeyString : scope * string * string
+    declareEnumKeyString(s, key, value) :-
+        declareMemb(s, key, MEMB_ENUMKEY(), ENUM_V_STR(value)).

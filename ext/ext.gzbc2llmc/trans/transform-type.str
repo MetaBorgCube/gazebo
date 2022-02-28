@@ -39,7 +39,8 @@ rules // transform-type :: Type-C -> Type-LL
   transform-type: TypeListDynamic-C(ref_create, t)
     -> TypeList-LL(<transform-type-ref-create-opt> ref_create, <transform-type> t)
 
-  transform-type: TypeEnum-C(t, _) -> <transform-type> t
+  transform-type: TypeEnumInt-C(_) -> TypeIntI-LL()
+  transform-type: TypeEnumString-C(_) -> TypeString-LL()
 
   transform-type: TypeInterface-C(ref_create, members)
     -> TypeCompound-LL(<transform-type-ref-create-opt> ref_create, members')
