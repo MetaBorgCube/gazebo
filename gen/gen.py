@@ -3,9 +3,9 @@ import json
 import pathlib
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Union, Iterable
+from typing import Any, Union, Iterable, List, Dict, DefaultDict, Tuple
 
-Paths = dict[int, list[str]]
+Paths = Dict[int, List[str]]
 
 OVERLAY_HEADER = "/* OVERLAY */\n\n"
 
@@ -35,7 +35,7 @@ class McData:
 
 @dataclass
 class WriteContext:
-    outputs: defaultdict[str, list[str]]
+    outputs: DefaultDict[str, List[str]]
     module_paths: Paths
     compound_paths: Paths
     enum_paths: Paths
@@ -51,7 +51,7 @@ def _path_all_rel_parents(path: pathlib.Path):
     yield from _path_all_rel_parents(path.parent)
 
 
-def file_ident(path: list[str]):
+def file_ident(path: List[str]):
     if len(path) < 2:
         raise ValueError("too few path elements")
     return json.dumps(path)
@@ -74,7 +74,7 @@ def file_ident_to_nsid(fident: str) -> str:
     return nsid(json.loads(fident))
 
 
-def nsid(path: list[str]):
+def nsid(path: List[str]):
     if len(path) < 2:
         raise ValueError("too few path elements")
     return f"{path[0]}:{'~'.join(path[1:])}"
@@ -95,7 +95,7 @@ def _escape_nsid_part(part: str):
     return part
 
 
-def escape_nsid(inp: Union[str, list[str]]):
+def escape_nsid(inp: Union[str, List[str]]):
     if isinstance(inp, str):
         inp = parse_nsid(inp)
     return nsid(list(map(_escape_nsid_part, inp)))
@@ -109,7 +109,7 @@ def escape_field_name(field: str) -> str:
 
 
 def extract_paths(
-        path: list[str],
+        path: List[str],
         module,
         doc: NbtDoc,
         ctx: WriteContext
@@ -270,7 +270,7 @@ def write_enum(ctx: WriteContext, idx, enum: Any):
     ctx.outputs[file].append(content)
 
 
-def _type_block_states(states: list[str]) -> tuple[str, list[str]]:
+def _type_block_states(states: List[str]) -> Tuple[str, List[str]]:
     peek = states[0]
     if peek == "true" or peek == "false":
         return "Bool", states
@@ -282,7 +282,7 @@ def _type_block_states(states: list[str]) -> tuple[str, list[str]]:
     return "String", list(map(lambda v: f'"{v}"', states))
 
 
-def _reg_aux__common_data(nbtdoc_registry: tuple[dict, int], registration_name: str, write_context: WriteContext) -> str:
+def _reg_aux__common_data(nbtdoc_registry: Tuple[dict, int], registration_name: str, write_context: WriteContext) -> str:
     refs, default_idx = nbtdoc_registry
     idx = refs.get(registration_name)
     if idx is None:
@@ -317,7 +317,7 @@ def _reg_aux_entity_type(registration_name: str, mcdata: McData, nbtdoc: NbtDoc,
     return _reg_aux__common_data(nbtdoc.registries["minecraft:entity"], registration_name, write_context)
 
 
-def create_registrations(registry_name: str, registry_entries, mcdata: McData, nbtdoc: NbtDoc, write_context: WriteContext) -> list[str]:
+def create_registrations(registry_name: str, registry_entries, mcdata: McData, nbtdoc: NbtDoc, write_context: WriteContext) -> List[str]:
     def aux_fn(_1: str, _2: McData, _3: NbtDoc, _4: WriteContext):
         return ""
 

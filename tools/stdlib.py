@@ -1,5 +1,6 @@
 import pathlib
 import zipfile
+from typing import Tuple
 
 from tools.gzbs import gzbs_run_cli
 from tools.zip import write_dir_to_zip
@@ -80,7 +81,7 @@ def _spoofax_language(root: pathlib.Path, gzb_rev: str, cat: str, name: str):
         return root / "misc" / "target" / "out-lang" / f"{cat}.{name}-{gzb_rev}.spoofax-language"
 
 
-def gen_stdlib(ver: tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pathlib.Path, out_gzbc: pathlib.Path, out_llmc: pathlib.Path):
+def gen_stdlib(ver: Tuple[str, str, str], root: pathlib.Path, proj_wd: pathlib.Path, out_gzb: pathlib.Path, out_gzbc: pathlib.Path, out_llmc: pathlib.Path):
     ver, gzb_rev, mb_ver = ver
 
     spoofax_languages = [
