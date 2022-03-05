@@ -10,12 +10,14 @@ import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitStxLib
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.TaskUtil.chain
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack.CompressDataPackTask
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack.EmitDataPackTask
+import nl.jochembroekhoff.gazebo.standalone.langsapi.GzbsLanguagesProvider
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.resource.IResourceService
 import org.metaborg.util.log.LoggerUtils
 import org.metaborg.util.time.Timer
 import picocli.CommandLine.*
 import java.io.File
+import java.util.ServiceLoader
 import java.util.concurrent.Callable
 
 inline fun <T, U : T, V : T> U.runIf(cond: Boolean, block: U.() -> V): T {
@@ -66,7 +68,11 @@ class CLIApplication : Callable<Int> {
         return if (languageArchives.isNotEmpty()) {
             languageArchives.map(resourceService::resolve)
         } else {
-            TODO("Load language archive from jar resources")
+            ServiceLoader
+                .load(GzbsLanguagesProvider::class.java)
+                .asSequence()
+                .flatMap { it.provideLibraries(resourceService) }
+                .toList()
         }
     }
 

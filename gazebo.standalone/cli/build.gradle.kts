@@ -15,6 +15,8 @@ application {
 
 dependencies {
     implementation(project(":lib"))
+    implementation(project(":langsapi"))
+    implementation(project(":defaultlibs"))
 
     implementation("info.picocli", "picocli", "4.6.1")
 }

@@ -1,0 +1,34 @@
+stages:
+  - build
+
+build-spoofax:
+  stage: build
+  image: maven:3.8-openjdk-11
+  script:
+    - mvn package
+  artifacts:
+    paths:
+      - misc/target/out-lang
+
+build-standalone:
+  stage: build
+  image: gradle:7.3-jdk11
+  dependencies:
+    - build-spoofax
+  before_script:
+    - mkdir standalone_out
+  script:
+    # prime gradle
+    - ./gazebo.standalone/run-gradle.sh :cli:compileJava :cli:compileKotlin
+    # launch stdlib generation
+    - python -m tools.build_automation -O ./standalone_out
+    # prepare standalone_out directory structure
+    - cp -t ./standalone_out ./misc/target/out-lang/*.spoofax-language
+    - ls -1 standalone_out/*.spoofax-language | tr '\n' '\0' | xargs -0 -n 1 basename > ./standalone_out/gzbs-builtin-langs.txt
+    # package CLI application
+    - ./gazebo.standalone/run-gradle.sh :cli:build -PgzbsLibsDir="$PWD"/standalone_out
+  artifacts:
+    paths:
+      - standalone_out
+      - gazebo.standalone/cli/build/distributions
+      - gazebo.standalone/cli/build/libs

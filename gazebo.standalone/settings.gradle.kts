@@ -2,5 +2,7 @@ rootProject.name = "Gazebo Standalone"
 
 include(
     "cli",
-    "lib"
+    "lib",
+    "langsapi",
+    "defaultlibs",
 )
