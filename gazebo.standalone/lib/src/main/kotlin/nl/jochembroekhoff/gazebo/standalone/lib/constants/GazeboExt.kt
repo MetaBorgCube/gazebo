@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.gazebo.standalone.lib
+package nl.jochembroekhoff.gazebo.standalone.lib.constants
 
 enum class GazeboExt {
     GZB2GZBC,

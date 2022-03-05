@@ -1,6 +1,8 @@
 package nl.jochembroekhoff.gazebo.standalone.lib
 
 import com.google.inject.Singleton
+import nl.jochembroekhoff.gazebo.standalone.lib.project.GazeboProjectConfigService
+import nl.jochembroekhoff.gazebo.standalone.lib.project.GazeboProjectConfigServiceConfig
 import org.metaborg.core.config.IProjectConfigService
 import org.metaborg.core.editor.IEditorRegistry
 import org.metaborg.core.editor.NullEditorRegistry

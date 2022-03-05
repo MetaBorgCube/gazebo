@@ -1,8 +1,10 @@
-package nl.jochembroekhoff.gazebo.standalone.lib
+package nl.jochembroekhoff.gazebo.standalone.lib.project
 
 import mb.nabl2.config.NaBL2Config
 import mb.statix.spoofax.IStatixProjectConfig
 import mb.statix.spoofax.StatixProjectConfig
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboExt
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboLang
 import org.metaborg.core.MetaborgConstants
 import org.metaborg.core.config.ISourceConfig
 import org.metaborg.core.config.LangSource
@@ -52,12 +54,12 @@ class GazeboProjectConfig(
     }
 
     override fun compileDeps(): Collection<LanguageIdentifier> {
-        return (languages.map(::gazeboProjectIdentifier) + extensions.map(::gazeboProjectIdentifier))
+        return (languages.map(Companion::gazeboProjectIdentifier) + extensions.map(Companion::gazeboProjectIdentifier))
             .map(LanguageIdentifier::parse)
     }
 
     override fun sourceDeps(): Collection<LanguageIdentifier> {
-        return (languages.map(::gazeboProjectIdentifier) + libs.map { "lib.$it" }.map(::gazeboProjectIdentifier))
+        return (languages.map(Companion::gazeboProjectIdentifier) + libs.map { "lib.$it" }.map(Companion::gazeboProjectIdentifier))
             .map(LanguageIdentifier::parse)
     }
 

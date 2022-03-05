@@ -1,0 +1,18 @@
+module gzbs-integration
+
+imports
+
+  statix/api
+
+rules
+
+  gzbs--patch-stxlib: Library(ss_shared*, ss_lib*, ScopeGraph(sge*)) -> Library(ss_shared'*, ss_lib'*, ScopeGraph(sge'*))
+    with
+      // add the project scope to the shared scopes
+      ss_shared'* := [Scope("/.", "s_prj-0"), ss_shared*]
+      // remove the project scope from the librarys scopes
+    ; ss_lib'* := <remove-all(?Scope(_, "s_prj-0"))> ss_lib*
+      // remove the datum on the project scope
+    ; sge'* := <map(try(
+        (Scope(id, ?"s_prj-0"), !None(), id)
+      ))> sge*

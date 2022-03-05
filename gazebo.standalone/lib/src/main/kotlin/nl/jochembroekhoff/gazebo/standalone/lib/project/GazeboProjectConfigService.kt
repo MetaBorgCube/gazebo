@@ -1,5 +1,7 @@
-package nl.jochembroekhoff.gazebo.standalone.lib
+package nl.jochembroekhoff.gazebo.standalone.lib.project
 
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboExt
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboLang
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.config.ConfigRequest
 import org.metaborg.core.project.IProject

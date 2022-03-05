@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.gazebo.standalone.lib
+package nl.jochembroekhoff.gazebo.standalone.lib.syntax
 
 import com.google.inject.Inject
 import org.metaborg.spoofax.core.syntax.ISpoofaxSyntaxService

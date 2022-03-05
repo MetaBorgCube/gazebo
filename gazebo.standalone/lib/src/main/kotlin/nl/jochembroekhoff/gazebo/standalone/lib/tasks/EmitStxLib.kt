@@ -1,6 +1,6 @@
 package nl.jochembroekhoff.gazebo.standalone.lib.tasks
 
-import nl.jochembroekhoff.gazebo.standalone.lib.GazeboLang
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboLang
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.project.IProject
 import org.metaborg.spoofax.core.Spoofax
@@ -36,9 +36,17 @@ class EmitStxLib(targetLang: GazeboLang) : AdditionalTask<Future<FileObject>>("e
         val res = cli.transform(firstAnalysis, stxlibGoal, firstAnalysis.context())
         logger.info("created stxlib in {} seconds", stxlibTimer.stop() / 1e9)
 
+        val resPatched = spoofax.strategoCommon.invoke(
+            langImpl,
+            spoofax.contextService.get(null, project, langImpl),
+            res,
+            "gzbs--patch-stxlib",
+            listOf()
+        )
+
         val outFile = taskDefaultOutput(project).resolveFile("$targetLangName.stxlib")
         outFile.content.outputStream.writer().use {
-            res.writeAsString(it)
+            resPatched!!.writeAsString(it)
         }
         resultFuture.complete(outFile)
     }

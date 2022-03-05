@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.gazebo.standalone.lib
+package nl.jochembroekhoff.gazebo.standalone.lib.messages
 
 import org.metaborg.core.messages.IMessage
 

@@ -1,9 +1,13 @@
-package nl.jochembroekhoff.gazebo.standalone.lib
+package nl.jochembroekhoff.gazebo.standalone.lib.runner
 
+import nl.jochembroekhoff.gazebo.standalone.lib.messages.HtmlUnescapeMessagePrinter
+import nl.jochembroekhoff.gazebo.standalone.lib.messages.AggregateMessagePrinter
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.AdditionalTask
 import org.metaborg.core.action.CompileGoal
 import org.metaborg.core.action.NamedGoal
 import org.metaborg.core.build.BuildInputBuilder
+import org.metaborg.core.build.CommonPaths
+import org.metaborg.core.messages.IMessagePrinter
 import org.metaborg.core.messages.WithLocationStreamMessagePrinter
 import org.metaborg.core.project.IProject
 import org.metaborg.spoofax.core.Spoofax
@@ -28,6 +32,19 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
     }
 
     private fun buildProject(spoofax: Spoofax, project: IProject): ISpoofaxBuildOutput? {
+        val messagePrinters = ArrayList<IMessagePrinter>()
+        if (configuration.logToStdout) {
+            messagePrinters.add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
+        }
+        if (configuration.logToFile) {
+            val msgFile = CommonPaths(project.location()).targetDir().resolveFile("gzbs-messages.txt")
+            val os = msgFile.content.outputStream
+            messagePrinters.add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, os)))
+        }
+        if (configuration.logAux != null) {
+            messagePrinters.add(HtmlUnescapeMessagePrinter(configuration.logAux))
+        }
+
         val buildInput = BuildInputBuilder(project)
             .withTransformGoals(listOf(
                 CompileGoal(),
@@ -37,7 +54,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
                 NamedGoal(listOf("Minecraft: Java Edition", "Generate function (shared)"))
             ))
             .withSourcesFromDefaultSourceLocations(true)
-            .withMessagePrinter(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
+            .withMessagePrinter(AggregateMessagePrinter(messagePrinters))
             .build(spoofax.dependencyService, spoofax.languagePathService)
 
         val buildTask = spoofax.processorRunner.build(buildInput, null, null)

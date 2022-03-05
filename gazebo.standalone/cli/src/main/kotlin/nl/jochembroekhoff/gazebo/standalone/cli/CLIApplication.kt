@@ -1,6 +1,11 @@
 package nl.jochembroekhoff.gazebo.standalone.cli
 
 import nl.jochembroekhoff.gazebo.standalone.lib.*
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboExt
+import nl.jochembroekhoff.gazebo.standalone.lib.constants.GazeboLang
+import nl.jochembroekhoff.gazebo.standalone.lib.project.GazeboProjectConfigServiceConfig
+import nl.jochembroekhoff.gazebo.standalone.lib.runner.GazeboRunner
+import nl.jochembroekhoff.gazebo.standalone.lib.runner.GazeboRunnerConfiguration
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.EmitStxLib
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.TaskUtil.chain
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack.CompressDataPackTask
@@ -68,6 +73,7 @@ class CLIApplication : Callable<Int> {
         return GazeboRunnerConfiguration(
             root,
             ::languageArchiveProvider,
+            logToStdout = true,
         )
     }
 
