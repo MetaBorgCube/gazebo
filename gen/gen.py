@@ -340,7 +340,7 @@ def create_registrations(registry_name: str, registry_entries, mcdata: McData, n
     return res
 
 
-def run(input_dir: pathlib.Path, output_dir: pathlib.Path, overlay_dirs: Iterable[pathlib.Path]):
+def run(input_dir: pathlib.Path, output_dir: pathlib.Path, overlay_dirs: Iterable[pathlib.Path]) -> str:
     in_nbtdoc = input_dir / "mc-nbtdoc"
     in_mcdata = input_dir / "mcdata"
 
@@ -452,6 +452,12 @@ def run(input_dir: pathlib.Path, output_dir: pathlib.Path, overlay_dirs: Iterabl
 
     for nonregistered_registry in REGISTRIES_REFERENCED - REGISTRIES_GENERATED:
         print("referenced non-registered registry:", nonregistered_registry)
+
+    #
+    # return the version that was used
+    #
+
+    return (in_mcdata / "VERSION.txt").read_text().strip()
 
 
 if __name__ == "__main__":

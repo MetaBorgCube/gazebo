@@ -51,6 +51,7 @@ class CLIApplication : Callable<Int> {
     @Option(
         names = ["--language-archive"],
         arity = "*",
+        hidden = true,
     )
     var languageArchives: List<File> = listOf()
 
