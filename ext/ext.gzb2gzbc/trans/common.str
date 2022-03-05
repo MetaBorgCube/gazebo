@@ -9,14 +9,7 @@ imports
 
   statix/api
 
-  pp/gazebo-parenthesize
-  pp/gazebo-pp
-  pp/gazebo-core-parenthesize
-  pp/gazebo-core-pp
-
   libspoofax/-
-
-  libstratego-gpp
 
   str_common
 
@@ -40,17 +33,9 @@ signature
 
 strategies
 
-  pp-gzb =
-      parenthesize-gazebo
-    ; prettyprint-gazebo-start-symbols
-    ; !V([], <id>)
-    ; box2text-string(|120)
+  pp-gzb = call-in-language(|"gazebo", "pp-gazebo-string")
 
-  pp-gzbc =
-      parenthesize-gazebo-core
-    ; prettyprint-gazebo-core-start-symbols
-    ; !V([], <id>)
-    ; box2text-string(|120)
+  pp-gzbc = call-in-language(|"gazebo-core", "pp-gazebo-core-string")
 
 strategies
 
