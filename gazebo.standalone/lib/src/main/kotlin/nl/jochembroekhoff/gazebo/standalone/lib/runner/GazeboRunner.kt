@@ -54,6 +54,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
                 NamedGoal(listOf("Minecraft: Java Edition", "Generate function (shared)"))
             ))
             .withSourcesFromDefaultSourceLocations(true)
+            .withDefaultIncludePaths(false)
             .withMessagePrinter(AggregateMessagePrinter(messagePrinters))
             .build(spoofax.dependencyService, spoofax.languagePathService)
 
