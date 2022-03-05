@@ -44,6 +44,12 @@ strategies // transform-type-enum-memb(|Type) :: EnumTypedMemb -> EnumMemb-C
   transform-type-enum-memb(|TypeInt()): EnumTypedMemb(name, NumI(value)) -> EnumMembInt-C(name, value)
   transform-type-enum-memb(|TypeString()): EnumTypedMemb(name, String(value)) -> EnumMembString-C(name, value)
 
+strategies // transform-type-enum-lookup(|key@string) :: Type-C -> Expr-C
+
+  transform-type-enum-lookup(|key) =
+    (?TypeEnumInt-C(<id>) + ?TypeEnumString-C(<id>))
+  ; tt-enum-membs-lookup(|key)
+
 strategies // transform-type-lookup :: * -> Type-C
 
   transform-type-lookup =
@@ -168,3 +174,13 @@ strategies // AUX
     else
       !None()
     end
+
+strategies // AUX: tt-enum-membs-lookup(|key@string) :: List(EnumMemb-C) -> Expr-C
+
+  tt-enum-membs-lookup(|<strip-annos => key>) =
+    strip-annos
+  ; fetch-elem(?EnumMembInt-C(key, _) + ?EnumMembString-C(key, _))
+  ; (
+      \EnumMembInt-C(_, v) -> NumI-C(v)\
+    + \EnumMembString-C(_, v) -> String-C(v)\
+    )

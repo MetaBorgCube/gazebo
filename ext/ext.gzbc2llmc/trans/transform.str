@@ -340,7 +340,6 @@ rules // transform-expr :: Expr-C -> Arg-LL
   // TODO: boolean logic
   // TODO: range
   // TODO: pos
-  // TODO: enum ref
 
   transform-expr: Raw-C(parts) -> ArgRaw-LL(parts')
     with

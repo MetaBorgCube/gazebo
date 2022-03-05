@@ -157,12 +157,6 @@ context-free syntax
 
 ///
 
-context-free syntax
-
-    Expr-C.EnumRef-C = <<Type-C>::<ID>>
-
-///
-
 context-free sorts RawPart-C
 context-free syntax
 
