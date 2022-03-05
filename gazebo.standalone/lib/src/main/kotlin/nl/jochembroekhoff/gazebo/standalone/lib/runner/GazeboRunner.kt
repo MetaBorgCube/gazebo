@@ -32,17 +32,18 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
     }
 
     private fun buildProject(spoofax: Spoofax, project: IProject): ISpoofaxBuildOutput? {
-        val messagePrinters = ArrayList<IMessagePrinter>()
-        if (configuration.logToStdout) {
-            messagePrinters.add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
-        }
-        if (configuration.logToFile) {
-            val msgFile = CommonPaths(project.location()).targetDir().resolveFile("gzbs-messages.txt")
-            val os = msgFile.content.outputStream
-            messagePrinters.add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, os)))
-        }
-        if (configuration.logAux != null) {
-            messagePrinters.add(HtmlUnescapeMessagePrinter(configuration.logAux))
+        val messagePrinters = buildList<IMessagePrinter> {
+            if (configuration.logToStdout) {
+                add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
+            }
+            if (configuration.logToFile) {
+                val msgFile = CommonPaths(project.location()).targetDir().resolveFile("gzbs-messages.txt")
+                val os = msgFile.content.outputStream
+                add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, os)))
+            }
+            if (configuration.logAux != null) {
+                add(HtmlUnescapeMessagePrinter(configuration.logAux))
+            }
         }
 
         val buildInput = BuildInputBuilder(project)
