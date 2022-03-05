@@ -19,7 +19,20 @@ colorer
   INT : green
   FLOAT : green
   STRING : blue
-  //_.ArgSelector-LL : orange
+
+  Type-LL : 0 255 255 bold // cyan bold
+  _.ArgList-LL : cyan
+  _.ArgArray-LL : cyan
+  _.ArgCompound-LL : cyan
+  _.ArgRange-LL : cyan
+  _.ArgPos-LL : cyan
+  _.ArgRes-LL : cyan
+  _.ArgTag-LL : cyan
+  _.ArgRaw-LL : red
+  _.ArgUnsafe-LL : red
+
+  _.ArgSelector-LL : orange
+  SelectorType-LL : orange
 
 menus
   
