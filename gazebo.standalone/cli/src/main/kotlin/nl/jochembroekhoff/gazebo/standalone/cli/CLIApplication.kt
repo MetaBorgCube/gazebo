@@ -31,6 +31,7 @@ inline fun <T, U : T, V : T> U.runIf(cond: Boolean, block: U.() -> V): T {
 }
 
 @Command(
+    name = "gazebo",
     mixinStandardHelpOptions = true,
     versionProvider = ImplementationVersionProvider::class,
 )
