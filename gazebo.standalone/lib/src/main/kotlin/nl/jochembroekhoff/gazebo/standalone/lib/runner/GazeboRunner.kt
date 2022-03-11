@@ -24,9 +24,9 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
     private fun loadLanguageImpl(spoofax: Spoofax) {
         configuration.languageArchiveProvider(spoofax.resourceService).forEach { languageArchive ->
             if (languageArchive.isFolder) {
-                spoofax.languageDiscoveryService.languageFromDirectory(languageArchive)
+                spoofax.languageDiscoveryService.languagesFromDirectory(languageArchive)
             } else {
-                spoofax.languageDiscoveryService.languageFromArchive(languageArchive)
+                spoofax.languageDiscoveryService.languagesFromArchive(languageArchive)
             }
         }
     }

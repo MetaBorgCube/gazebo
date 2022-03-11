@@ -12,6 +12,7 @@ class DefaultLanguagesProvider : GzbsLanguagesProvider {
             .content
             .getString(Charsets.UTF_8)
             .lineSequence()
+            .filter { it.isNotEmpty() }
             .map { clazz.getResource("/$it") }
             .filterNotNull()
             .map { it.toURI() }
