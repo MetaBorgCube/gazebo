@@ -18,7 +18,7 @@ dependencies {
     implementation(project(":langsapi"))
     implementation(project(":defaultlibs"))
 
-    implementation("info.picocli", "picocli", "4.6.1")
+    implementation("info.picocli", "picocli", "4.6.3")
 }
 
 tasks.jar {
