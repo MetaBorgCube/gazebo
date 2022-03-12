@@ -1,0 +1,34 @@
+module transform-make
+
+imports
+
+  signatures/llmc/-
+  signatures/-
+
+  asm
+  common
+  str_common
+  transform
+
+rules // transform-make-loop(s_cond, s_body) :: T -> Command-ASM ; s_cond :: T -> List(Arg-ASM) ; s_body :: T -> Unit-ASM
+
+  transform-make-loop(s_cond, s_body): transparent_arg ->
+    Command-CallableSubUnit-ASM(key, Unit-ASM([body_command]))
+    with
+      key := <newname> "uuidv4_TODO"
+      // force cluster because the loop condition and body MUST be evaluated every iteration
+    ; body_command := <command-force-cluster(\_ ->
+        Command-Plain-ASM("execute", [
+          cond*,
+          Arg-RedirectSelf-ASM([
+            Arg-RawString-ASM("run"),
+            Arg-Redirect-ASM(Command-AnonSubUnit-ASM(Unit-ASM([
+              Command-AnonSubUnit-ASM(body),
+              Command-CallSubUnit-ASM(key)
+            ])))
+          ])
+        ])
+        with
+          cond* := <s_cond> transparent_arg
+        ; body := <s_body> transparent_arg
+      \)>

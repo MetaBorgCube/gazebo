@@ -17,8 +17,23 @@ strategies // type-access-path(|Path-LL) :: Type-LL -> Type-LL
 
 rules // type-access-path-elem :: (PathElem-LL, Type-LL) -> Type-LL
 
-  type-access-path-elem: (_, t) -> t
-    // TODO: implement
+  type-access-path-elem: (Select-LL(key), t) -> t
+  type-access-path-elem: (IndexFix-LL(_), t) -> <type-list_array-inner> t
+  type-access-path-elem: (IndexDyn-LL(_), t) -> <type-list_array-inner> t
+
+rules // type-compound-inner(|key) :: Type-LL -> Type-LL
+
+  // TODO: process ref changes
+  type-compound-inner(|key): TypeCompound-LL(_, entries) -> t_entry
+    with
+      (_, t_entry) := <fetch-elem(Fst; ?key)> entries
+
+rules // type-iterable-inner :: Type-LL -> Type-LL
+
+  // TODO: process ref changes
+  type-list_array-inner: TypeList-LL(_, t) -> t
+  // TODO: process ref changes
+  type-list_array-inner: TypeArray-LL(_, t) -> t
 
 rules // type-literal-singleton :: Type-LL -> string
 

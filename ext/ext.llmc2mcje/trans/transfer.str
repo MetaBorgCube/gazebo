@@ -5,27 +5,41 @@ imports
   signatures/llmc/-
   signatures/-
 
+  asm
   common
   loc
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
 
-/** Transfer a raw literal value to a Loc. */
-rules // transfer-raw(|Loc) :: string -> Command-ASM
+signature
 
-  transfer-raw(|<loc-is-data => loc>): raw_string ->
+  sorts TransferMode
+  constructors
+    TransferSet : TransferMode
+    TransferAppend : TransferMode
+
+/** Transfer a raw literal value to a Loc. */
+rules // transfer-raw(|Loc, TransferMode?) :: string -> Command-ASM
+
+  transfer-raw(|loc) = transfer-raw(|loc, TransferSet())
+
+  transfer-raw(|<loc-is-data => loc>, mode): raw_string ->
     Command-Plain-ASM("data", [
       Arg-RawString-ASM("modify"),
       loc_args_data*,
-      Arg-RawString-ASM("set"),
+      Arg-RawString-ASM(mode'),
       Arg-RawString-ASM("value"),
       Arg-RawString-ASM(raw_string)
     ])
     with
       loc_args_data* := <loc-args-data> loc
+    ; mode' := <
+        \TransferSet() -> "set"\
+      + \TransferAppend() -> "append"\
+      > mode
 
-  transfer-raw(|loc@Scoreboard(_, _)): raw_string ->
+  transfer-raw(|loc@Scoreboard(_, _), TransferSet()): raw_string ->
     Command-Plain-ASM("scoreboard", [
       Arg-RawString-ASM("players"),
       Arg-RawString-ASM("set"),
@@ -35,24 +49,33 @@ rules // transfer-raw(|Loc) :: string -> Command-ASM
     with
       loc_args_sb* := <loc-args-scoreboard> loc
 
-  transfer-raw(|Discard()): _ -> Command-NoOp-ASM()
+  transfer-raw(|Discard(), _): _ -> Command-NoOp-ASM()
+
+  // loc+mode combination not supported
+  transfer-raw(|_, _) = with(fail)
 
 /** Transfer the value of the source Loc to the given destination Loc. */
-rules // transfer-loc(|Loc) :: Loc -> Command-ASM
+rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
 
-  transfer-loc(|<loc-is-data => loc_dest>): <loc-is-data => loc_src> ->
+  transfer-loc(|dest) = transfer-loc(|dest, TransferSet())
+
+  transfer-loc(|<loc-is-data => loc_dest>, mode): <loc-is-data => loc_src> ->
     Command-Plain-ASM("data", [
       Arg-RawString-ASM("modify"),
       loc_dest_args_data*,
-      Arg-RawString-ASM("set"),
+      Arg-RawString-ASM(mode'),
       Arg-RawString-ASM("from"),
       loc_src_args_data*
     ])
     with
       loc_dest_args_data* := <loc-args-data> loc_dest
     ; loc_src_args_data* := <loc-args-data> loc_src
+    ; mode' := <
+        \TransferSet() -> "set"\
+      + \TransferAppend() -> "append"\
+      > mode
 
-  transfer-loc(|loc_dest): loc_src ->
+  transfer-loc(|loc_dest, TransferSet()): loc_src ->
     Command-Plain-ASM("execute", [
       Arg-RawString-ASM("store"),
       Arg-RawString-ASM("result"),
@@ -67,4 +90,7 @@ rules // transfer-loc(|Loc) :: Loc -> Command-ASM
     ; cmd_get := <loc-get> loc_src
 
   // _ <- ANY
-  transfer-loc(|Discard()): _ -> Command-NoOp-ASM()
+  transfer-loc(|Discard(), _): _ -> Command-NoOp-ASM()
+
+  // loc+mode combination not supported
+  transfer-loc(|_, _) = with(fail)

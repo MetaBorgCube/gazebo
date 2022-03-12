@@ -9,6 +9,7 @@ imports
   common
   loc
   transfer
+  transform-make
   type
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
@@ -69,25 +70,10 @@ rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
    * rec x { if a = 1B { BODY; x() } }
    */
   transform-flow-block: FlowBlock-LL(Loop-LL(ArgCond-LL(cond)), _, block) ->
-    Command-CallableSubUnit-ASM(key, Unit-ASM([body_command]))
-    with
-      key := <newname> "uuidv4_TODO"
-      // force cluster because the loop condition MUST be evaluated every iteration
-    ; body_command := <command-force-cluster(\_ ->
-        Command-Plain-ASM("execute", [
-          cond*,
-          Arg-RedirectSelf-ASM([
-            Arg-RawString-ASM("run"),
-            Arg-Redirect-ASM(Command-AnonSubUnit-ASM(Unit-ASM([
-              Command-AnonSubUnit-ASM(block'),
-              Command-CallSubUnit-ASM(key)
-            ])))
-          ])
-        ])
-        with
-          cond* := <transform-cond-exec> cond
-        ; block' := <transform-block> block
-      \)>
+    <transform-make-loop(
+      !cond; transform-cond-exec
+    , !block; transform-block
+    )>
 
   transform-flow-block: FlowBlock-LL(If-LL(ArgCond-LL(cond)), _, block) ->
     Command-Plain-ASM("execute", [
@@ -279,6 +265,44 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
   transform-assign-op(|dest): (OpNew-LL(), []) ->
     <loc-type; type-literal-singleton; transfer-raw(|dest)> dest
 
+  transform-assign-op(|dest): (OpNew-LL(), [size]) ->
+    <type-literal-singleton; transfer-raw(|dest)> t
+    with
+      t := <loc-type> dest
+    ; t_inner := <type-list_array-inner> t
+    ; loc_size := <loc-new-scoreboard>
+    ; transfer_size := <assign-arg-to-loc(|loc_size)> size
+    ; rules(EmitCommand-Pre:+ _ -> transfer_size)
+    ; append_singletons_loop := <transform-make-loop(
+        // condition
+        { args_size*
+        : args_size* := <loc-args-scoreboard> loc_size
+        ; ![
+            Arg-RawString-ASM("if"),
+            Arg-RawString-ASM("score"),
+            args_size*,
+            Arg-RawString-ASM("matches"),
+            Arg-RawString-ASM("1..")
+          ]
+        }
+      , // body
+        { args_size*
+        : args_size* := <loc-args-scoreboard> loc_size
+        ; !Unit-ASM([
+            // append the new singleton value
+            <type-literal-singleton; transfer-raw(|dest, TransferAppend())> t_inner,
+            // decrement the remaining count by 1
+            Command-Plain-ASM("scoreboard", [
+              Arg-RawString-ASM("players"),
+              Arg-RawString-ASM("remove"),
+              args_size*,
+              Arg-RawString-ASM("1")
+            ])
+          ])
+        }
+      )>
+    ; rules(EmitCommand-Post:+ _ -> append_singletons_loop)
+
   transform-assign-op(|_): (op#(_), _) ->
     Command-Plain-ASM("say", [Arg-RawString-ASM(<concat-strings> ["TODO: assign ", op])])
 
@@ -301,15 +325,18 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
       ; opt-unwrap(!"0")
       })> elems*
 
-  transform-assign-new-arg(|loc): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type, "; ", elems'*, "]"])
+  transform-assign-new-arg(|loc): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type_id, "; ", elems'*, "]"])
     with
-      // TODO: Type-LL
-      type := "I"
+      t := <loc-type; type-list_array-inner> loc
+    ; type_id := <
+        \TypeIntI-LL() -> "I"\
+      + \TypeIntL-LL() -> "L"\
+      > t
     ; elems'* := <enumerate-map-intersperse({loc':
         with(loc' := <Fst; int-to-string; !Path-LL([IndexFix-LL(<id>)]); loc-access-path(|loc)>)
       ; Snd
       ; transform-assign-new-arg(|loc')
-      ; opt-unwrap(!"0") // TODO: Type-LL: use correct placeholder based on array type
+      ; opt-unwrap(!t; type-literal-placeholder)
       })> elems*
 
   transform-assign-new-arg(|loc): ArgCompound-LL(entries) -> Some(<concat-strings> ["{", entries'*, "}"])
@@ -317,10 +344,16 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
       entries'* := <
         map(
           // also don't need to denorm this key because it's already in denorm form
-          {loc': \CompoundEntry-LL(key, value) ->
-            [key, ": ", <transform-assign-new-arg(|loc'); opt-unwrap(!"$placeholder"; string-denorm)> value]
+          {loc', value': \CompoundEntry-LL(key, value) ->
+            [key, ": ", value']
             with
               loc' := <loc-access-path(|loc)> Path-LL([Select-LL(key)])
+            ; value' := <
+                transform-assign-new-arg(|loc')
+                // safe to unwrap to string (or any arbitraty placeholder value),
+                //  because the value will be overwritten in its entireity anyways
+              ; opt-unwrap(!"$placeholder"; string-denorm)
+              > value
           \}
         ; concat-strings
         )
