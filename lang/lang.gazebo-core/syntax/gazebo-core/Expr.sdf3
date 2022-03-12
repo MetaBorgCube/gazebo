@@ -170,6 +170,8 @@ context-free syntax
 context-free syntax
 
     Expr-C.Count-C = <__count(<Expr-C>)>
+    Expr-C.NewSingleton-C = <__new( )>
+    Expr-C.NewDynamic-C = <__new(<Expr-C>)>
 
 ////
 

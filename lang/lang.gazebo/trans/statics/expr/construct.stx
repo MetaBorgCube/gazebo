@@ -33,3 +33,10 @@ rules
     constructOk(s, T, constr@ConstructEnum(key)) :- {s_enum}
         T == ENUM(s_enum, _) | error $[context type is not an enum]@constr,
         resolveMembLocal(s_enum, key, MEMB_ENUMKEY()) == (_, _) | error $[key does not exist on enum]@key.
+
+    constructOk(s, Tconstr, constr@ConstructParameterized([param])) :-
+        typeListOrArray(Tconstr) | error $[cannot parameterize a non-list or non-array type ([Tconstr])]@constr,
+        typeIntegral(typeOfExpr(s, param)) | error $[cannot parameterize with a non-integral type]@param.
+
+    constructOk(s, Tconstr, constr@ConstructParameterized([])) :-
+        Tconstr == COMPOUND(_) | error $[cannot create empty instance of non-compound type [Tconstr]]@constr.

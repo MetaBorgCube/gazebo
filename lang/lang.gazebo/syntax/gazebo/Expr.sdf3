@@ -159,6 +159,7 @@ context-free syntax
 
     ConstructItem.ConstructNBT = <<NBT>>
     ConstructItem.ConstructEnum = <<ID>>
+    ConstructItem.ConstructParameterized = <(<Expr?>)>
 
 ////////
 

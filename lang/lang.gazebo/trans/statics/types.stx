@@ -148,11 +148,22 @@ rules
 
 rules
 
+    typeIntegral : TYPE
+
+    typeIntegral(INT()).
+
+rules
+
     typeNumeric : TYPE
 
     typeNumeric(INT()).
     typeNumeric(FLOAT()).
-    typeNumeric(_) :- false.
+
+rules
+
+    typeListOrArray : TYPE
+    typeListOrArray(LIST(_)).
+    typeListOrArray(ARRAY(_)).
 
 rules
 
