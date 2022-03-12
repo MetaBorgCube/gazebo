@@ -365,6 +365,39 @@ rules // transform-expr :: Expr-C -> Arg-LL
         [e']
       ))
 
+  transform-expr: NewSingleton-C() -> ArgVar-LL(ident)
+    with
+      ident := <newname> "$new"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        OpNew-LL(),
+        []
+      ))
+
+  transform-expr: NewDynamic-C(size) -> ArgVar-LL(ident)
+    with
+      size' := <transform-expr> size
+    ; ident := <newname> "$new"
+    ; rules(RegisterDecl:+ _ -> Decl-LL(
+        SLocal-LL(),
+        [],
+        ident,
+        TypeString-LL(), // TODO: Type-LL
+        StorageLocationAuto-LL()
+      ))
+    ; rules(EmitAssign:+ _ -> AssignOp-LL(
+        DestVar-LL(ident),
+        OpNew-LL(),
+        [size']
+      ))
+
 rules // rvalue/lvalue manipulation
 
   // arg-lit-int :: Arg-LL -> string

@@ -1,0 +1,31 @@
+module example:construct_parameterized
+
+func create_list_and_array
+{
+    array_fixed := [Int;]::(4)
+    array_empty := [Int;]::[;]
+    list_fixed := [String]::(2)
+    list_empty := [String]::[]
+
+    n := 3
+    list_fixed_dyn := [String]::(n)
+}
+
+type MyCompound interface
+{
+    a String
+    b [Int]
+    c [MyCompound]
+}
+
+func create_compound
+{
+    instance := MyCompound::{
+        a: "Hello",
+        b: ::[],
+        c: ::[
+            ::(),
+            ::()
+        ]
+    }
+}

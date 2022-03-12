@@ -5,9 +5,11 @@ imports
   signatures/llmc/-
   signatures/-
 
+  asm
   common
   transfer
   transform
+  type
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
@@ -26,7 +28,7 @@ signature
   sorts Loc
   constructors
     /** variable in the data storage, identified by the namespace with name and an access path */
-    DataStorage : NSID * Path-LL -> Loc
+    DataStorage : Type-LL * NSID * Path-LL -> Loc
     /** variable in the scoreboard, identified by the 'fake player' and 'objective' */
     Scoreboard : string * string -> Loc
     /** discard location, value not of interest */
@@ -35,24 +37,31 @@ signature
 strategies // register-decl :: Decl-LL -> _
 
   register-decl =
-    ?Decl-LL(scope, mods, name, _, loc)
-  ; loc' := <register-decl-loc(|name)> loc
+    ?Decl-LL(scope, _, name, t, loc)
+  ; loc' := <register-decl-loc(|t)> loc
   ; rules(VarLoc: name -> loc')
 
-  register-decl-loc(|_): StorageLocationData-LL(nsid, path) -> DataStorage(<transform-nsid> nsid, path)
+  register-decl-loc(|t): StorageLocationData-LL(nsid, path) -> DataStorage(t, <transform-nsid> nsid, path)
   register-decl-loc(|_): StorageLocationScoreboard-LL(player, objective) -> Scoreboard(player, objective)
+
+rules // loc-type :: Loc -> Type-LL
+
+  loc-type: DataStorage(t, _, _) -> t
+  loc-type: Scoreboard(_, _) -> TypeIntI-LL()
 
 rules // loc-access-path :: (Loc, Path-LL) -> Loc
 
   loc-access-path(|loc): Path-LL([]) -> loc
-  loc-access-path(|DataStorage(nsid, path)): path_access -> DataStorage(nsid, <path-join> [path, path_access])
+  loc-access-path(|DataStorage(t, nsid, path)): path_access -> DataStorage(t', nsid, <path-join> [path, path_access])
+    with
+      t' := <type-access-path(|path)> t
   loc-access-path(|Scoreboard(_, _)): Path-LL([_|_]) -> <with(fail)>
   loc-access-path(|Discard()): _ -> Discard()
 
 strategies // loc-is-data :: Loc
 
   loc-is-data =
-    ?DataStorage(_, _)
+    ?DataStorage(_, _, _)
 
 strategies // is-locatable :: Arg-LL
 
@@ -73,7 +82,7 @@ rules // arg-to-loc :: Arg-LL -> Loc
 
 rules // loc-args-data :: Loc -> List(Arg-ASM)
 
-  loc-args-data: DataStorage(nsid, access_path) ->
+  loc-args-data: DataStorage(_, nsid, access_path) ->
     [
       Arg-RawString-ASM("storage"),
       Arg-NSID-ASM(nsid),
@@ -105,7 +114,7 @@ rules // loc-args-scoreboard :: Loc -> List(Arg-ASM)
 rules // loc-args-execute :: Loc -> List(Arg-ASM)
 
   loc-args-execute--is-data-compat =
-    ?DataStorage(_, _)
+    ?DataStorage(_, _, _)
 
   loc-args-execute =
     loc-args-execute--is-data-compat
@@ -156,6 +165,7 @@ strategies
   /** create a unique stack reference for the given basename */
   loc-new-stack(|basename) =
     !DataStorage(
+      TypeUnk-LL(),
       NSID("gzb.__temp__", ["_internal"]),
       Path-LL([
         Select-LL(<string-denorm> "_stack"),

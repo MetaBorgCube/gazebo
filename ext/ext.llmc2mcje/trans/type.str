@@ -1,0 +1,60 @@
+module type
+
+imports
+
+  signatures/llmc/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  common
+
+strategies // type-access-path(|Path-LL) :: Type-LL -> Type-LL
+
+  type-access-path(|Path-LL([])) = id
+  type-access-path(|Path-LL(elems)) =
+    !(elems, <id>)
+  ; foldl(type-access-path-elem)
+
+rules // type-access-path-elem :: (PathElem-LL, Type-LL) -> Type-LL
+
+  type-access-path-elem: (_, t) -> t
+    // TODO: implement
+
+rules // type-literal-singleton :: Type-LL -> string
+
+  type-literal-singleton: TypeString-LL() -> "\"\""
+  type-literal-singleton: TypeIntB-LL() -> "0b"
+  type-literal-singleton: TypeIntS-LL() -> "0s"
+  type-literal-singleton: TypeIntI-LL() -> "0"
+  type-literal-singleton: TypeIntL-LL() -> "0L"
+  type-literal-singleton: TypeFloatS-LL() -> "0.0f"
+  type-literal-singleton: TypeFloatD-LL() -> "0.0d"
+  type-literal-singleton: TypeList-LL(_, _) -> "[]"
+  type-literal-singleton: TypeArray-LL(_, TypeIntI-LL()) -> "[I;]"
+  type-literal-singleton: TypeArray-LL(_, TypeIntL-LL()) -> "[L;]"
+  type-literal-singleton: TypeCompound-LL(_, entries) -> <concat-strings> ["{", <intersperse-concat(|", ")> entries', "}"]
+    with
+      entries' := <map(
+        \TypeCompoundEntry-LL(k, t_v) ->
+          [k, ": ", <type-literal-singleton> t_v]
+        \
+      ; concat-strings
+      )> entries
+  type-literal-singleton: TypeRes-LL(_) -> "\"\""
+  type-literal-singleton: TypeTag-LL() -> "\"\""
+
+rules // type-literal-placeholder :: Type-LL -> Optional(string)
+
+  type-literal-placeholder: TypeString-LL() -> "\"\""
+  type-literal-placeholder: TypeIntB-LL() -> "0b"
+  type-literal-placeholder: TypeIntS-LL() -> "0s"
+  type-literal-placeholder: TypeIntI-LL() -> "0"
+  type-literal-placeholder: TypeIntL-LL() -> "0L"
+  type-literal-placeholder: TypeFloatS-LL() -> "0.0f"
+  type-literal-placeholder: TypeFloatD-LL() -> "0.0d"
+  type-literal-placeholder: TypeList-LL(_, _) -> "[]"
+  // array type not important, because the array itself won't be acessed anyways, only overwritten in its entireity
+  type-literal-placeholder: TypeArray-LL(_, _) -> "[I;]"
+  type-literal-placeholder: TypeCompound-LL(_, _) -> "{}"
+  type-literal-placeholder: TypeRes-LL(_) -> "\"\""
+  type-literal-placeholder: TypeTag-LL() -> "\"\""

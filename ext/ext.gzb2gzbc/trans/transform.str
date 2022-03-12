@@ -193,6 +193,14 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: ConstructExplicit(_, ConstructNBT(nbt)) -> <transform-expr> nbt
   transform-expr: ConstructInfer(ConstructNBT(nbt)) -> <transform-expr> nbt
 
+  // new singleton (for compounds). no explicit type hint necessary, same reasoning as above.
+  transform-expr: ConstructExplicit(_, ConstructParameterized(None())) -> NewSingleton-C()
+  transform-expr: ConstructInfer(ConstructParameterized(None())) -> NewSingleton-C()
+
+  // new dyanmically-sized list or array. no explicit type hint necessary, same reasoning as above.
+  transform-expr: ConstructExplicit(_, ConstructParameterized(Some(e))) -> NewDynamic-C(<transform-expr> e)
+  transform-expr: ConstructInfer(ConstructParameterized(Some(e))) -> NewDynamic-C(<transform-expr> e)
+
 rules // transform-block :: Block -> Block-C
 
   transform-block: Block(stmt*) -> Block-C(stmt'*)

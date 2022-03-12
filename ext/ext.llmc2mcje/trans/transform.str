@@ -5,9 +5,11 @@ imports
   signatures/llmc/-
   signatures/-
 
+  asm
   common
   loc
   transfer
+  type
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
@@ -274,6 +276,9 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
           arg_dest := <loc-access-path(|arg_area)> Path-LL([Select-LL(<string-denorm> name)])
       \}))> args*
 
+  transform-assign-op(|dest): (OpNew-LL(), []) ->
+    <loc-type; type-literal-singleton; transfer-raw(|dest)> dest
+
   transform-assign-op(|_): (op#(_), _) ->
     Command-Plain-ASM("say", [Arg-RawString-ASM(<concat-strings> ["TODO: assign ", op])])
 
@@ -284,7 +289,7 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
   transform-assign-new-arg(|_): ArgIntS-LL(int) -> Some(<concat-strings> [int, "s"])
   transform-assign-new-arg(|_): ArgIntI-LL(int) -> Some(int)
   transform-assign-new-arg(|_): ArgIntL-LL(int) -> Some(<concat-strings> [int, "L"])
-  transform-assign-new-arg(|_): ArgFloatS-LL(float) -> Some(float)
+  transform-assign-new-arg(|_): ArgFloatS-LL(float) -> Some(<concat-strings> [float, "f"])
   transform-assign-new-arg(|_): ArgFloatD-LL(float) -> Some(<concat-strings> [float, "d"])
 
   transform-assign-new-arg(|loc): ArgList-LL(elems*) -> Some(<concat-strings> ["[", elems'*, "]"])
