@@ -15,8 +15,20 @@ class MainApplication : Application() {
         super.init()
         spoofax = GazeboSpoofaxFactory.createGazeboSpoofax(
             GazeboProjectConfigServiceConfig(
-                libs = setOf("std.mcje.gzb", "std.mcje.gzbc", "std.mcje.llmc")
-            )
+                libs = setOf("std.mcje.gzb", "std.mcje.gzbc", "std.mcje.llmc"),
+            ) { resourceService ->
+                listOf(
+                    "../lang/lang.gazebo/target/lang.gazebo-0.1.0-SNAPSHOT.spoofax-language",
+                    "../lang/lang.gazebo-core/target/lang.gazebo-core-0.1.0-SNAPSHOT.spoofax-language",
+                    "../lang/lang.llmc/target/lang.llmc-0.1.0-SNAPSHOT.spoofax-language",
+                    "../ext/ext.gzb2gzbc/target/ext.gzb2gzbc-0.1.0-SNAPSHOT.spoofax-language",
+                    "../ext/ext.gzbc2llmc/target/ext.gzbc2llmc-0.1.0-SNAPSHOT.spoofax-language",
+                    "../ext/ext.llmc2mcje/target/ext.llmc2mcje-0.1.0-SNAPSHOT.spoofax-language",
+                    "../tools/lib.std.mcje.gzb-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language",
+                    "../tools/lib.std.mcje.gzbc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language",
+                    "../tools/lib.std.mcje.llmc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language"
+                ).map(resourceService::resolve)
+            }
         )
     }
 

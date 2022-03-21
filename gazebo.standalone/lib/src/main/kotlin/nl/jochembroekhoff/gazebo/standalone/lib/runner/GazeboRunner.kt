@@ -22,16 +22,6 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
 
     private var additionalTasks = mutableListOf<AdditionalTask<*>>()
 
-    private fun loadLanguageImpl(spoofax: Spoofax) {
-        configuration.languageArchiveProvider(spoofax.resourceService).forEach { languageArchive ->
-            if (languageArchive.isFolder) {
-                spoofax.languageDiscoveryService.languagesFromDirectory(languageArchive)
-            } else {
-                spoofax.languageDiscoveryService.languagesFromArchive(languageArchive)
-            }
-        }
-    }
-
     private fun buildProject(spoofax: Spoofax, project: IProject, progress: IProgress?): ISpoofaxBuildOutput? {
         val messagePrinters = buildList<IMessagePrinter> {
             if (configuration.logToStdout) {
@@ -72,7 +62,6 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
     fun run(spoofax: Spoofax, progress: IProgress? = null): Boolean {
         val cli = CLIUtils(spoofax)
 
-        loadLanguageImpl(spoofax)
         val project = cli.getOrCreateProject(spoofax.resolve(configuration.root))
 
         if (project == null) {

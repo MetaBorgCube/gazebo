@@ -10,6 +10,14 @@ object GazeboSpoofaxFactory {
             EmptySpoofaxModule(),
             Modules.override(GazeboModule(projectConfigServiceConfig))
                 .with(GazeboOverridesModule())
-        )
+        ).also { spoofax ->
+            projectConfigServiceConfig.languageArchiveProvider(spoofax.resourceService).forEach { languageArchive ->
+                if (languageArchive.isFolder) {
+                    spoofax.languageDiscoveryService.languagesFromDirectory(languageArchive)
+                } else {
+                    spoofax.languageDiscoveryService.languagesFromArchive(languageArchive)
+                }
+            }
+        }
     }
 }

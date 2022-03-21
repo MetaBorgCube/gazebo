@@ -16,6 +16,7 @@ class EditorController {
     private lateinit var fileContent: CodeArea
 
     private lateinit var root: FileObject
+    private lateinit var pp: ((String) -> String)
     private var currentFile: FileObject? = null
 
     @FXML
@@ -45,8 +46,9 @@ class EditorController {
         fileContent.paragraphGraphicFactory = LineNumberFactory.get(fileContent)
     }
 
-    fun configure(root: FileObject, editable: Boolean) {
+    fun configure(root: FileObject, editable: Boolean, pp: ((String) -> String)? = null) {
         this.root = root
+        this.pp = pp ?: { it }
         fileContent.isEditable = editable
 
         refresh()
@@ -55,6 +57,10 @@ class EditorController {
     fun refresh() {
         // Make sure the folder exists
         root.createFolder()
+
+        // Clear editor contents completely
+        currentFile = null
+        fileContent.clear()
 
         fileTree.root = FileObjectTreeItem(root)
         fileTree.root.isExpanded = true
@@ -77,6 +83,7 @@ class EditorController {
     }
 
     fun load() {
-        fileContent.replaceText(currentFile?.content?.getString(Charsets.UTF_8) ?: "")
+        val rawContent = currentFile?.content?.getString(Charsets.UTF_8) ?: ""
+        fileContent.replaceText(pp(rawContent))
     }
 }

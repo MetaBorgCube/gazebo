@@ -3,18 +3,23 @@ package nl.jochembroekhoff.gazebo.standalone.gui_quick
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.*
-import nl.jochembroekhoff.gazebo.standalone.lib.GazeboSpoofaxFactory
-import nl.jochembroekhoff.gazebo.standalone.lib.project.GazeboProjectConfigServiceConfig
 import nl.jochembroekhoff.gazebo.standalone.lib.runner.GazeboRunner
 import nl.jochembroekhoff.gazebo.standalone.lib.runner.GazeboRunnerConfiguration
 import org.apache.commons.io.FileUtils
 import org.apache.commons.vfs2.FileObject
+import org.metaborg.core.project.IProject
 import org.metaborg.spoofax.core.Spoofax
+import org.metaborg.spoofax.core.shell.CLIUtils
+import org.spoofax.terms.StrategoString
 import java.io.File
 import java.io.IOException
 import kotlin.concurrent.thread
 
 class MainController {
+
+    companion object {
+        val PROJECT_ROOT = File("/tmp/gzb_project")
+    }
 
     @FXML
     private lateinit var contentGZB: Tab
@@ -38,23 +43,47 @@ class MainController {
     private lateinit var outputArea: TextArea
 
     private lateinit var spoofax: Spoofax
+    private lateinit var ppProject: IProject
     private lateinit var gzbSourceEditor: EditorController
     private lateinit var outputViewers: Set<EditorController>
 
     fun configure(spoofax: Spoofax, root: FileObject) {
         this.spoofax = spoofax
+        this.ppProject = CLIUtils(spoofax).getOrCreateProject(spoofax.resolve(PROJECT_ROOT))
 
         gzbSourceEditor = GuiLoaderUtil.loadInto<EditorController>(contentGZB, "Editor").apply {
             configure(root.resolveFile("data"), true)
         }
         outputViewers = setOf(
             GuiLoaderUtil.loadInto<EditorController>(contentGZBC, "Editor").apply {
-                configure(root.resolveFile("src-gen/gzb-interm"), false)
+                configure(root.resolveFile("src-gen/gzb-interm"), false, createPP("gazebo-core"))
             },
             GuiLoaderUtil.loadInto<EditorController>(contentLLMC, "Editor").apply {
-                configure(root.resolveFile("src-gen/llmc-interm"), false)
+                configure(root.resolveFile("src-gen/llmc-interm"), false, createPP("llmc"))
             }
         )
+    }
+
+    private fun createPP(langName: String): ((String) -> String) {
+        val langImpl = spoofax.languageService.getLanguage(langName)?.activeImpl() ?: return { it }
+        return { aTermString ->
+            spoofax.contextService.getTemporary(null, ppProject, langImpl).use { ctx ->
+                try {
+                    val term = spoofax.termFactory.parseFromString(aTermString)
+                    val result = spoofax.strategoCommon.invoke(
+                        langImpl,
+                        ctx,
+                        term,
+                        "pp-$langName-string",
+                        listOf()
+                    )
+                    (result as? StrategoString)?.stringValue() ?: aTermString
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    aTermString
+                }
+            }
+        }
     }
 
     @FXML
@@ -74,21 +103,8 @@ class MainController {
             }
 
             val runnerConfig = GazeboRunnerConfiguration(
-                File("/tmp/gzb_project"),
-                { resourceService ->
-                    listOf(
-                        "../lang/lang.gazebo/target/lang.gazebo-0.1.0-SNAPSHOT.spoofax-language",
-                        "../lang/lang.gazebo-core/target/lang.gazebo-core-0.1.0-SNAPSHOT.spoofax-language",
-                        "../lang/lang.llmc/target/lang.llmc-0.1.0-SNAPSHOT.spoofax-language",
-                        "../ext/ext.gzb2gzbc/target/ext.gzb2gzbc-0.1.0-SNAPSHOT.spoofax-language",
-                        "../ext/ext.gzbc2llmc/target/ext.gzbc2llmc-0.1.0-SNAPSHOT.spoofax-language",
-                        "../ext/ext.llmc2mcje/target/ext.llmc2mcje-0.1.0-SNAPSHOT.spoofax-language",
-                        "../tools/lib.std.mcje.gzb-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language",
-                        "../tools/lib.std.mcje.gzbc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language",
-                        "../tools/lib.std.mcje.llmc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language"
-                    ).map(resourceService::resolve)
-                },
-                logAux = TextAreaMessagePrinter(outputArea)
+                PROJECT_ROOT,
+                logAux = TextAreaMessagePrinter(outputArea),
             )
 
             val success = GazeboRunner(runnerConfig)
