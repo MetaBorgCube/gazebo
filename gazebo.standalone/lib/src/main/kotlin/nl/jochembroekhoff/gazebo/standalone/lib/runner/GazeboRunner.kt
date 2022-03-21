@@ -14,6 +14,7 @@ import org.metaborg.spoofax.core.Spoofax
 import org.metaborg.spoofax.core.build.ISpoofaxBuildOutput
 import org.metaborg.spoofax.core.shell.CLIUtils
 import org.metaborg.util.log.LoggerUtils
+import org.metaborg.util.task.IProgress
 
 class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
 
@@ -31,7 +32,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
         }
     }
 
-    private fun buildProject(spoofax: Spoofax, project: IProject): ISpoofaxBuildOutput? {
+    private fun buildProject(spoofax: Spoofax, project: IProject, progress: IProgress?): ISpoofaxBuildOutput? {
         val messagePrinters = buildList<IMessagePrinter> {
             if (configuration.logToStdout) {
                 add(HtmlUnescapeMessagePrinter(WithLocationStreamMessagePrinter(spoofax.sourceTextService, spoofax.projectService, System.out)))
@@ -59,7 +60,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
             .withMessagePrinter(AggregateMessagePrinter(messagePrinters))
             .build(spoofax.dependencyService, spoofax.languagePathService)
 
-        val buildTask = spoofax.processorRunner.build(buildInput, null, null)
+        val buildTask = spoofax.processorRunner.build(buildInput, progress, null)
         return buildTask.schedule().block().result()
     }
 
@@ -68,7 +69,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
         return this
     }
 
-    fun run(spoofax: Spoofax) {
+    fun run(spoofax: Spoofax, progress: IProgress? = null): Boolean {
         val cli = CLIUtils(spoofax)
 
         loadLanguageImpl(spoofax)
@@ -76,22 +77,25 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
 
         if (project == null) {
             logger.error("Project null")
-            return
+            return false
         }
 
-        val output = buildProject(spoofax, project)
+        val output = buildProject(spoofax, project, progress)
 
         if (output == null) {
             logger.error("Output null")
-            return
+            return false
         }
 
         if (!output.success()) {
             logger.error("Build did not succeed")
+            return false
         }
 
         additionalTasks.forEach {
             it.run(spoofax, cli, project, output)
         }
+
+        return true
     }
 }

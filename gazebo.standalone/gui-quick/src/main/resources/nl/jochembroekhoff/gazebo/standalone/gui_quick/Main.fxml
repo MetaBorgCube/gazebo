@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<GridPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="nl.jochembroekhoff.gazebo.standalone.gui_quick.MainController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="ALWAYS"/>
+        <RowConstraints vgrow="NEVER"/>
+    </rowConstraints>
+
+    <SplitPane dividerPositions="0.8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+        <TabPane>
+            <Tab fx:id="contentGZB" closable="false" text="Input: Gazebo Main (GZB)"/>
+            <Tab fx:id="contentGZBC" closable="false" text="Gazebo Core (GZBC)"/>
+            <Tab fx:id="contentLLMC" closable="false" text="Low-Level Minecraft Commands (LLMC)"/>
+        </TabPane>
+
+        <VBox>
+            <Label text="COMPILER MESSAGES:">
+                <font>
+                    <Font name="System Bold"/>
+                </font>
+            </Label>
+            <TextArea fx:id="outputArea" editable="false" promptText="Press 'COMPILE'" VBox.vgrow="ALWAYS">
+                <font>
+                    <Font name="Monospaced Regular"/>
+                </font>
+            </TextArea>
+        </VBox>
+    </SplitPane>
+
+    <ToolBar GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+        <Button fx:id="compileButton" onAction="#compile" text="COMPILE"/>
+        <Pane HBox.hgrow="ALWAYS"/> <!-- fills up remaining space to right-align next children -->
+        <Label fx:id="compileStatus" visible="false"/>
+        <ProgressBar fx:id="compileProgress" visible="false"/>
+    </ToolBar>
+</GridPane>
