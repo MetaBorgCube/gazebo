@@ -5,6 +5,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.*
 import nl.jochembroekhoff.gazebo.standalone.lib.runner.GazeboRunner
 import nl.jochembroekhoff.gazebo.standalone.lib.runner.GazeboRunnerConfiguration
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack.EmitDataPackTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.project.IProject
@@ -29,6 +30,9 @@ class MainController {
 
     @FXML
     private lateinit var contentLLMC: Tab
+
+    @FXML
+    private lateinit var contentPack: Tab
 
     @FXML
     private lateinit var compileButton: Button
@@ -60,7 +64,10 @@ class MainController {
             },
             GuiLoaderUtil.loadInto<EditorController>(contentLLMC, "Editor").apply {
                 configure(root.resolveFile("src-gen/llmc-interm"), false, createPP("llmc"))
-            }
+            },
+            GuiLoaderUtil.loadInto<EditorController>(contentPack, "Editor").apply {
+                configure(root.resolveFile("target/data-pack/data"), false)
+            },
         )
     }
 
@@ -108,6 +115,7 @@ class MainController {
             )
 
             val success = GazeboRunner(runnerConfig)
+                .withAdditionalTask(EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_8))
                 .run(
                     spoofax,
                     ProgressBarProgressImpl(compileProgress, compileStatus)

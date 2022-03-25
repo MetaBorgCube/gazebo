@@ -19,6 +19,7 @@
             <Tab fx:id="contentGZB" closable="false" text="Input: Gazebo Main (GZB)"/>
             <Tab fx:id="contentGZBC" closable="false" text="Gazebo Core (GZBC)"/>
             <Tab fx:id="contentLLMC" closable="false" text="Low-Level Minecraft Commands (LLMC)"/>
+            <Tab fx:id="contentPack" closable="false" text="Output: Data Pack"/>
         </TabPane>
 
         <VBox>
