@@ -73,8 +73,8 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
         stx-get-scopegraph-data(|a, "statics/common!memb")
       ; filter(?(_, ENUM_V_INT(_)) + ?(_, ENUM_V_STR(_)))
       ; map(
-          \((name, _), ENUM_V_INT(v)) -> EnumMembInt-C(name, <int-to-string> v)\
-        + \((name, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
+          \((name, _, _), ENUM_V_INT(v)) -> EnumMembInt-C(name, <int-to-string> v)\
+        + \((name, _, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
         )
       > s
   type-convert-(|a): ENUM(s, t@STRING()) -> TypeEnumString-C(members)
@@ -83,7 +83,7 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
         stx-get-scopegraph-data(|a, "statics/common!memb")
       ; filter(?(_, ENUM_V_STR(_)))
       ; map(
-          \((name, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
+          \((name, _, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
         )
       > s
 

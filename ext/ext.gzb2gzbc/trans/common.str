@@ -63,9 +63,9 @@ rules
     where
       analysis := <stx-get-ast-analysis>
     ; identf := <
-        stx-get-ast-ref(|analysis)
+        stx-get-ast-property(|analysis, "full")
       ; identf-from-nsid
-     <+ stx-get-ast-property(|analysis, "full")
+     <+ stx-get-ast-ref(|analysis)
       ; identf-from-nsid
       > other
 

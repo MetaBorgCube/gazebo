@@ -15,11 +15,11 @@ rules
     typeOfEnum(s, TypeEnumTyped(t, membs)) = ENUM(s_enum_t, T) :-
         T == typeOfType(s, t),
         enumTypeOk(T) | error $[type [T] is not a valid type for the enum backing value],
-        new s_enum_t,
+        new s_enum_t, s_enum_t -P-> s,
         enumTypedMembsOk(s_enum_t, T, membs).
 
     typeOfEnum(s, TypeEnumUntyped(membs)) = ENUM(s_enum, INT()) :-
-        new s_enum,
+        new s_enum, s_enum -P-> s,
         declareAutomaticEnumKeys(s_enum, membs).
 
 rules

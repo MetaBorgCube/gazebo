@@ -14,78 +14,88 @@ rules
 //        declareMemb(s, name, T),
 //        declareMembs(s, xs).
 
+
     declareMemb : scope * ID * MEMB_KIND * TYPE
 
-    declareMemb(s, name, kind, T) :-
+    declareMemb(s, name, kind, T) :- declareMembFromOrigin(s, s, name, kind, T).
+
+    declareMembFromOrigin : scope * scope * ID * MEMB_KIND * TYPE
+
+    declareMembFromOrigin(s, s_origin, name, kind, T) :- {base full_id}
         // TODO: add information about mutability and other access modifiers of the member
-        !memb[(name, kind), T] in s,
+        (base, _) == currentMod(s_origin),
+        full_id == absolute(base, NSIDiRel([name])),
+        !memb[(name, full_id, kind), T] in s,
         queryMemb(s, name, kind) == [(_, (_, _))] | error $[duplicate definition]@name.
 
 rules
 
-    queryMembLocal : scope * ID * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
+    queryMembLocal : scope * ID * MEMB_KIND -> list((path * ((ID * NSIDi * MEMB_KIND) * TYPE)))
 
     queryMembLocal(s, name, kind) = p :-
         query memb
-            filter P* and { x :- x == (name, kind) }
+            filter P* and { x :- x == (name, _, kind) }
             min $ < P and false
             in s |-> p.
 
 rules
 
-    queryAllMembLocal : scope * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
+    queryAllMembLocal : scope * MEMB_KIND -> list((path * ((ID * NSIDi * MEMB_KIND) * TYPE)))
 
     queryAllMembLocal(s, kind) = p :-
         query memb
-            filter P* and { x :- x == (_, kind) }
+            filter P* and { x :- x == (_, _, kind) }
             min $ < P and false
             in s |-> p.
 
 rules
 
-    queryMemb : scope * ID * MEMB_KIND -> list((path * ((ID * MEMB_KIND) * TYPE)))
+    queryMemb : scope * ID * MEMB_KIND -> list((path * ((ID * NSIDi * MEMB_KIND) * TYPE)))
 
     queryMemb(s, name, kind) = p :-
         query memb
-            filter P* I? M? and { x :- x == (name, kind) }
+            filter P* I? M? and { x :- x == (name, _, kind) }
             min $ < P, $ < M and false
             in s |-> p.
 
 rules
 
-    matchMemb : list((path * ((ID * MEMB_KIND) * TYPE))) -> (ID * TYPE)
-    matchMemb([(_, ((name', _), T))|_]) = (name', T).
-    matchMemb(_) = ("$unmatched", UNK()) :- false.
+    matchMemb : list((path * ((ID * NSIDi * MEMB_KIND) * TYPE))) -> (ID * NSIDi * TYPE)
+    matchMemb([(_, ((name', full', _), T))|_]) = (name', full', T).
+    matchMemb(_) = ("$unmatched", NSIDiFull("unk", ["unk"]), UNK()) :- false.
 
 rules
 
-    resolveMemb : scope * ID * MEMB_KIND -> (ID * TYPE)
+    resolveMemb : scope * ID * MEMB_KIND -> (ID * NSIDi * TYPE)
 
-    resolveMemb(s, name, kind) = (name', T) :- {p}
+    resolveMemb(s, name, kind) = (name', full', T) :- {p}
         queryMemb(s, name, kind) == p,
-        (name', T) == matchMemb(p),
+        (name', full', T) == matchMemb(p),
         @name.ref := name',
+        @name.full := full',
         @name.type := T.
 
 rules
 
-    resolveMembLocal : scope * ID * MEMB_KIND -> (ID * TYPE)
+    resolveMembLocal : scope * ID * MEMB_KIND -> (ID * NSIDi * TYPE)
 
-    resolveMembLocal(s, name, kind) = (name', T) :- {p}
+    resolveMembLocal(s, name, kind) = (name', full', T) :- {p}
         queryMembLocal(s, name, kind) == p,
-        (name', T) == matchMemb(p),
+        (name', full', T) == matchMemb(p),
         @name.ref := name',
+        @name.full := full',
         @name.type := T.
 
 rules
 
     resolveMembRef : scope * NSID * MEMB_KIND -> TYPE
 
-    resolveMembRef(s, nsid, kind) = T :- {name'}
-        resolveMembRef_i(s, nsidi(nsid), kind) == (name', T),
-        @nsid.ref := name'.
+    resolveMembRef(s, nsid, kind) = T :- {name' full'}
+        resolveMembRef_i(s, nsidi(nsid), kind) == (name', full', T),
+        @nsid.ref := name',
+        @nsid.full := full'.
 
-    resolveMembRef_i : scope * NSIDi * MEMB_KIND -> (ID * TYPE)
+    resolveMembRef_i : scope * NSIDi * MEMB_KIND -> (ID * NSIDi * TYPE)
 
     // overload to account for syntactic sugar
     resolveMembRef_i(s, NSIDiShort(name), kind) = resolveMembRef_i(s, NSIDiFull(curr_ns, name), kind) :-
@@ -100,7 +110,7 @@ rules
     // name part of this NSIDRel should be at least of length 2, because earlier rule captures 1-length
     resolveMembRef_i(s, nsid@NSIDiRel([name_mod, name_memb]), kind) = memb :- {Tmod s_mod}
         Tmod == resolveMemb(s, name_mod, kind),
-        Tmod == (_, MOD(s_mod)),
+        Tmod == (_, _, MOD(s_mod)),
         memb == resolveMemb(s_mod, name_memb, kind) | error $[[name_memb] is not a member of module [name_mod]]@name_memb.
 
     // case: absolute NSID with 2 or more name elements
@@ -110,5 +120,5 @@ rules
         Tmod == MOD(s_mod),
         memb == resolveMemb(s_mod, name_last@stringListLast(name), kind) | error $[[name_last] is not a member of the module]@name_last.
 
-    resolveMembRef_i(s, nsid, _) = ("$?", UNK()) :-
+    resolveMembRef_i(s, nsid, _) = ("$?", NSIDiFull("$?", ["$?"]), UNK()) :-
         false | error $[don't know how to resolve reference]@nsid.
