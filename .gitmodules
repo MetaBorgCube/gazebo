@@ -1,6 +1,6 @@
 [submodule "gen/input/mc-nbtdoc"]
 	path = gen/input/mc-nbtdoc
-	url = git@github.com:Yurihaia/mc-nbtdoc.git
+	url = https://github.com/Yurihaia/mc-nbtdoc.git
 [submodule "gen/input/mcdata"]
 	path = gen/input/mcdata
-	url = git@github.com:Arcensoth/mcdata.git
+	url = https://github.com/Arcensoth/mcdata.git
