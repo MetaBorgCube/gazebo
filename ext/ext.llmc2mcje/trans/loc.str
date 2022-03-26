@@ -10,6 +10,7 @@ imports
   transfer
   transform
   type
+  type-access
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
@@ -54,7 +55,7 @@ rules // loc-access-path :: (Loc, Path-LL) -> Loc
   loc-access-path(|loc): Path-LL([]) -> loc
   loc-access-path(|DataStorage(t, nsid, path)): path_access -> DataStorage(t', nsid, <path-join> [path, path_access])
     with
-      t' := <type-access-path(|path)> t
+      t' := <type-access-path(|path_access)> t
   loc-access-path(|Scoreboard(_, _)): Path-LL([_|_]) -> <with(fail)>
   loc-access-path(|Discard()): _ -> Discard()
 
@@ -118,10 +119,20 @@ rules // loc-args-execute :: Loc -> List(Arg-ASM)
 
   loc-args-execute =
     loc-args-execute--is-data-compat
+  ; with(
+      switch loc-type
+        case ?TypeIntB-LL(): !"byte"
+        case ?TypeIntS-LL(): !"short"
+        case ?TypeIntI-LL(): !"int"
+        case ?TypeIntL-LL(): !"long"
+        case ?TypeFloatS-LL(): !"short"
+        case ?TypeFloatD-LL(): !"double"
+      end => t'
+    )
   ; loc-args-data
     // append dest type indicator, required for NBT
   ; ![<id>, [
-      Arg-RawString-ASM("int"), // TODO: Type-LL
+      Arg-RawString-ASM(t'), // TODO: Type-LL
       Arg-RawString-ASM("1")
     ]]
   ; concat

@@ -1,0 +1,45 @@
+source:
+type T interface { k [T] }
+v := T::().k
+
+0`c[k l[`0]]  --"k"-->  0`l[c[k `0]]
+
+broken down:
+1) input: 0`c[k l[`0]]
+2) select "k": l[`0]
+3) expand references once: l[0`c[k l[`0]]]
+4) repeated contraction:
+    a) {l[0`c[k {l[`0]}]]} --> 1`[l[ c[k `1] ]]
+    b) done
+
+--------------------------------------------
+
+source:
+type T interface { k [[T]] }
+v := T::().k[0]
+
+0`c[k l[l[`0]]]  --"k"-->  0`l[l[c[k `0]]]  --[0]-->  0`l[c[k l[`0]]]
+      \______/     /           \________/     /
+          |       /                |         /
+      (expand)___/                 |________/
+          |                        |
+      l[l[0`c[k l[l[`0]]]]] : now start from all use-sites + the declaration site.
+                              then walk until the trees start to differ.
+                            ; repeat until all references are stable.
+                            ; NOTE: after contraction of a single ref, check if there are any references left. if none, remove decl site.
+                              TODO: it probably will never happen in practice that there are still references left
+                              (probable reason for this: if a reference use-site exists, there must also exist a reference decl site.
+                               thus, by design there exists a valid finite path from the use-site to the decl-site.)
+                            ; NOTE: this problem can probably be visualized as a problem on tree structures as well.
+                                   |
+                                   |
+                             l[c[k 0`l[l[c[k `0]]]]]
+
+breakdown of simplification of 0`l[l[c[k `0]]] access '[0]'
+1) input: 0`l[l[c[k `0]]]
+2) select [0]: l[c[k `0]]
+3) expand 0: l[c[k 0`l[l[c[k `0]]]]]
+4) contract:
+    l[{c[k 0`l[l[{c[k `0]}]]]}]
+ -> {l[1`c[k l[{l[`1]}]]]}
+ -> 0`l[c[k l[`0]]]

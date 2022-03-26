@@ -66,7 +66,46 @@ rules // enumerate-map-intersperse(s|sep:V=", ") :: List(T) -> List(U|V) ; s :: 
     enumerate-map(s)
   ; intersperse(|sep)
 
+strategies // count-topdown(s|initial:int=0) :: term -> term' ; s :: (term, int) -> term'
+
+  /**
+   * Traverse the given term in top-down fashion,
+   * including a counter which is incremented each time the given
+   * strategy is successfully executed.
+   *
+   * TODO: review performance and verify correctness
+   */
+
+  count-topdown(s) = count-topdown(s|0)
+  count-topdown(s|initial) =
+    !(<id>, initial)
+  ; rec x(
+      // deconstruct tuple's fst into a list of subterms
+      (?_#(<id>), id)
+      // apply the strategy and increment the counter if successful
+      // then immediately continue depth-first
+    ; thread-map(
+        try(\(term, idx) -> (<s> (term, idx), <inc> idx)\)
+      ; x
+      )
+    )
+  ; Fst
+
+rules // make-set(eq) :: List(T) -> List(T)
+
+  make-set(eq) =
+    // copied from standard library, but with additional custom equality
+    foldr(![], union(eq), ![<id>])
+
 strategies
 
   string-norm = un-double-quote; unescape
   string-denorm = escape; double-quote
+
+strategies // is-distinct :: List(_) -> id|fail
+
+  /** check if all elements in the given list/set are distinct */
+  is-distinct = where(
+    !(<length>, <make-set; length>)
+  ; eq
+  )

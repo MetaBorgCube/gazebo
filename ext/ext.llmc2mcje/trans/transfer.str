@@ -68,6 +68,8 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
       loc_src_args_data*
     ])
     with
+      <type-compat> (<loc-type> loc_dest, <loc-type> loc_src)
+    with
       loc_dest_args_data* := <loc-args-data> loc_dest
     ; loc_src_args_data* := <loc-args-data> loc_src
     ; mode' := <
@@ -85,6 +87,8 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
         Arg-Redirect-ASM(cmd_get)
       ])
     ])
+    with
+      <type-compat> (<loc-type> loc_dest, <loc-type> loc_src)
     with
       loc_dest_args* := <loc-args-execute> loc_dest
     ; cmd_get := <loc-get> loc_src

@@ -11,6 +11,7 @@ imports
   transfer
   transform-make
   type
+  type-access
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
@@ -269,7 +270,7 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
     <type-literal-singleton; transfer-raw(|dest)> t
     with
       t := <loc-type> dest
-    ; t_inner := <type-list_array-inner> t
+    ; t_inner := <type-access-list_array> t
     ; loc_size := <loc-new-scoreboard>
     ; transfer_size := <assign-arg-to-loc(|loc_size)> size
     ; rules(EmitCommand-Pre:+ _ -> transfer_size)
@@ -327,7 +328,7 @@ rules // transform-assign-new-arg(|Loc) :: Arg-LL -> Optional(string)
 
   transform-assign-new-arg(|loc): ArgArray-LL(elems*) -> Some(<concat-strings> ["[", type_id, "; ", elems'*, "]"])
     with
-      t := <loc-type; type-list_array-inner> loc
+      t := <loc-type; type-access-list_array> loc
     ; type_id := <
         \TypeIntI-LL() -> "I"\
       + \TypeIntL-LL() -> "L"\
