@@ -21,12 +21,20 @@ rules
 
     declareMembFromOrigin : scope * scope * ID * MEMB_KIND * TYPE
 
-    declareMembFromOrigin(s, s_origin, name, kind, T) :- {base full_id}
+    declareMembFromOrigin(s, s_origin, name, kind, T) :- {full_id}
         // TODO: add information about mutability and other access modifiers of the member
-        (base, _) == currentMod(s_origin),
-        full_id == nsidiAppendName(base, [name]),
+        full_id == declFullId(s, s_origin, name),
         !memb[(name, full_id, kind), T] in s,
         queryMemb(s, name, kind) == [(_, (_, _))] | error $[duplicate definition]@name.
+
+    declFullId : scope * scope * ID -> NSIDi
+    // if the current scope and the origin scope are equal,
+    // it is a local member, so declare it relative
+    declFullId(s, s, name) = NSIDiRel([name]).
+    // otherwise, the member is being imported,
+    // so declare its absolute path
+    declFullId(s, s_origin, name) = nsidiAppendName(base, [name]) :-
+        (base, _) == currentMod(s_origin).
 
 rules
 
