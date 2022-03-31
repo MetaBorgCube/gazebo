@@ -137,21 +137,26 @@ rules // transform-ident-full :: IdentFull-C -> NSID-LL
 rules // transform-prop-selector :: Prop-C -> SelectorProp-LL
 
   // key-value
-  transform-prop-selector: PropKv-C(k, v) -> SelectorPropKv-LL(SelectorPropKvEqual-LL(k, <transform-expr> v))
+  transform-prop-selector: PropKv-C(k, v) -> SelectorPropKv-LL(SelectorPropKvEqual-LL(k, <transform-expr(|t)> v))
+    with
+      t := TypeUnk-C() // TODO: Type-C
 
   // compare: == or matches
   transform-prop-selector: PropCmp-C(k, <?CmpEqual-C() + ?CmpMatches-C()>, v) -> SelectorPropKv-LL(SelectorPropKvEqual-LL(k, v'))
     with
-      v' := <transform-expr> v
+      t := TypeUnk-C() // TODO: Type-C
+    ; v' := <transform-expr(|t)> v
   // compare: !=
   transform-prop-selector: PropCmp-C(k, CmpNotEqual-C(), v) -> SelectorPropKv-LL(SelectorPropKvNotEqual-LL(k, v'))
     with
-      v' := <transform-expr>
+      t := TypeUnk-C() // TODO: Type-C
+    ; v' := <transform-expr(|t)> v
   // compare: >=, <=
   transform-prop-selector: PropCmp-C(k, cmp@<?CmpGte-C() + ?CmpLte-C()>, v) ->
     SelectorPropKv-LL(SelectorPropKvEqual-LL(k, ArgRange-LL(range_low, range_high)))
     with
-      v' := <transform-expr> v
+      t := TypeUnk-C() // TODO: Type-C
+    ; v' := <transform-expr(|t)> v
     ; (range_low, range_high) := <
         \CmpGte-C() -> (RangePartSome-LL(v'), RangePartNone-LL())\
       + \CmpLte-C() -> (RangePartNone-LL(), RangePartSome-LL(v'))\
@@ -160,13 +165,14 @@ rules // transform-prop-selector :: Prop-C -> SelectorProp-LL
   transform-prop-selector: PropCmp-C(k, cmp@<?CmpGt-C() + ?CmpLt-C()>, v) ->
     SelectorPropKv-LL(SelectorPropKvEqual-LL(k, ArgRange-LL(range_low, range_high)))
     with
-      v' := <transform-expr> v
+      t := TypeUnk-C() // TODO: Type-C
+    ; v' := <transform-expr(|t)> v
     ; ident := <newname> "$sel_prop"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeUnk-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; v'' := ArgVar-LL(ident)
@@ -188,12 +194,18 @@ rules // transform-prop-selector :: Prop-C -> SelectorProp-LL
 
 rules // transform-expr :: Expr-C -> Arg-LL
 
-  transform-expr: NbtCompound-C(kvs) -> ArgCompound-LL(kvs')
+  transform-expr(|t): NbtCompound-C(kvs) -> ArgCompound-LL(kvs')
     with
-      kvs' := <map(\NbtCompoundEntry-C(k, v) -> CompoundEntry-LL(k, <transform-expr> v)\)> kvs
-  transform-expr: NbtArray-C(elems) -> ArgArray-LL(<map(transform-expr)> elems)
-  transform-expr: NbtList-C(elems) -> ArgList-LL(<map(transform-expr)> elems)
+      kvs' := <map(\NbtCompoundEntry-C(k, v) -> CompoundEntry-LL(k, <transform-expr(|t')> v) with t' := TypeUnk-C()\)> kvs
+  transform-expr(|t): NbtArray-C(elems) -> ArgArray-LL(<map(transform-expr(|t'))> elems)
+    with
+      t' := TypeUnk-C() // TODO: Type-C
+  transform-expr(|t): NbtList-C(elems) -> ArgList-LL(<map(transform-expr(|t'))> elems)
+    with
+      t' := TypeUnk-C() // TODO: Type-C
 
+  // TODO: check that the expected type corresponds
+  // TODO: insert value coercion if necessary
   transform-expr: String-C(s) -> ArgString-LL(s)
   transform-expr: NumB-C(i) -> ArgIntB-LL(i)
   transform-expr: NumS-C(i) -> ArgIntS-LL(i)
@@ -226,7 +238,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
       SGlobal-LL(),
       [],
       ident,
-      TypeString-LL(), // TODO: Type-LL
+      TypeUnk-LL(), // TODO: Type-C
       StorageLocationData-LL(NSID-LL(ns, name'), Path-LL([Select-LL(<string-denorm> name_last)]))
     ))
   ; !ident
@@ -234,7 +246,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
   transform-expr: RefFull-C(ident_full) -> ArgVar-LL(<transform-ident-full; global-ident> ident_full)
   transform-expr: RefLocal-C(IdentLocal-C(ident)) -> ArgVar-LL(ident)
 
-  transform-expr =
+  transform-expr(|t) =
     (?FindIndex-C(_, _) + ?FindKey-C(_, _))
   ; with(
       unwrap-find => (e', path)
@@ -243,7 +255,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -257,18 +269,18 @@ rules // transform-expr :: Expr-C -> Arg-LL
     )
   ; !ArgVar-LL(ident)
 
-  transform-expr: Invoke-C(RefFull-C(target), arg*) -> ArgVar-LL(ident)
+  transform-expr(|t): Invoke-C(RefFull-C(target), arg*) -> ArgVar-LL(ident)
     with
       target' := ArgFunction-LL(<nsid-from-identf> target)
-    ; arg'* := <map(\Arg-C(name, e) ->
-        ArgNamed-LL(name, <transform-expr> e)
+    ; arg'* := <map(\Arg-C(name, t_arg, e) ->
+        ArgNamed-LL(name, <transform-expr(|t_arg)> e)
       \)> arg*
     ; ident := <newname> "$invoke"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -281,7 +293,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
       ))
 
   // transform-expr-arith(|Char) :: List(Expr-C) -> Arg-LL
-  transform-expr-arith(|op): opnds -> ArgVar-LL(ident)
+  transform-expr-arith(|t, op): opnds -> ArgVar-LL(ident)
     with
       op' := <
         \'*' -> OpMul-LL()\
@@ -290,13 +302,13 @@ rules // transform-expr :: Expr-C -> Arg-LL
       + \'+' -> OpAdd-LL()\
       + \'-' -> OpSub-LL()\
       > op
-    ; opnds' := <map(transform-expr)> opnds
+    ; opnds' := <map(transform-expr(|t))> opnds
     ; ident := <newname> "$arith"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -305,7 +317,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
         opnds'
       ))
 
-  transform-expr =
+  transform-expr(|t) =
     ( ?Mul-C(_, _)
     + ?Div-C(_, _)
     + ?Mod-C(_, _)
@@ -321,12 +333,12 @@ rules // transform-expr :: Expr-C -> Arg-LL
       + \"Add-C" -> '+'\
       + \"Sub-C" -> '-'\
       > op
-    ; arg' := <transform-expr-arith(|op')> [opnd_l, opnd_r]
+    ; arg' := <transform-expr-arith(|t, op')> [opnd_l, opnd_r]
     )
   ; !arg'
 
   transform-expr: Cmp-C(lhs, cmp, rhs) ->
-    ArgCond-LL(BoolCondCmp-LL(<transform-expr> lhs, cmp', <transform-expr> rhs))
+    ArgCond-LL(BoolCondCmp-LL(<transform-expr(|TypeBool-C())> lhs, cmp', <transform-expr(|TypeBool-C())> rhs))
     with
       cmp' := <
         \CmpGt-C() -> CmpGt-LL()\
@@ -345,18 +357,23 @@ rules // transform-expr :: Expr-C -> Arg-LL
     with
       parts' := <map(
         \RawText-C(str) -> UnsafePartString-LL(str)\
-      + \RawFormat-C(format_id, e) -> UnsafePartFormatted-LL(<opt-unwrap(!"none")> format_id, <transform-expr> e)\
+      + \RawFormat-C(format_id, e) -> UnsafePartFormatted-LL(<opt-unwrap(!"none")> format_id, <transform-expr(|TypeUnk-C())> e)\
       )> parts
 
-  transform-expr: Count-C(e) -> ArgVar-LL(ident)
+  transform-expr(|t): Count-C(e) -> ArgVar-LL(ident)
     with
-      e' := <transform-expr> e
+      // assert that the expected type is actually int.
+      // this should always be the case if generated by gzb2gzbc.
+      <eq> (t, TypeInt-C())
+    with
+      // TODO: Type-C
+      e' := <transform-expr(|TypeUnk-C())> e
     ; ident := <newname> "$count"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeIntI-LL(),
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -365,14 +382,14 @@ rules // transform-expr :: Expr-C -> Arg-LL
         [e']
       ))
 
-  transform-expr: NewSingleton-C() -> ArgVar-LL(ident)
+  transform-expr(|t): NewSingleton-C() -> ArgVar-LL(ident)
     with
       ident := <newname> "$new"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -381,15 +398,15 @@ rules // transform-expr :: Expr-C -> Arg-LL
         []
       ))
 
-  transform-expr: NewDynamic-C(size) -> ArgVar-LL(ident)
+  transform-expr(|t): NewDynamic-C(size) -> ArgVar-LL(ident)
     with
-      size' := <transform-expr> size
+      size' := <transform-expr(|TypeInt-C())> size
     ; ident := <newname> "$new"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -397,6 +414,9 @@ rules // transform-expr :: Expr-C -> Arg-LL
         OpNew-LL(),
         [size']
       ))
+
+  // fallback to transform-expr rules which don't need typing context
+  transform-expr(|t) = transform-expr
 
 rules // rvalue/lvalue manipulation
 
@@ -408,7 +428,7 @@ rules // rvalue/lvalue manipulation
 
   unwrap-find-inner: FindIndex-C(e, idx) -> (e, Some(elem))
     with
-      idx' := <transform-expr> idx
+      idx' := <transform-expr(|TypeInt-C())> idx
     ; if <?ArgVar-LL(var)> idx' then
         elem := IndexDyn-LL(var)
       else
@@ -435,7 +455,8 @@ rules // rvalue/lvalue manipulation
           end
       \})> e
     with
-      e_out := <transform-expr> e'
+      // TODO: Type-C, based on type-access like in llmc2mcje
+      e_out := <transform-expr(|TypeUnk-C())> e'
 
   /** lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL */
   // case: preexisting local variable
@@ -446,16 +467,18 @@ rules // rvalue/lvalue manipulation
   ; lvalue-mk-varpath
     // simplfy to DestVar-LL if the path happened to be empty
   ; try(\DestVarPath-LL(var, Path-LL([])) -> DestVar-LL(var)\)
+    // TODO: Type-LL
+  ; !(<id>, TypeUnk-C())
 
-  rvalue-from-lvalue: DestVar-LL(var) -> ArgVar-LL(var)
-  rvalue-from-lvalue: DestVarPath-LL(var, path) -> ArgVar-LL(ident)
+  rvalue-from-lvalue(|_): DestVar-LL(var) -> ArgVar-LL(var)
+  rvalue-from-lvalue(|t): DestVarPath-LL(var, path) -> ArgVar-LL(ident)
     with
       ident := <newname> "$rv_from_lv"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        TypeString-LL(), // TODO: Type-LL
+        <transform-type> t,
         StorageLocationAuto-LL()
       ))
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
@@ -470,9 +493,10 @@ rules // rvalue/lvalue manipulation
 rules // transform-stmt-basic :: Stmt-C -> Assign-LL
 
   transform-stmt-basic: Decl-C(kind, name, t, e) ->
-    <transform-stmt-basic> AssignStmt-C(RefLocal-C(IdentLocal-C(name)), AssignOperatorEq-C(), e)
+    <transform-stmt-basic> AssignStmt-C(refc, AssignOperatorEq-C(), e)
     with
-      if <?DeclKindConst-C()> kind then
+      refc := RefLocal-C(IdentLocal-C(name))
+    ; if <?DeclKindConst-C()> kind then
         modifiers := [ModConst-LL()]
       else
         modifiers := []
@@ -485,18 +509,21 @@ rules // transform-stmt-basic :: Stmt-C -> Assign-LL
         t',
         StorageLocationAuto-LL()
       ))
+    ; rules(RefType:+ refc -> t)
 
   transform-stmt-basic: DiscardStmt-C(e) ->
     AssignNew-LL(
       DestDiscard-LL(),
-      <transform-expr> e
+      <transform-expr(|TypeUnk-C())> e
     )
 
   transform-stmt-basic: AssignStmt-C(dst, AssignOperatorEq-C(), e) ->
     AssignNew-LL(
-      <lvalue> dst,
-      <transform-expr> e
+      dst',
+      <transform-expr(|t)> e
     )
+    with
+      (dst', t) := <lvalue> dst
 
   transform-stmt-basic: AssignStmt-C(dst, op, e) ->
     AssignOp-LL(
@@ -509,16 +536,16 @@ rules // transform-stmt-basic :: Stmt-C -> Assign-LL
       > op,
       [
         dst_rv,
-        <transform-expr> e
+        <transform-expr(|t)> e
       ]
     )
     with
-      dst' := <lvalue> dst
-    ; dst_rv := <rvalue-from-lvalue> dst'
+      (dst', t) := <lvalue> dst
+    ; dst_rv := <rvalue-from-lvalue(|t)> dst'
 
   transform-stmt-basic: DeleteStmt-C(e) ->
     AssignOp-LL(
-      <lvalue> e,
+      <lvalue; Fst> e,
       OpDel-LL(),
       []
     )
@@ -530,7 +557,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
   transform-stmt-flow: LoopStmt-C(cond, block) -> res
     with
       res := FlowBlock-LL(
-        Loop-LL(<transform-expr; ensure-bool-cond> cond), [],
+        Loop-LL(<transform-expr(|TypeBool-C()); ensure-bool-cond> cond), [],
         <transform-block> block
       )
 
@@ -552,7 +579,7 @@ rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
       ])),
       // if cond
       FlowBlock-LL(
-        If-LL(<transform-expr; ensure-bool-cond> cond), [],
+        If-LL(<transform-expr(|TypeBool-C()); ensure-bool-cond> cond), [],
         FlowGroup-LL([
           // { $if_not_taken <- false }
           FlowBlock-LL(Unconditional-LL(), [], BasicBlock-LL([

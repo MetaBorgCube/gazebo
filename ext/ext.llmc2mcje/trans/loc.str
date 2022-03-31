@@ -132,7 +132,7 @@ rules // loc-args-execute :: Loc -> List(Arg-ASM)
   ; loc-args-data
     // append dest type indicator, required for NBT
   ; ![<id>, [
-      Arg-RawString-ASM(t'), // TODO: Type-LL
+      Arg-RawString-ASM(t'),
       Arg-RawString-ASM("1")
     ]]
   ; concat

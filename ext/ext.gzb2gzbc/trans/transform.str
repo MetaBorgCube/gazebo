@@ -162,7 +162,7 @@ rules // transform-expr :: Expr -> Expr-C
       a := <stx-get-ast-analysis> ivk
     ; param_names := <stx-get-ast-property(|a, "param_names") <+ ![]> ivk
     ; args' := <zip; map(
-        !Arg-C(<Fst>, <Snd; transform-expr>)
+        !Arg-C(<Fst>, <Snd; transform-type-lookup>, <Snd; transform-expr>)
       )> (param_names, args)
 
   transform-expr: Mul(l, r) -> Mul-C(<transform-expr> l, <transform-expr> r)

@@ -99,7 +99,7 @@ context-free sorts Arg-C
 context-free syntax
 
     Expr-C.Invoke-C = <<Expr-C>(<{Arg-C ", "}*>)>
-    Arg-C.Arg-C = <<ID>=<Expr-C>>
+    Arg-C.Arg-C = <<ID>:<Type-C>=<Expr-C>>
 
 ///
 
