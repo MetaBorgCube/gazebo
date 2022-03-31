@@ -230,7 +230,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
   /** global-ident :: NSID-LL -> string */
   global-ident =
     GlobalLookup
- <+ ?NSID-LL(ns, name)
+ <+ ?nsid@NSID-LL(ns, name)
   ; ident:= <newname> "$glob_ref"
   ; (name', name_last) := <split-init-last> name
   ; rules(GlobalLookup: nsid -> ident)
