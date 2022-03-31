@@ -24,7 +24,7 @@ rules
     declareMembFromOrigin(s, s_origin, name, kind, T) :- {base full_id}
         // TODO: add information about mutability and other access modifiers of the member
         (base, _) == currentMod(s_origin),
-        full_id == absolute(base, NSIDiRel([name])),
+        full_id == nsidiAppendName(base, [name]),
         !memb[(name, full_id, kind), T] in s,
         queryMemb(s, name, kind) == [(_, (_, _))] | error $[duplicate definition]@name.
 

@@ -149,6 +149,17 @@ rules
 
 rules
 
+    /** base * name -> concatenated */
+    nsidiAppendName : NSIDi * list(string) -> NSIDi
+
+    nsidiAppendName(NSIDiFull(ns, base_name), name) = NSIDiFull(ns, stringListConcat(base_name, name)).
+
+    nsidiAppendName(NSIDiShort(base_name), name) = NSIDiShort(stringListConcat(base_name, name)).
+
+    nsidiAppendName(NSIDiRel(base_name), name) = NSIDiRel(stringListConcat(base_name, name)).
+
+rules
+
     absoluteInCurrMod : scope * string -> NSIDi
 
     absoluteInCurrMod(s, name) = NSIDiFull(ns, stringListConcat(names, [name])) :-
