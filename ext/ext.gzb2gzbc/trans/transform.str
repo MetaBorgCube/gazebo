@@ -201,6 +201,8 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: ConstructExplicit(_, ConstructParameterized(Some(e))) -> NewDynamic-C(<transform-expr> e)
   transform-expr: ConstructInfer(ConstructParameterized(Some(e))) -> NewDynamic-C(<transform-expr> e)
 
+  transform-expr: Count(e) -> Count-C(<transform-expr> e)
+
 rules // transform-block :: Block -> Block-C
 
   transform-block: Block(stmt*) -> Block-C(stmt'*)

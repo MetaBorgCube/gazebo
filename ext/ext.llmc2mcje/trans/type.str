@@ -86,5 +86,6 @@ rules // type-compat :: (Type-LL, Type-LL) -> id|fail
   type-compat = eq
   type-compat = ?(TypeUnk-LL(), _)
   type-compat = ?(_, TypeUnk-LL())
+  type-compat = where(warn(|"type-compat final fallthrough"); fail)
   // TODO: implement more relaxed checks, e.g. with differing ref indices, and coercion
   //       also compound entry order should not matter

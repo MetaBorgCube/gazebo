@@ -1,0 +1,15 @@
+module statics/expr/count
+
+imports
+
+    statics/common
+    statics/expr
+    statics/types
+
+rules
+
+    typeOfCount : scope * Count -> TYPE
+
+    typeOfCount(s, Count(e)) = INT() :- {Te}
+        Te == typeOfExpr(s, e),
+        typeCountable(Te) | error $[expression of type [Te] is not countable]@e.

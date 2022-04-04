@@ -221,12 +221,40 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
         ]
       ))
 
+  // count entities matching a selector
+  transform-assign-op(|dest): (OpCountElements-LL(), [ArgSelector-LL(sel)]) -> res
+    with
+      loc_counter := <loc-new-scoreboard>
+    ; loc_counter_args_sb* := <loc-args-scoreboard> loc_counter
+    with
+      init_counter := <transfer-raw(|loc_counter)> "0"
+    ; rules(EmitCommand-Pre:+ _ -> init_counter)
+    with
+      do_count := Command-Plain-ASM("execute", [
+        Arg-RawString-ASM("as"),
+        <transform-selector> sel,
+        Arg-RedirectSelf-ASM([
+          Arg-RawString-ASM("run"),
+          Arg-Redirect-ASM(Command-Plain-ASM("scoreboard", [
+            Arg-RawString-ASM("players"),
+            Arg-RawString-ASM("add"),
+            loc_counter_args_sb*,
+            Arg-RawString-ASM("1")
+          ]))
+        ])
+      ])
+    ; rules(EmitCommand-Pre:+ _ -> do_count)
+    with
+      res := <transfer-loc(|dest)> loc_counter
+
   // count elements: if a list or array is moved into a scoreboard,
   // its length is stored instead of the actual values; this functions as a count/length operation
   transform-assign-op(|dest): (OpCountElements-LL(), [src]) -> res
     with
       loc_src := <arg-to-loc> src
-    ; if <?Scoreboard(_, _)> dest then
+   <+ err(|"Cannot count from immediate argument even though it might be iterable"); fail
+    with
+      if <?Scoreboard(_, _)> dest then
         // if already scoreboard desination, don't need to do anything; just transfer
         res := <transfer-loc(|dest)> loc_src
       else
@@ -393,6 +421,42 @@ rules // transform-path :: Path-LL -> Arg-ASM
   transform-path-fold(is-first): IndexFix-LL(idx) -> <concat-strings> ["[", idx, "]"]
 
   // TODO: Filter-LL
+
+rules // transform-selector :: Selector-LL -> Arg-ASM
+
+  transform-selector: Selector-LL(type, props*)
+    -> Arg-RawString-ASM(<concat-strings> ["@", t, "[", props'*, "]"])
+    with
+      switch !type
+        case ?SelectorE-LL(): !"e"
+        case ?SelectorA-LL(): !"a"
+        case ?SelectorP-LL(): !"p"
+        case ?SelectorR-LL(): !"r"
+        case ?SelectorS-LL(): !"s"
+      end => t
+    ; props'* := <map(transform-selector-prop); intersperse(|",")> props*
+
+  transform-selector-prop: SelectorPropKv-LL(prop_kv) -> <transform-selector-prop-kv> prop_kv
+  transform-selector-prop: SelectorPropMap-LL(k, v*) -> <concat-strings> [k, "={", v'*, "}"]
+    with
+      v'* := <map(transform-selector-prop-kv)> v*
+
+  transform-selector-prop-kv: SelectorPropKvEqual-LL(k, v) -> <concat-strings> [k, "=", <transform-selector-prop-v> v]
+  transform-selector-prop-kv: SelectorPropKvNotEqual-LL(k, v) -> <concat-strings> [k, "=!", <transform-selector-prop-v> v]
+
+  /** string value conversion, only for specific supported args */
+  transform-selector-prop-v: ArgString-LL(v) -> v
+  transform-selector-prop-v: ArgIntB-LL(v) -> v
+  transform-selector-prop-v: ArgIntS-LL(v) -> v
+  transform-selector-prop-v: ArgIntI-LL(v) -> v
+  transform-selector-prop-v: ArgIntL-LL(v) -> v
+  transform-selector-prop-v: ArgFloatS-LL(v) -> v
+  transform-selector-prop-v: ArgFloatD-LL(v) -> v
+  transform-selector-prop-v: ArgRange-LL(lo, hi)
+    -> <concat-strings> [<transform-selector-prop-v--range-part> lo, "..", <transform-selector-prop-v--range-part> hi]
+
+  transform-selector-prop-v--range-part: RangePartNone-LL() -> ""
+  transform-selector-prop-v--range-part: RangePartSome-LL(v) -> <transform-selector-prop-v> v
 
 strategies // assign-arg-to-loc(|Loc) :: Arg-LL -> Command-ASM
 

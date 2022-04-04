@@ -167,6 +167,13 @@ rules
 
 rules
 
+    typeCountable : TYPE
+    typeCountable(SELECTOR(_)).
+    typeCountable(LIST(_)).
+    typeCountable(ARRAY(_)).
+
+rules
+
     typeComparable : Compare * TYPE * TYPE
 
     typeComparable(CmpGt(), T, T) :-

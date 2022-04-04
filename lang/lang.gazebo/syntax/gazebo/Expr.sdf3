@@ -161,6 +161,20 @@ context-free syntax
     ConstructItem.ConstructEnum = <<ID>>
     ConstructItem.ConstructParameterized = <(<Expr?>)>
 
+/**
+ * Count (e.g. length or amount of entities matching a selector)
+ */
+
+context-free sorts Count
+context-free syntax
+
+    Expr = Count
+    Count.Count = <count(<Expr>)>
+
+lexical syntax
+
+    ID = "count" {reject}
+
 ////////
 
 context-free priorities
@@ -173,26 +187,21 @@ context-free priorities
         Invoke.InvokeNone
         Invoke.InvokeArgs
     } > {
-        left:
         Range.RangeFull
     } > {
-        left:
         Arith.Mul
         Arith.Div
         Arith.Mod
     } > {
         Expr.Not
     } > {
-        left:
         Arith.Add
         Arith.Sub
     } > {
         Expr.Cmp
     } > {
-        left:
         Expr.And
     } > {
-        left:
         Expr.Or
     }
 

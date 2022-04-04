@@ -14,6 +14,7 @@ imports
     statics/expr/range
     statics/expr/vec
     statics/expr/construct
+    statics/expr/count
     statics/expr/raw
     statics/types
 
@@ -128,6 +129,12 @@ rules // construct
     typeOfExprImpl(s, Construct2Expr(constr)) = T :-
         T == typeOfConstruct(s, constr),
         @constr.type := T.
+
+rules // count
+
+    typeOfExprImpl(s, Count2Expr(count)) = T :-
+        T == typeOfCount(s, count),
+        @count.type := T.
 
 rules // raw
 
