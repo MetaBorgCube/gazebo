@@ -1,0 +1,36 @@
+module minecraft:entity
+
+type MobBase interface {/*dummy*/}
+
+static registry $<minecraft:entity_type> {
+    register minecraft:dolphin {
+        protocol_id 14
+        data interface : MobBase {
+            GotFish Bool
+        }
+    }
+}
+
+type A interface {a [A]}
+//const a := A::{
+//    a: ::[]
+//}
+
+/* root definitions from stdlib */
+global alias @e = @e
+global alias @a = @e
+
+alias @Dolphin = @e[
+    type == $dolphin,
+    is "my_tag"
+]
+
+func exec_example
+{
+    as @Dolphin
+    positioned `(-5 ~ ~)
+    anchored eyes
+    {
+        // ...
+    }
+}

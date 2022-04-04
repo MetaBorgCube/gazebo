@@ -1,0 +1,13 @@
+module example:func_args
+
+func example(a, b Int, c String)
+{
+    d := a + b
+    e := c
+}
+
+func caller
+{
+    str := "Hello!"
+    example(1, 2, str)
+}
