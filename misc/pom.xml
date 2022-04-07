@@ -60,19 +60,6 @@
       <type>spoofax-language</type>
       <version>${revision}</version>
     </dependency>
-    <!-- libraries -->
-    <dependency>
-      <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>lib.std.common</artifactId>
-      <type>spoofax-language</type>
-      <version>${revision}</version>
-    </dependency>
-    <dependency>
-      <groupId>nl.jochembroekhoff.gazebo</groupId>
-      <artifactId>lib.std.mcje</artifactId>
-      <type>spoofax-language</type>
-      <version>${revision}</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -130,17 +117,6 @@
             <artifactItem>
               <groupId>nl.jochembroekhoff.gazebo</groupId>
               <artifactId>ext.llmc2mcje</artifactId>
-              <type>spoofax-language</type>
-            </artifactItem>
-            <!-- libraries -->
-            <artifactItem>
-              <groupId>nl.jochembroekhoff.gazebo</groupId>
-              <artifactId>lib.std.common</artifactId>
-              <type>spoofax-language</type>
-            </artifactItem>
-            <artifactItem>
-              <groupId>nl.jochembroekhoff.gazebo</groupId>
-              <artifactId>lib.std.mcje</artifactId>
               <type>spoofax-language</type>
             </artifactItem>
           </artifactItems>

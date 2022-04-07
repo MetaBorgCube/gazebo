@@ -25,7 +25,6 @@
     <module>str-common</module>
     <module>lang</module>
     <module>ext</module>
-    <module>lib</module>
     <!--<module>examples</module>-->
     <module>misc</module>
     <module>test</module>
