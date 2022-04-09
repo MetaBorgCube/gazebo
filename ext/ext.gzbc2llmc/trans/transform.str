@@ -7,6 +7,7 @@ imports
   signatures/-
 
   common
+  type-ctype
   type-access
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
@@ -156,23 +157,23 @@ rules // transform-prop-selector :: Prop-C -> SelectorProp-LL
   // key-value
   transform-prop-selector: PropKv-C(k, v) -> SelectorPropKv-LL(SelectorPropKvEqual-LL(k, <transform-expr(|t)> v))
     with
-      t := TypeUnk-C() // TODO: Type-C
+      t := <selector-value-type> k
 
   // compare: == or matches
   transform-prop-selector: PropCmp-C(k, <?CmpEqual-C() + ?CmpMatches-C()>, v) -> SelectorPropKv-LL(SelectorPropKvEqual-LL(k, v'))
     with
-      t := TypeUnk-C() // TODO: Type-C
+      t := <selector-value-type> k
     ; v' := <transform-expr(|t)> v
   // compare: !=
   transform-prop-selector: PropCmp-C(k, CmpNotEqual-C(), v) -> SelectorPropKv-LL(SelectorPropKvNotEqual-LL(k, v'))
     with
-      t := TypeUnk-C() // TODO: Type-C
+      t := <selector-value-type> k
     ; v' := <transform-expr(|t)> v
   // compare: >=, <=
   transform-prop-selector: PropCmp-C(k, cmp@<?CmpGte-C() + ?CmpLte-C()>, v) ->
     SelectorPropKv-LL(SelectorPropKvEqual-LL(k, ArgRange-LL(range_low, range_high)))
     with
-      t := TypeUnk-C() // TODO: Type-C
+      t := <selector-value-type> k
     ; v' := <transform-expr(|t)> v
     ; (range_low, range_high) := <
         \CmpGte-C() -> (RangePartSome-LL(v'), RangePartNone-LL())\
@@ -182,7 +183,7 @@ rules // transform-prop-selector :: Prop-C -> SelectorProp-LL
   transform-prop-selector: PropCmp-C(k, cmp@<?CmpGt-C() + ?CmpLt-C()>, v) ->
     SelectorPropKv-LL(SelectorPropKvEqual-LL(k, ArgRange-LL(range_low, range_high)))
     with
-      t := TypeUnk-C() // TODO: Type-C
+      t := <selector-value-type> k
     ; v' := <transform-expr(|t)> v
     ; ident := <newname> "$sel_prop"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
@@ -225,15 +226,28 @@ rules // transform-expr :: Expr-C -> Arg-LL
     with
       t' := <type-access-list_array> t
 
-  // TODO: check that the expected type corresponds
   // TODO: insert value coercion if necessary
-  transform-expr: String-C(s) -> ArgString-LL(s)
-  transform-expr: NumB-C(i) -> ArgIntB-LL(i)
-  transform-expr: NumS-C(i) -> ArgIntS-LL(i)
-  transform-expr: NumI-C(i) -> ArgIntI-LL(i)
-  transform-expr: NumL-C(i) -> ArgIntL-LL(i)
-  transform-expr: NumF-C(f) -> ArgFloatS-LL(f)
-  transform-expr: NumD-C(f) -> ArgFloatD-LL(f)
+  transform-expr(|t): String-C(s) -> ArgString-LL(s)
+    with
+      <type-compat> (t, TypeString-C())
+  transform-expr(|t): NumB-C(i) -> ArgIntB-LL(i)
+    with
+      <type-compat> (t, TypeInt-C())
+  transform-expr(|t): NumS-C(i) -> ArgIntS-LL(i)
+    with
+      <type-compat> (t, TypeInt-C())
+  transform-expr(|t): NumI-C(i) -> ArgIntI-LL(i)
+    with
+      <type-compat> (t, TypeInt-C())
+  transform-expr(|t): NumL-C(i) -> ArgIntL-LL(i)
+    with
+      <type-compat> (t, TypeInt-C())
+  transform-expr(|t): NumF-C(f) -> ArgFloatS-LL(f)
+    with
+      <type-compat> (t, TypeFloat-C())
+  transform-expr(|t): NumD-C(f) -> ArgFloatD-LL(f)
+    with
+      <type-compat> (t, TypeFloat-C())
 
   transform-expr: Selector-C([root], Props-C(props)) -> ArgSelector-LL(Selector-LL(type, props'))
     with
@@ -390,7 +404,6 @@ rules // transform-expr :: Expr-C -> Arg-LL
         warn(|"Attempt to compute __count in non-Int context")
       end
     with
-      // TODO: Type-C
       e' := <transform-expr(|TypeUnk-C())> e
     ; ident := <newname> "$count"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
@@ -649,3 +662,32 @@ rules // ensure-bool-cond :: Arg-LL -> Arg-LL
   ensure-bool-cond: ArgIntB-LL(_) -> ArgCond-LL(BoolCondCmp-LL(<id>, CmpEq-LL(), ArgIntB-LL("1")))
 
   // TODO: support block and entity conditions
+
+rules // selector-value-type :: string -> Type-C
+
+  /** some basic known selector properties with more-or-less correct types (some relaxations) */
+
+  selector-value-type: "dx" -> TypeFloat-C()
+  selector-value-type: "dy" -> TypeFloat-C()
+  selector-value-type: "dz" -> TypeFloat-C()
+  selector-value-type: "limit" -> TypeInt-C()
+  selector-value-type: "name" -> TypeString-C()
+  selector-value-type: "nbt" -> TypeUnk-C()
+  selector-value-type: "sort" -> TypeString-C()
+  selector-value-type: "team" -> TypeString-C()
+  selector-value-type: "x" -> TypeFloat-C()
+  selector-value-type: "x_rotation" -> TypeFloat-C()
+  selector-value-type: "y" -> TypeFloat-C()
+  selector-value-type: "y_rotation" -> TypeFloat-C()
+  selector-value-type: "z" -> TypeFloat-C()
+  selector-value-type: "z_rotation" -> TypeFloat-C()
+
+  selector-value-type: "distance" -> TypeFloat-C()
+  selector-value-type: "level" -> TypeInt-C()
+  selector-value-type: "predicate" -> TypeUnk-C()
+  selector-value-type: "gamemode" -> TypeString-C()
+
+  selector-value-type: "tag" -> TypeString-C()
+  selector-value-type: "type" -> TypeResourceRegistry-C(IdentFull-C("minecraft", ["entity_type"]))
+
+  selector-value-type: _ -> TypeUnk-C()

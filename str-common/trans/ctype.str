@@ -81,9 +81,9 @@ rules // ctype-clean :: CType -> CType
 
 rules // ctype-compat :: (CType-LL, Type) -> id|fail
 
-  ctype-compat = eq
-  ctype-compat = ?(CTypeUnk(), _)
-  ctype-compat = ?(_, CTypeUnk())
+  ctype-compat = where(strip-annos; eq)
+  ctype-compat = where(strip-annos; ?(CTypeUnk(), _))
+  ctype-compat = where(strip-annos; ?(_, CTypeUnk()))
   ctype-compat = where(warn(|"ctype-compat final fallthrough"); fail)
   // TODO: implement more relaxed checks, e.g. with differing ref indices, and coercion
   //       also compound entry order should not matter
