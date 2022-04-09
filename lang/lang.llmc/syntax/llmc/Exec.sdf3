@@ -8,14 +8,14 @@ imports
 context-free sorts Exec-LL
 context-free syntax
 
-    Exec-LL.ExecAlign-C = <align(<Arg-LL>)>
-    Exec-LL.ExecAnchored-C = <anchored(<Anchor-LL>)>
-    Exec-LL.ExecAs-C = <as(<Arg-LL>)>
-    Exec-LL.ExecAt-C = <at(<Arg-LL>)>
-    Exec-LL.ExecFacingPos-C = <facing(<Arg-LL>)>
-    Exec-LL.ExecFacingEntity-C = <facing_entity(<Arg-LL>, <Anchor-LL>)>
-    Exec-LL.ExecIn-C = <in(<Arg-LL>)>
-    Exec-LL.ExecPositionedPos-C = <positioned(<Arg-LL>)>
-    Exec-LL.ExecPositionedAs-C = <positioned_as(<Arg-LL>)>
-    Exec-LL.ExecRotated-C = <rotated(<Rotation-LL>)>
-    Exec-LL.ExecRotatedAs-C = <rotated_as(<Arg-LL>)>
+    Exec-LL.ExecAlign-LL = <align(<Arg-LL>)>
+    Exec-LL.ExecAnchored-LL = <anchored(<Anchor-LL>)>
+    Exec-LL.ExecAs-LL = <as(<Arg-LL>)>
+    Exec-LL.ExecAt-LL = <at(<Arg-LL>)>
+    Exec-LL.ExecFacingPos-LL = <facing(<Arg-LL>)>
+    Exec-LL.ExecFacingEntity-LL = <facing_entity(<Arg-LL>, <Anchor-LL>)>
+    Exec-LL.ExecIn-LL = <in(<Arg-LL>)>
+    Exec-LL.ExecPositionedPos-LL = <positioned(<Arg-LL>)>
+    Exec-LL.ExecPositionedAs-LL = <positioned_as(<Arg-LL>)>
+    Exec-LL.ExecRotated-LL = <rotated(<Rotation-LL>)>
+    Exec-LL.ExecRotatedAs-LL = <rotated_as(<Arg-LL>)>

@@ -1,0 +1,44 @@
+module transform-execute
+
+imports
+
+  signatures/gazebo-core/-
+  signatures/llmc/-
+  signatures/-
+
+  common
+  transform
+
+  // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
+  str_common
+
+rules // tansform-execute-fragment :: ExecuteFragment-C -> Exec-LL
+
+  tansform-execute-fragment: ExecuteAlign-C(e) -> ExecAlign-LL(<transform-expr(|TypeString-C())> e)
+  tansform-execute-fragment: ExecuteAnchored-C(anchor) -> ExecAnchored-LL(<transform-anchor> anchor)
+  tansform-execute-fragment: ExecuteAs-C(e) -> ExecAs-LL(<transform-expr(|TypeSelector-C())> e)
+  tansform-execute-fragment: ExecuteAt-C(e) -> ExecAt-LL(<transform-expr(|TypeSelector-C())> e)
+  tansform-execute-fragment: ExecuteFacingPos-C(e) -> ExecFacingPos-LL(<transform-expr(|TypePos-C(PosKindAny-C(), TypeFloat-C()))> e)
+  tansform-execute-fragment: ExecuteFacingEntity-C(e, anchor) -> ExecFacingEntity-LL(<transform-expr(|TypeSelector-C())> e, <transform-anchor> anchor)
+  tansform-execute-fragment: ExecuteIn-C(e) -> ExecIn-LL(<transform-expr(|TypeResourceRegistry-C(IdentFull-C("minecraft", ["dimension"])))> e)
+  tansform-execute-fragment: ExecutePositionedPos-C(e) -> ExecPositionedPos-LL(<transform-expr(|TypePos-C(PosKindAny-C(), TypeFloat-C()))> e)
+  tansform-execute-fragment: ExecutePositionedAs-C(e) -> ExecPositionedAs-LL(<transform-expr(|TypeSelector-C())> e)
+  tansform-execute-fragment: ExecuteRotated-C(rotation) -> ExecRotated-LL(<transform-rotation> rotation)
+  tansform-execute-fragment: ExecuteRotatedAs-C(e) -> ExecRotatedAs-LL(<transform-expr(|TypeSelector-C())> e)
+
+rules // transform-anchor :: ExecuteAnchor-C -> Anchor-LL
+
+  transform-anchor: AnchorEyes-C() -> AnchorEyes-LL()
+  transform-anchor: AnchorFeet-C() -> AnchorFeet-LL()
+
+rules // transform-rotation :: Rotation-C -> Rotation-LL
+
+  transform-rotation: Rotation-C(kind1, e1, kind2, e2) -> Rotation-LL(kind1', e1', kind2', e2')
+    with
+      (kind1', kind2') := <all(
+        switch id
+          case ?RotationKindAbs-C(): !RotationKindAbs-LL()
+          case ?RotationKindRel-C(): !RotationKindRel-LL()
+        end
+      )> (kind1, kind2)
+    ; (e1', e2') := <all(transform-expr(|TypeFloat-C()))> (e1, e2)

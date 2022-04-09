@@ -113,5 +113,5 @@ context-free sorts Rotation-LL RotationKind-LL
 context-free syntax
 
     Rotation-LL.Rotation-LL = <(<RotationKind-LL> <Arg-LL>, <RotationKind-LL> <Arg-LL>)>
-    RotationKind-C.RotationKindAbs-C = <abs>
-    RotationKind-C.RotationKindRel-C = <rel>
+    RotationKind-LL.RotationKindAbs-LL = <abs>
+    RotationKind-LL.RotationKindRel-LL = <rel>

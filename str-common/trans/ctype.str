@@ -79,11 +79,28 @@ rules // ctype-clean :: CType -> CType
     ))
   |}
 
-rules // ctype-compat :: (CType-LL, Type) -> id|fail
+rules // ctype-compat :: (dest:CType, src:CType) -> id|fail
 
-  ctype-compat = where(strip-annos; eq)
-  ctype-compat = where(strip-annos; ?(CTypeUnk(), _))
-  ctype-compat = where(strip-annos; ?(_, CTypeUnk()))
-  ctype-compat = where(warn(|"ctype-compat final fallthrough"); fail)
+  ctype-compat =
+    strip-annos
+  ; ctype-compat-
+ <+ warn(|"ctype-compat final fallthrough")
+  ; fail
+
   // TODO: implement more relaxed checks, e.g. with differing ref indices, and coercion
   //       also compound entry order should not matter
+
+  /* the trivial comparisons */
+
+  ctype-compat- = eq
+  ctype-compat- = ?(CTypeUnk(), _)
+  ctype-compat- = ?(_, CTypeUnk())
+
+  /* checks with possible coercions */
+
+  ctype-compat- = ?(CTypeIntS(), <?CTypeIntB()>)
+  ctype-compat- = ?(CTypeIntI(), <?CTypeIntB() + ?CTypeIntS()>)
+  ctype-compat- = ?(CTypeIntL(), <?CTypeIntB() + ?CTypeIntS() + ?CTypeIntI()>)
+
+  ctype-compat- = ?(CTypeFloatS(), <?CTypeIntB() + ?CTypeIntS() + ?CTypeIntI() + ?CTypeIntL()>)
+  ctype-compat- = ?(CTypeFloatD(), <?CTypeIntB() + ?CTypeIntS() + ?CTypeIntI() + ?CTypeIntL() + ?CTypeFloatS()>)

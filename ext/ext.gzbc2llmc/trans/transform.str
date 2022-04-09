@@ -7,13 +7,13 @@ imports
   signatures/-
 
   common
+  transform-execute
+  transform-type
   type-ctype
   type-access
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
-
-  transform-type
 
 rules // transform-tlis(|base) :: List(Tli-C) -> List(Function-LL)
 
@@ -387,7 +387,23 @@ rules // transform-expr :: Expr-C -> Arg-LL
 
   // TODO: boolean logic
   // TODO: range
-  // TODO: pos
+
+  transform-expr(|t): Position-C(kind, PositionCoord-C(x_kind, x), PositionCoord-C(y_kind, y), PositionCoord-C(z_kind, z))
+  -> ArgPos-LL(kind', x'_kind, x', y'_kind, y', z'_kind, z')
+    with
+      // TODO: assert that position kind is compatible with the expected type
+      <?TypePos-C(_, t_coord)> t
+    with
+      kind' := <
+        \PositionKindAbs-C() -> PosAbs-LL()\
+      + \PositionKindLoc-C() -> PosLoc-LL()\
+      + \PositionKindRel-C() -> PosRel-LL()\
+      > kind
+    ; (x'_kind, y'_kind, z'_kind) := <all(
+        \PositionCoordKindAbs-C() -> PosCoordAbs-LL()\
+      + \PositionCoordKindDyn-C() -> PosCoordDyn-LL()\
+      )> (x_kind, y_kind, z_kind)
+    ; (x', y', z') := <all(transform-expr(|t_coord))> (x, y, z)
 
   transform-expr: Raw-C(parts) -> ArgRaw-LL(parts')
     with
@@ -594,7 +610,10 @@ rules // transform-stmt-basic :: Stmt-C -> Assign-LL
 
 rules // transform-stmt-flow :: Stmt-C -> FlowBlock-LL
 
-  // TODO: ExecuteStmt-C
+  transform-stmt-flow: ExecuteStmt-C(fragments*, block) -> res
+    with
+      fragments'* := <map(tansform-execute-fragment)> fragments*
+    ; res := FlowBlock-LL(Execute-LL(fragments'*), [], <transform-block> block)
 
   transform-stmt-flow: LoopStmt-C(cond, block) -> res
     with
