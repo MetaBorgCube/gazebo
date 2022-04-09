@@ -5,6 +5,7 @@ imports
     llmc/Common
     llmc/OpArg
     llmc/Path
+    llmc/Exec
 
 context-free sorts Body-LL
 context-free syntax
@@ -47,3 +48,4 @@ context-free syntax
     Condition-LL.Loop-LL = <loop <Arg-LL>>
     // arg must be ArgCond-LL
     Condition-LL.If-LL = <if <Arg-LL>>
+    Condition-LL.Execute-LL = <execute <Exec-LL+>>

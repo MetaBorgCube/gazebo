@@ -108,3 +108,10 @@ context-free syntax
 
     UnsafePart-LL.UnsafePartString-LL = <<STRING>>
     UnsafePart-LL.UnsafePartFormatted-LL = <(<ID>) <Arg-LL>>
+
+context-free sorts Rotation-LL RotationKind-LL
+context-free syntax
+
+    Rotation-LL.Rotation-LL = <(<RotationKind-LL> <Arg-LL>, <RotationKind-LL> <Arg-LL>)>
+    RotationKind-C.RotationKindAbs-C = <abs>
+    RotationKind-C.RotationKindRel-C = <rel>

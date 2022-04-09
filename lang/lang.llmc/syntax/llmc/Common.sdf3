@@ -75,3 +75,9 @@ context-free syntax
     PosKind-LL.PosAbs-LL = <.>
     PosKind-LL.PosLoc-LL = <^>
     PosKind-LL.PosRel-LL = <~>
+
+context-free sorts Anchor-LL
+context-free syntax
+
+    Anchor-LL.AnchorEyes-LL = <eyes>
+    Anchor-LL.AnchorFeet-LL = <feet>
