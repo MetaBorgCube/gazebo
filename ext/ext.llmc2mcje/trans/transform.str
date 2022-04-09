@@ -88,6 +88,22 @@ rules // transform-flow-block :: FlowBlock-LL -> Command-ASM
       cond* := <transform-cond-exec> cond
     ; block' := <transform-block> block
 
+  transform-flow-block: FlowBlock-LL(Execute-LL(fragments*), _, block) ->
+    Command-Plain-ASM("execute", [
+      args*
+    ])
+    with
+      fragments'* := <map(transform-execfrag)> fragments*
+    ; block' := <transform-block> block
+    ; final_fragment := [
+        Arg-RawString-ASM("run"),
+        Arg-Redirect-ASM(Command-AnonSubUnit-ASM(block'))
+      ]
+    ; args* := <foldr(
+        !final_fragment
+      , \(frag*, prev) -> [frag*, Arg-RedirectSelf-ASM(prev)]\
+      )> fragments'*
+
 rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
 
   // case: compare two nonliteral values
@@ -170,6 +186,118 @@ rules // transform-cond-exec :: BoolCond-LL -> List(Arg-ASM)
   eval-cmp-numeric(|CmpEq-LL()) = eq
   eval-cmp-numeric(|CmpGt-LL()) = gt
   eval-cmp-numeric(|CmpGte-LL()) = geq
+
+rules // transform-execfrag :: Exec-LL -> List(Arg-ASM)
+
+  transform-execfrag =
+    transform-execfrag-
+  ; ?(action, rest*)
+  ; ![Arg-RawString-ASM(action), rest*]
+
+  transform-execfrag-: ExecAlign-LL(ArgString-LL(alignment)) ->
+    (
+      "align",
+      [Arg-RawString-ASM(alignment)]
+    )
+    // TODO: validate alignment value is proper (e.g. "x", "yz", etc.)
+  transform-execfrag-: ExecAnchored-LL(anchor) ->
+    (
+      "anchored",
+      [<transform-anchor> anchor]
+    )
+  transform-execfrag-: ExecAs-LL(ArgSelector-LL(sel)) ->
+    (
+      "as",
+      [<transform-selector> sel]
+    )
+  transform-execfrag-: ExecAt-LL(ArgSelector-LL(sel)) ->
+    (
+      "at",
+      [<transform-selector> sel]
+    )
+  transform-execfrag-: ExecFacingPos-LL(pos) ->
+    (
+      "facing",
+      [Arg-RawString-ASM(<transform-litarg-pos> pos)]
+    )
+  transform-execfrag-: ExecFacingEntity-LL(ArgSelector-LL(sel), anchor) ->
+    (
+      "facing entity",
+      [
+        <transform-selector> sel,
+        <transform-anchor> anchor
+      ]
+    )
+  transform-execfrag-: ExecIn-LL(ArgRes-LL(_, dim, _)) ->
+    (
+      "in",
+      [<transform-nsid> dim]
+    )
+    // TODO: validate registry
+  transform-execfrag-: ExecPositionedPos-LL(pos) ->
+    (
+      "positioned",
+      [Arg-RawString-ASM(<transform-litarg-pos> pos)]
+    )
+  transform-execfrag-: ExecPositionedAs-LL(ArgSelector-LL(sel)) ->
+    (
+      "positioned as",
+      [<transform-selector> sel]
+    )
+  transform-execfrag-: ExecRotated-LL(rotation) ->
+    (
+      "rotated",
+      [<transform-rotation> rotation]
+    )
+  transform-execfrag-: ExecRotatedAs-LL(ArgSelector-LL(sel)) ->
+    (
+      "rotated as",
+      [<transform-selector> sel]
+    )
+
+rules // transform-anchor :: Anchor-LL -> Arg-ASM
+
+  transform-anchor: AnchorEyes-LL() -> Arg-RawString-ASM("eyes")
+  transform-anchor: AnchorFeet-LL() -> Arg-RawString-ASM("feet")
+
+rules // transform-rotation :: Rotation-LL -> Arg-ASM
+
+  transform-rotation =
+    ?Rotation-LL(yaw_kind, yaw, pitch_kind, pitch)
+  ; ![(yaw_kind, yaw), (pitch_kind, pitch)]
+  ; all(
+      \(RotationKindAbs-LL(), value) -> <transform-litarg-rawnumber> value\
+    + \(RotationKindRel-LL(), value) -> <concat-strings> ["~", <transform-litarg-rawnumber> value]\
+    )
+  ; intersperse-concat(|" ")
+  ; !Arg-RawString-ASM(<id>)
+
+rules // transform-litarg-rawnumber :: Arg-LL.{ArgInt*-LL, ArgFloat*-LL} -> string
+
+  transform-litarg-rawnumber: ArgIntB-LL(v) -> v
+  transform-litarg-rawnumber: ArgIntS-LL(v) -> v
+  transform-litarg-rawnumber: ArgIntI-LL(v) -> v
+  transform-litarg-rawnumber: ArgIntL-LL(v) -> v
+  transform-litarg-rawnumber: ArgFloatS-LL(v) -> v
+  transform-litarg-rawnumber: ArgFloatD-LL(v) -> v
+
+rules // transform-litarg-pos :: Arg-LL.ArgPos-LL -> string
+
+  transform-litarg-pos =
+    ?ArgPos-LL(kind, x_kind, x, y_kind, y, z_kind, z)
+  ; ![(x_kind, x), (y_kind, y), (z_kind, z)]
+  ; with(
+      switch !kind
+        case ?PosAbs-LL(): !""
+        case ?PosLoc-LL(): !"^"
+        case ?PosRel-LL(): !"~"
+      end => dyn_prefix
+    )
+  ; all(
+      \(PosCoordAbs-LL(), coord) -> <transform-litarg-rawnumber> coord\
+    + \(PosCoordDyn-LL(), coord) -> <concat-strings> [dyn_prefix, <transform-litarg-rawnumber> coord]\
+    )
+  ; intersperse-concat(|" ")
 
 rules // transform-assign :: Assign-LL -> Command-ASM
 
