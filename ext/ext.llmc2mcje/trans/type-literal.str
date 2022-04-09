@@ -1,4 +1,4 @@
-module type
+module type-literal
 
 imports
 
@@ -7,8 +7,6 @@ imports
   signatures/-
 
   common
-
-  str_common
 
 rules // type-literal-singleton :: Type-LL -> string
 
@@ -48,44 +46,3 @@ rules // type-literal-placeholder :: Type-LL -> Optional(string)
   type-literal-placeholder: TypeCompound-LL(_, _) -> "{}"
   type-literal-placeholder: TypeRes-LL(_) -> "\"\""
   type-literal-placeholder: TypeTag-LL() -> "\"\""
-
-rules // type-clean :: Type-LL -> Type-LL
-
-  /** Clean a type: remove unused internal references, and make references start at zero. */
-
-  type-clean =
-    type-clean--unused-refs
-  ; type-clean--reindex-refs
-
-  type-clean--unused-refs =
-    // collect all use-sites of a type reference
-    with(refs := <collect-all(?TypeRef-LL(<id>))>)
-    // remove decl sites that are not referenced
-  ; topdown(try(
-      ?Some(TypeRefCreate-LL(<id>))
-    ; not(!(<id>, refs); elem)
-    ; !None()
-    ))
-
-  type-clean--reindex-refs = {| TRefUpdate
-  : with(count-topdown(\
-      (tc@TypeRefCreate-LL(actual), <int-to-string => desired>) -> tc
-        where <not(eq)> (actual, desired)
-        with
-          rules(TRefUpdate: actual -> desired)
-    \))
-    // apply all reference index updates
-  ; topdown(try(
-      TypeRefCreate-LL(TRefUpdate)
-    + TypeRef-LL(TRefUpdate)
-    ))
-  |}
-
-rules // type-compat :: (Type-LL, Type-LL) -> id|fail
-
-  type-compat = eq
-  type-compat = ?(TypeUnk-LL(), _)
-  type-compat = ?(_, TypeUnk-LL())
-  type-compat = where(warn(|"type-compat final fallthrough"); fail)
-  // TODO: implement more relaxed checks, e.g. with differing ref indices, and coercion
-  //       also compound entry order should not matter

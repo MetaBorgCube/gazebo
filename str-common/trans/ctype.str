@@ -1,0 +1,88 @@
+module ctype
+
+imports
+
+  cnsid
+  str_common
+
+signature
+
+  sorts
+
+    CType
+    CTypeCompoundEntry
+    CTypePosKind
+    CTypeRefCreate
+
+  constructors
+
+    CTypeString : CType
+    CTypeIntB : CType
+    CTypeIntS : CType
+    CTypeIntI : CType
+    CTypeIntL : CType
+    CTypeFloatS : CType
+    CTypeFloatD : CType
+    CTypeList : Optional(CTypeRefCreate) * CType -> CType
+    CTypeArray : Optional(CTypeRefCreate) * CType -> CType
+    CTypeCompound : Optional(CTypeRefCreate) * List(CTypeCompoundEntry) -> CType
+    CTypePos : CTypePosKind * CType -> CType
+    CTypeRes : CNSID -> CType
+    CTypeTag : CType
+    CTypeSelector : CType
+
+    CTypeRef : int -> CType
+
+    CTypeUnk : CType
+    CTypeBottom : CType
+    CTypeVoid : CType
+
+    CTypeCompoundEntry : string * CType -> CTypeCompoundEntry
+
+    CTypePosAny : CTypePosKind
+    CTypePosAbs : CTypePosKind
+    CTypePosLoc : CTypePosKind
+    CTypePosRel : CTypePosKind
+
+    CTypeRefCreate : int -> CTypeRefCreate
+
+rules // ctype-clean :: CType -> CType
+
+  /** Clean a type: remove unused internal references, and make references start at zero. */
+
+  ctype-clean =
+    ctype-clean--unused-refs
+  ; ctype-clean--reindex-refs
+
+  ctype-clean--unused-refs =
+    // collect all use-sites of a type reference
+    with(refs := <collect-all(?CTypeRef(<id>))>)
+    // remove decl sites that are not referenced
+  ; topdown(try(
+      ?Some(CTypeRefCreate(<id>))
+    ; not(!(<id>, refs); elem)
+    ; !None()
+    ))
+
+  ctype-clean--reindex-refs = {| TRefUpdate
+  : with(count-topdown(\
+      (tc@CTypeRefCreate(actual), desired) -> tc
+        where <not(eq)> (actual, desired)
+        with
+          rules(TRefUpdate: actual -> desired)
+    \))
+    // apply all reference index updates
+  ; topdown(try(
+      CTypeRefCreate(TRefUpdate)
+    + CTypeRef(TRefUpdate)
+    ))
+  |}
+
+rules // ctype-compat :: (CType-LL, Type) -> id|fail
+
+  ctype-compat = eq
+  ctype-compat = ?(CTypeUnk(), _)
+  ctype-compat = ?(_, CTypeUnk())
+  ctype-compat = where(warn(|"ctype-compat final fallthrough"); fail)
+  // TODO: implement more relaxed checks, e.g. with differing ref indices, and coercion
+  //       also compound entry order should not matter

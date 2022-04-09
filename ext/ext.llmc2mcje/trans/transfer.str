@@ -8,6 +8,7 @@ imports
   asm
   common
   loc
+  type-ctype
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
@@ -68,7 +69,7 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
       loc_src_args_data*
     ])
     with
-      <type-compat> (<loc-type> loc_dest, <loc-type> loc_src)
+      <transfer-loc-type-compat> (loc_dest, loc_src)
     with
       loc_dest_args_data* := <loc-args-data> loc_dest
     ; loc_src_args_data* := <loc-args-data> loc_src
@@ -88,7 +89,7 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
       ])
     ])
     with
-      <type-compat> (<loc-type> loc_dest, <loc-type> loc_src)
+      <transfer-loc-type-compat> (loc_dest, loc_src)
     with
       loc_dest_args* := <loc-args-execute> loc_dest
     ; cmd_get := <loc-get> loc_src
@@ -98,3 +99,22 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
 
   // loc+mode combination not supported
   transfer-loc(|_, _) = with(fail)
+
+/** Check if the value from source location can be assigned to the destination location,
+  * witout explicit coercion, such that the destination indeed has a value of its expected type.
+  * This will check for implicit coercion, e.g. when assigning list/array to scoreboard. */
+rules // transfer-loc-type-compat :: (dest:Loc, src:Loc) -> _
+
+  // default policy: plainly compare the types
+  transfer-loc-type-compat = where(
+    (loc-type, loc-type)
+  ; type-compat
+  )
+
+  // scoreboard altenative: list/array can be assigned, will be converted to int
+  transfer-loc-type-compat = where(
+    ?(
+      Scoreboard(_, _)
+    , <loc-type; (?TypeList-LL(_, _) + ?TypeArray-LL(_, _))>
+    )
+  )

@@ -1,0 +1,7 @@
+module cnsid
+
+signature
+
+  sorts CNSID
+  constructors
+    CNSID : string * List(string) -> CNSID

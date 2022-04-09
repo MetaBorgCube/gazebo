@@ -1,0 +1,140 @@
+module ctype-access
+
+imports
+
+  cnsid
+  ctype
+  str_common
+
+signature
+
+  sorts CHole
+  constructors
+    CHoleMk : CType -> CHole
+    CHoleRef : CHole
+    CHoleCommon : CHole
+
+rules
+
+  ctype-access-compound(|key) : CTypeCompound(None(), entries) -> t'
+    with
+      t' := <fetch-elem(?CTypeCompoundEntry(key, <id>))> entries
+  ctype-access-compound(|key) : t@CTypeCompound(Some(CTypeRefCreate(i)), entries)
+    -> <cta--normalize(|[(i, t)])> t'
+    with
+      t' := <fetch-elem(?CTypeCompoundEntry(key, <id>))> entries
+
+rules
+
+  ctype-access-list_array: CTypeList(None(), t') -> t'
+  ctype-access-list_array: CTypeArray(None(), t') -> t'
+  ctype-access-list_array: t@CTypeList(Some(CTypeRefCreate(i)), t')
+    -> <cta--normalize(|[(i, t)])> t'
+  ctype-access-list_array: t@CTypeArray(Some(CTypeRefCreate(i)), t')
+    -> <cta--normalize(|[(i, t)])> t'
+
+strategies // cta--normalize(|Env) :: Type-LL -> Type-LL
+
+  cta--normalize(|env) =
+    cta--expand(|env)
+  ; repeat(cta--contract; ctype-clean)
+
+strategies // cta--expand(|Env) :: Type-LL -> Type-LL
+
+  /** Expand all references, given an origin environment. */
+  cta--expand(|env) =
+    bottomup(try(
+      \CTypeRef(ident) -> <fetch-elem(where(Fst; ?ident)); Snd> env\
+    ))
+
+strategies
+
+  cta--contract = ?o
+  ; with(
+      collect-all(
+        (?CTypeList(Some(CTypeRefCreate(<id>)), _) + ?CTypeArray(Some(CTypeRefCreate(<id>)), _) + ?CTypeCompound(Some(CTypeRefCreate(<id>)), _))
+      , conc
+      ) => origins
+      // assert that all found reference numbers are distinct
+    ; with(is-distinct)
+    )
+  ; !origins
+    // compute the next available reference number
+  ; with(j := <list-max; !(<id>, 1); addi>)
+    // attempt to contract a reference, starting from the first
+  ; fetch-elem(\i -> <cta--contract(|i, j)> o\)
+
+/*
+  Rough algorithm:
+    1. replace decl with hole and get parent
+       - add "j" to tree in-place
+    2. convert all relevant CTypeRef to hole
+    3. collect all hole parents
+    4. ensure they all overlap (by temporarily replacing all Holes with HoleCommon)
+*/
+  cta--contract(|i, j): o -> res
+    where
+      o_holes := <
+        // reference holes
+        topdown(try(\CTypeRef(_) -> CHoleRef()\))
+        // origin holes
+      ; oncetd(
+          ( ?CTypeList(Some(CTypeRefCreate(i)), _)
+          + ?CTypeArray(Some(CTypeRefCreate(i)), _)
+          + ?CTypeCompound(Some(CTypeRefCreate(i)), _)
+          )
+        ; !CHoleMk(<id>)
+        )
+      > o
+      // lookup the parent of the origin
+    ; parent_origin := <cta--parents-of(?CHoleMk(_)); ?[<id>]> o_holes
+      // attach the new reference number to origin's parent,
+      // and remove the temporary CHoleMk holder
+    ; o_holes_newparent := <cta--at-parents-of(?CHoleMk(_), cta--ref-insert(|j); topdown(try(?CHoleMk(<id>))))> o_holes
+      // lookup all parents of reference holes
+    ; parents_ref := <cta--parents-of(?CHoleRef())> o_holes_newparent
+      // rewrite all reference holes to using the new reference index
+    ; res := <cta--at-parents-of(?CHoleRef(), !CTypeRef(j))> o_holes_newparent
+  where // only succeed if all hole parents are equivalent, i.e. have a common structure
+    !([parent_origin], parents_ref)
+  ; cta--hole-common
+  ; all(make-set(ctype-compat))
+  ; union(ctype-compat)
+  ; ?[_]
+
+strategies // AUX
+
+  /** Retrieve a list of the terms for whose which strategy 's' succeeds on at least one of its children. */
+  cta--parents-of(s) = rec x({ parent
+  : ?parent
+  ; (cta--children <+ ![])
+  ; (
+      where(fetch-elem(s))
+    ; ![parent]
+   <+ map(x)
+    ; flatten-list
+    )
+  })
+
+  /** Execute s_transform at the parent term in case s_check succeeds for at least one child.
+   * Continues in top-down fashion. */
+  cta--at-parents-of(s_check, s_transform) = rec x(
+    where(cta--children; fetch-elem(s_check))
+  ; s_transform
+ <+ all(x)
+  )
+
+  /** Get all type children, if avaialable, as a list. */
+  cta--children = ?CTypeList(_, <![<id>]>)
+  cta--children = ?CTypeArray(_, <![<id>]>)
+  cta--children = ?CTypeCompound(_, <map(?CTypeCompoundEntry(_, <id>))>)
+
+  cta--ref-insert(|j) = CTypeList(!Some(CTypeRefCreate(j)), id)
+  cta--ref-insert(|j) = CTypeArray(!Some(CTypeRefCreate(j)), id)
+  cta--ref-insert(|j) = CTypeCompound(!Some(CTypeRefCreate(j)), id)
+
+  /** Enforce all holes to be CHoleCommon. */
+  cta--hole-common = topdown(try(
+    (?CHoleMk(_) + ?CHoleRef())
+  ; !CHoleCommon()
+  ))

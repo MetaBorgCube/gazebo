@@ -10,8 +10,8 @@ imports
   loc
   transfer
   transform-make
-  type
   type-access
+  type-literal
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common

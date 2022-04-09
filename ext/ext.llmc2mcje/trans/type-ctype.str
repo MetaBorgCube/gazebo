@@ -1,0 +1,92 @@
+module type-ctype
+
+imports
+
+imports
+
+  signatures/llmc/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  common
+
+  cnsid
+  ctype
+  str_common
+
+strategies
+
+  type-compat = where(
+    (type-to-ctype, type-to-ctype)
+  ; ctype-compat
+  )
+
+rules
+
+  type-to-ctype: TypeString-LL() -> CTypeString()
+  type-to-ctype: TypeIntB-LL() -> CTypeIntB()
+  type-to-ctype: TypeIntS-LL() -> CTypeIntS()
+  type-to-ctype: TypeIntI-LL() -> CTypeIntI()
+  type-to-ctype: TypeIntL-LL() -> CTypeIntL()
+  type-to-ctype: TypeFloatS-LL() -> CTypeFloatS()
+  type-to-ctype: TypeFloatD-LL() -> CTypeFloatD()
+  type-to-ctype: TypeList-LL(refc, t) -> CTypeList(<type-to-ctype--refc> refc, <type-to-ctype> t)
+  type-to-ctype: TypeArray-LL(refc, t) -> CTypeArray(<type-to-ctype--refc> refc, <type-to-ctype> t)
+  type-to-ctype: TypeCompound-LL(refc, entries) ->
+    CTypeCompound(
+      <type-to-ctype--refc> refc
+    , <map(\TypeCompoundEntry-LL(k, t) -> CTypeCompoundEntry(k, <type-to-ctype> t)\)> entries
+    )
+  type-to-ctype: TypePos-LL(kind, t) ->
+    CTypePos(
+      <switch id
+        case ?PosAny-LL(): !CTypePosAny()
+        case ?PosAbs-LL(): !CTypePosAbs()
+        case ?PosLoc-LL(): !CTypePosLoc()
+        case ?PosRel-LL(): !CTypePosRel()
+      end> kind
+    , <type-to-ctype> t
+    )
+  type-to-ctype: TypeRes-LL(NSID-LL(ns, name)) -> CTypeRes(CNSID(ns, name))
+  type-to-ctype: TypeTag-LL() -> CTypeTag()
+  type-to-ctype: TypeSelector-LL() -> CTypeSelector()
+  type-to-ctype: TypeRef-LL(i) -> CTypeRef(<string-to-int> i)
+  type-to-ctype: TypeUnk-LL() -> CTypeUnk()
+
+  type-to-ctype--refc =
+    opt-map(\TypeRefCreate-LL(i) -> CTypeRefCreate(<string-to-int> i)\)
+
+rules
+
+  type-from-ctype: CTypeString() -> TypeString-LL()
+  type-from-ctype: CTypeIntB() -> TypeIntB-LL()
+  type-from-ctype: CTypeIntS() -> TypeIntS-LL()
+  type-from-ctype: CTypeIntI() -> TypeIntI-LL()
+  type-from-ctype: CTypeIntL() -> TypeIntL-LL()
+  type-from-ctype: CTypeFloatS() -> TypeFloatS-LL()
+  type-from-ctype: CTypeFloatD() -> TypeFloatD-LL()
+  type-from-ctype: CTypeList(refc, t) -> TypeList-LL(<type-from-ctype--refc> refc, <type-from-ctype> t)
+  type-from-ctype: CTypeArray(refc, t) -> TypeArray-LL(<type-from-ctype--refc> refc, <type-from-ctype> t)
+  type-from-ctype: CTypeCompound(refc, entries) ->
+    TypeCompound-LL(
+      <type-from-ctype--refc> refc
+    , <map(\CTypeCompoundEntry(k, t) -> TypeCompoundEntry-LL(k, <type-from-ctype> t)\)> entries
+    )
+  type-from-ctype: CTypePos(kind, t) ->
+    TypePos-LL(
+      <switch id
+        case ?CTypePosAny(): !PosAny-LL()
+        case ?CTypePosAbs(): !PosAbs-LL()
+        case ?CTypePosLoc(): !PosLoc-LL()
+        case ?CTypePosRel(): !PosRel-LL()
+      end> kind
+    , <type-from-ctype> t
+    )
+  type-from-ctype: CTypeRes(CNSID(ns, name)) -> TypeRes-LL(NSID-LL(ns, name))
+  type-from-ctype: CTypeTag() -> TypeTag-LL()
+  type-from-ctype: CTypeSelector() -> TypeSelector-LL()
+  type-from-ctype: CTypeRef(i) -> TypeRef-LL(<int-to-string> i)
+  type-from-ctype: CTypeUnk() -> TypeUnk-LL()
+
+  type-from-ctype--refc =
+    opt-map(\CTypeRefCreate(i) -> TypeRefCreate-LL(<int-to-string> i)\)
