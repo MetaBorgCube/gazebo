@@ -24,5 +24,5 @@ rules
 
   generate-llmc: Start-C(IdentFull-C(ns, name*), tlis) -> transformed
     with // the implicate-injections-gazebo-core is a temporary workaround for it not working correctly in Statix runtime
-      desugared := <map(implicate-injections-gazebo-core); desugar-all> tlis
-    ; transformed := <filter(relevant-tli); map(transform-tli(|[ns | name*]))> desugared
+      desugared := <map(implicate-injections-gazebo-core); desugar-all; filter(relevant-tli)> tlis
+    ; transformed := <transform-tlis(|[ns | name*])> desugared

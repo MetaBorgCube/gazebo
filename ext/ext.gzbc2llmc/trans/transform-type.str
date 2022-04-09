@@ -46,7 +46,8 @@ rules // transform-type :: Type-C -> Type-LL
     -> TypeCompound-LL(<transform-type-ref-create-opt> ref_create, members')
     with
       members' := <map(
-        \InterfaceMemb-C(name, t) -> TypeCompoundEntry-LL(<string-denorm> name, <transform-type> t)\
+        // name already in denorm form
+        \InterfaceMemb-C(name, t) -> TypeCompoundEntry-LL(name, <transform-type> t)\
       )> members
 
   transform-type: TypeUnk-C() -> TypeUnk-LL()

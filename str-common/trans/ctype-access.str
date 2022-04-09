@@ -16,12 +16,12 @@ signature
 
 rules
 
-  ctype-access-compound(|key) : CTypeCompound(None(), entries) -> t'
-    with
+  ctype-access-compound(|<strip-annos => key>) : CTypeCompound(None(), <strip-annos => entries>) -> t'
+    where
       t' := <fetch-elem(?CTypeCompoundEntry(key, <id>))> entries
-  ctype-access-compound(|key) : t@CTypeCompound(Some(CTypeRefCreate(i)), entries)
+  ctype-access-compound(|<strip-annos => key>) : t@CTypeCompound(Some(CTypeRefCreate(i)), <strip-annos => entries>)
     -> <cta--normalize(|[(i, t)])> t'
-    with
+    where
       t' := <fetch-elem(?CTypeCompoundEntry(key, <id>))> entries
 
 rules

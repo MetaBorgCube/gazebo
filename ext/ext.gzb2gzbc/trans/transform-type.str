@@ -111,7 +111,7 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
       fields := <
         tt-scope-query-fields-recursive(|a)
       ; tt-fields-shadow
-      ; map(\(name, t) -> InterfaceMemb-C(name, <type-convert-(|a)> t)\)
+      ; map(\(name, t) -> InterfaceMemb-C(<string-denorm> name, <type-convert-(|a)> t)\)
       > s
     ); !TypeInterface-C(<id>, fields))
 

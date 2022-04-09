@@ -91,7 +91,7 @@ rules // loc-args-data :: Loc -> List(Arg-ASM)
 
   loc-args-data: loc@Scoreboard(_, _) -> loc'*
     with
-      loc' := <loc-new-stack(|"$sb_access")>
+      loc' := <loc-new-stack(|"$sb_access", TypeIntI-LL())>
     ; loc'* := <loc-args-data> loc'
     ; cmd_transfer := <transfer-loc(|loc')> loc
     ; rules(EmitCommand-Pre:+ _ -> cmd_transfer)
@@ -173,9 +173,9 @@ rules // loc-get :: Loc -> Command-ASM
 strategies
 
   /** create a unique stack reference for the given basename */
-  loc-new-stack(|basename) =
+  loc-new-stack(|basename, t) =
     !DataStorage(
-      TypeUnk-LL(),
+      t,
       NSID("gzb.__temp__", ["_internal"]),
       Path-LL([
         Select-LL(<string-denorm> "_stack"),

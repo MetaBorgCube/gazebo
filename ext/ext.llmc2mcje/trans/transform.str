@@ -283,9 +283,10 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
       // TODO: transfer return value
     ]))
     with
-      arg_area := <loc-new-stack(|"$args")>
+      arg_area_t := <extract-args-area-type> args*
+    ; arg_area := <loc-new-stack(|"$args", arg_area_t)>
     ; init_arg_area := <transfer-raw(|arg_area)> "{}"
-    ; arg_transfers* := <map(command-force-cluster({arg_dest: \ArgNamed-LL(name, value) ->
+    ; arg_transfers* := <map(command-force-cluster({arg_dest: \ArgParam-LL(name, _, value) ->
         <assign-arg-to-loc(|arg_dest)> value
         with
           arg_dest := <loc-access-path(|arg_area)> Path-LL([Select-LL(<string-denorm> name)])
@@ -467,3 +468,9 @@ strategies // assign-arg-to-loc(|Loc) :: Arg-LL -> Command-ASM
   ; opt-map(transfer-raw(|dest))
     // else simply do nothing, because the value will be filled in emitted post
   ; opt-unwrap(!Command-NoOp-ASM())
+
+strategies // extract-args-area-type :: List(Arg-LL.ArgParam-LL) -> Type-LL
+
+  extract-args-area-type =
+    map(\ArgParam-LL(name, t, _) -> TypeCompoundEntry-LL(<string-denorm> name, t)\)
+  ; !TypeCompound-LL(None(), <id>)

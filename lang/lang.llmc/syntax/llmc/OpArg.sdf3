@@ -4,6 +4,7 @@ imports
 
     llmc/Common
     llmc/Path
+    llmc/Type
 
 context-free sorts Op-LL
 context-free syntax
@@ -44,7 +45,7 @@ context-free syntax
 
     Arg-LL.ArgCond-LL = BoolCond-LL
     Arg-LL.ArgFunction-LL = <<NSID-LL>>
-    Arg-LL.ArgNamed-LL = <<ID>@<Arg-LL>>
+    Arg-LL.ArgParam-LL = <(<ID> <Type-LL>)@<Arg-LL>>
 
 context-free sorts RangePart-LL
 context-free syntax

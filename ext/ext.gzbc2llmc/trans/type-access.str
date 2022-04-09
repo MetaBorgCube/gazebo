@@ -1,0 +1,38 @@
+module type-access
+
+imports
+
+  signatures/llmc/-
+  // BUG: this would have been sufficient (below), but transitive imports are not so great for source deps apparently
+  signatures/-
+
+  common
+  type-ctype
+
+  ctype-access
+
+strategies // type-access-path(|Path-LL) :: Type-LL -> Type-LL
+
+  type-access-path(|Path-LL([])) = id
+  type-access-path(|Path-LL(elems)) =
+    !(elems, <type-to-ctype>)
+  ; foldl(type-access-path--elem)
+  ; type-from-ctype
+
+rules // type-access-path--elem :: (PathElem-LL, CType) -> CType
+
+  type-access-path--elem: (Select-LL(key), t) -> <ctype-access-compound(|key)> t
+  type-access-path--elem: (IndexFix-LL(_), t) -> <ctype-access-list_array> t
+  type-access-path--elem: (IndexDyn-LL(_), t) -> <ctype-access-list_array> t
+
+strategies // aliases
+
+  type-access-compound(|key) =
+    type-to-ctype
+  ; ctype-access-compound(|key)
+  ; type-from-ctype
+
+  type-access-list_array =
+    type-to-ctype
+  ; ctype-access-list_array
+  ; type-from-ctype

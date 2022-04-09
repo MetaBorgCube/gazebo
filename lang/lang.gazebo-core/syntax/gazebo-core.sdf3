@@ -9,6 +9,7 @@ imports
     gazebo-core/Mixin
     gazebo-core/Registry
     gazebo-core/Type
+    gazebo-core/Typeof
 
 context-free start-symbols
 
@@ -30,6 +31,7 @@ context-free syntax
 
 context-free syntax
 
+    Tli-C = Typeof-C
     Tli-C = Mixin-C
     Tli-C = Function-C
     Tli-C = Decl-C

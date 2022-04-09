@@ -16,6 +16,7 @@ signature
 
   constructors
 
+    CTypeArbitraryConstant : Any -> CType
     CTypeString : CType
     CTypeIntB : CType
     CTypeIntS : CType

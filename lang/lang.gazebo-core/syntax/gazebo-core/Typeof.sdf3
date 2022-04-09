@@ -1,0 +1,15 @@
+module gazebo-core/Typeof
+
+imports
+
+    gazebo-core/Common
+    gazebo-core/Identifier
+    gazebo-core/Type
+
+context-free sorts
+
+    Typeof-C
+
+context-free syntax
+
+    Typeof-C.TypeofGlobal-C = <typeof <IdentFull-C> = <Type-C>>

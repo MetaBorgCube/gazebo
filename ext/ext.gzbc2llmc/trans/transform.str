@@ -7,11 +7,23 @@ imports
   signatures/-
 
   common
+  type-access
 
   // BUG: transitive from 'common', but included here because otherwise the eclipse editor complains
   str_common
 
   transform-type
+
+rules // transform-tlis(|base) :: List(Tli-C) -> List(Function-LL)
+
+  transform-tlis(|base) = {| RefType
+    // register types of global references used in this file
+  : all(try(where(
+      \TypeofGlobal-C(<strip-annos => identf>, <strip-annos => t>) -> <rules(RefType:+ RefFull-C(identf) -> t)>\
+    )))
+  ; filter(not(?TypeofGlobal-C(_, _)))
+  ; map(transform-tli(|base))
+  |}
 
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
@@ -22,8 +34,12 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       Body-LL(block')
     )
     with
-      {| RegisterDecl, GlobalLookup
-      : block' := <transform-block> block
+      {| RefType, RegisterDecl, GlobalLookup
+        // make sure all parameters are registered in scope
+      : <map(
+          \Param-C(_, <strip-annos => name>, <strip-annos => t>) -> <rules(RefType:+ RefLocal-C(IdentLocal-C(name)) -> t)>\
+        )> params
+      ; block' := <transform-block> block
       ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
       |}
     ; decl_sign* := <map({t': \Param-C(kind, name, t) -> Decl-LL(SSign-LL(), mod*, name, t', StorageLocationAuto-LL())
@@ -98,8 +114,8 @@ rules // transform-block :: Block-C -> Block-LL
     )
 
   transform-block: Block-C(stmts) -> block_out
-    with
-      flow_blocks := <rec x({group, sep, tail, blocks, next :
+    with {| RefType
+    : flow_blocks := <rec x({group, sep, tail, blocks, next :
         // try to make a split at the first flow block
         ( split-fetch-keep(not(is-basic-stmt))
         ; ?(group, sep, tail)
@@ -121,6 +137,7 @@ rules // transform-block :: Block-C -> Block-LL
         // then the entire input must consist of basic statements
      <+ ![<flow-block-from-basic-stmts>]
       })> stmts
+    |}
     // NOTE: this simplification step is NOT NECESSARY and could be moved to a dedicated simplification strategy
     with
       // if there ended up only being a single unconditional flow block (WITHOUT modifiers), then just return its content
@@ -196,13 +213,17 @@ rules // transform-expr :: Expr-C -> Arg-LL
 
   transform-expr(|t): NbtCompound-C(kvs) -> ArgCompound-LL(kvs')
     with
-      kvs' := <map(\NbtCompoundEntry-C(k, v) -> CompoundEntry-LL(k, <transform-expr(|t')> v) with t' := TypeUnk-C()\)> kvs
+      kvs' := <map(
+        \NbtCompoundEntry-C(k, v) -> CompoundEntry-LL(k, <transform-expr(|t')> v)
+          with t' := <type-access-compound(|k)> t
+        \
+      )> kvs
   transform-expr(|t): NbtArray-C(elems) -> ArgArray-LL(<map(transform-expr(|t'))> elems)
     with
-      t' := TypeUnk-C() // TODO: Type-C
+      t' := <type-access-list_array> t
   transform-expr(|t): NbtList-C(elems) -> ArgList-LL(<map(transform-expr(|t'))> elems)
     with
-      t' := TypeUnk-C() // TODO: Type-C
+      t' := <type-access-list_array> t
 
   // TODO: check that the expected type corresponds
   // TODO: insert value coercion if necessary
@@ -231,14 +252,15 @@ rules // transform-expr :: Expr-C -> Arg-LL
   global-ident =
     GlobalLookup
  <+ ?nsid@NSID-LL(ns, name)
-  ; ident:= <newname> "$glob_ref"
+  ; t := <strip-annos; RefType> RefFull-C(IdentFull-C(ns, name))
+  ; ident := <newname> "$glob_ref"
   ; (name', name_last) := <split-init-last> name
   ; rules(GlobalLookup: nsid -> ident)
   ; rules(RegisterDecl:+ _ -> Decl-LL(
       SGlobal-LL(),
       [],
       ident,
-      TypeUnk-LL(), // TODO: Type-C
+      <transform-type> t,
       StorageLocationData-LL(NSID-LL(ns, name'), Path-LL([Select-LL(<string-denorm> name_last)]))
     ))
   ; !ident
@@ -273,7 +295,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
     with
       target' := ArgFunction-LL(<nsid-from-identf> target)
     ; arg'* := <map(\Arg-C(name, t_arg, e) ->
-        ArgNamed-LL(name, <transform-expr(|t_arg)> e)
+        ArgParam-LL(name, <transform-type> t_arg, <transform-expr(|t_arg)> e)
       \)> arg*
     ; ident := <newname> "$invoke"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
@@ -428,7 +450,7 @@ rules // rvalue/lvalue manipulation
   arg-lit-int: ArgIntI-LL(i) -> i
   arg-lit-int: ArgIntL-LL(i) -> i
 
-  unwrap-find-inner: FindIndex-C(e, idx) -> (e, Some(elem))
+  unwrap-find--inner: FindIndex-C(e, idx) -> (e, Some(elem))
     with
       idx' := <transform-expr(|TypeInt-C())> idx
     ; if <?ArgVar-LL(var)> idx' then
@@ -441,13 +463,13 @@ rules // rvalue/lvalue manipulation
         ; fail
         end
       end
-  unwrap-find-inner: FindKey-C(e, key) -> (e, Some(Select-LL(key)))
-  unwrap-find-inner: e -> (e, None())
-  unwrap-find: e -> (e_out, Path-LL(<reverse> parts))
+  unwrap-find--inner: FindKey-C(e, key) -> (e, Some(Select-LL(key)))
+  unwrap-find--inner: e -> (e, None())
+  unwrap-find: e -> ((e_out, path), t')
     with
       (e', parts) := <rec x({e', part, part', tail, parts: \e -> (e'', parts)
         with
-          (e', part) := <unwrap-find-inner> e
+          (e', part) := <unwrap-find--inner> e
         ; if <?Some(part')> part then
             (e'', tail) := <x> e'
           ; parts := [part' | tail]
@@ -456,21 +478,26 @@ rules // rvalue/lvalue manipulation
           ; parts := []
           end
       \})> e
+    ; path := Path-LL(<reverse> parts)
     with
-      // TODO: Type-C, based on type-access like in llmc2mcje
-      e_out := <transform-expr(|TypeUnk-C())> e'
+      // take RefType, because unwrap-find only supports references
+      if not(t := <strip-annos; RefType> e') then
+        <err(|"Cannot compute Lvalue on non-reference inner expression")> e'
+      ; fail
+      end
+    ; t' := <type-access-path(|path)> t
+    with
+      e_out := <transform-expr(|t)> e'
 
   /** lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL */
   // case: preexisting local variable
-  lvalue-mk-varpath: (ArgVar-LL(var), path) -> DestVarPath-LL(var, path)
-  /** lvalue :: Expr-C -> AssignDest-LL */
+  lvalue--mk-varpath: (ArgVar-LL(var), path) -> DestVarPath-LL(var, path)
+  /** lvalue :: Expr-C -> (AssignDest-LL, Type-C) */
   lvalue =
     unwrap-find
-  ; lvalue-mk-varpath
+  ; (lvalue--mk-varpath, id)
     // simplfy to DestVar-LL if the path happened to be empty
-  ; try(\DestVarPath-LL(var, Path-LL([])) -> DestVar-LL(var)\)
-    // TODO: Type-LL
-  ; !(<id>, TypeUnk-C())
+  ; (try(\DestVarPath-LL(var, Path-LL([])) -> DestVar-LL(var)\), id)
 
   rvalue-from-lvalue(|_): DestVar-LL(var) -> ArgVar-LL(var)
   rvalue-from-lvalue(|t): DestVarPath-LL(var, path) -> ArgVar-LL(ident)
@@ -495,9 +522,10 @@ rules // rvalue/lvalue manipulation
 rules // transform-stmt-basic :: Stmt-C -> Assign-LL
 
   transform-stmt-basic: Decl-C(kind, name, t, e) ->
-    <transform-stmt-basic> AssignStmt-C(refc, AssignOperatorEq-C(), e)
+    <transform-stmt-basic> AssignStmt-C(refl, AssignOperatorEq-C(), e)
     with
-      refc := RefLocal-C(IdentLocal-C(name))
+      refl := <strip-annos> RefLocal-C(IdentLocal-C(name))
+    ; rules(RefType:+ refl -> t)
     ; if <?DeclKindConst-C()> kind then
         modifiers := [ModConst-LL()]
       else
@@ -511,7 +539,6 @@ rules // transform-stmt-basic :: Stmt-C -> Assign-LL
         t',
         StorageLocationAuto-LL()
       ))
-    ; rules(RefType:+ refc -> t)
 
   transform-stmt-basic: DiscardStmt-C(e) ->
     AssignNew-LL(

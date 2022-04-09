@@ -20,7 +20,8 @@ strategies
 strategies
 
   relevant-tli =
-    ?Function-C(_, _, _)
+    ?TypeofGlobal-C(_, _)
+  + ?Function-C(_, _, _)
   + ?Decl-C(_, _, _, _)
 
   is-lit-or-ref =

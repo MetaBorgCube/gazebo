@@ -16,9 +16,18 @@ imports
 
 rules // transform :: List(Tli) -> List(Tli-C)
 
-  transform =
-    map(transform-tli)
+  transform = {| EmitTypeofGlobal
+  : map(transform-tli)
   ; flatten-list
+  ; ![
+      // TODO: deduplicate
+      <(bagof-EmitTypeofGlobal <+ ![]); map(transform--emit-typeof-global)>()
+    , <id>
+    ]
+  ; concat
+  |}
+
+  transform--emit-typeof-global: (identf, t) -> TypeofGlobal-C(identf, t)
 
 rules // transform-tli :: Tli -> Tli-C|List(Tli-C)
 
@@ -145,14 +154,25 @@ rules // transform-expr :: Expr -> Expr-C
       + \RawPart(str) -> RawText-C(<string-denorm> str)\
       )> parts
 
-  transform-expr: Ref(nsid) -> ref'
+  transform-expr: ref@Ref(nsid) -> ref'
     with
       ref' := <
         identf-from-nsid
       ; !RefFull-C(<id>)
      <+ ?NSIDRel(NSIDName([NSIDNamePart(<id>)]))
       ; !RefLocal-C(IdentLocal-C(<id>))
-     > nsid
+      > nsid
+    with try(
+      // attempt to transform the type, which is expected to fail for functions for example,
+      //  or for any other type that has no representation in GZB.
+      //  that's why this is all in a try block
+      t := <transform-type-lookup> ref
+    ; { identf
+      : if <?RefFull-C(identf)> ref' then
+          rules(EmitTypeofGlobal:+ _ -> (identf, t))
+        end
+      }
+    )
 
   transform-expr: FindIndex(e, i) -> FindIndex-C(<transform-expr> e, <transform-expr> i)
   transform-expr: FindPath(e, memb) -> FindKey-C(<transform-expr> e, <string-denorm> memb)

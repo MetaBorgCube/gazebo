@@ -41,7 +41,7 @@ strategies // asm(|NSID) :: Unit-ASM
 
   asm(|function_base) =
     {| BaseNSID, EmitFunction
-    : with(rules(BaseNSID: _ -> function_base))
+    : with(rules(BaseNSID := function_base))
     ; asm-unit(true|"", "")
     ; <bagof-EmitFunction; reverse <+ ![]>()
     |}

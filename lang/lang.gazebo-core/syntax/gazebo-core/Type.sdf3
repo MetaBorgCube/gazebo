@@ -83,8 +83,7 @@ context-free syntax
         }
     >
 
-    // TODO: also allow arbitrary string key?
-    InterfaceMemb-C.InterfaceMemb-C = <<ID> <Type-C>>
+    InterfaceMemb-C.InterfaceMemb-C = <<STRING> <Type-C>>
 
 context-free syntax
 
