@@ -76,3 +76,18 @@ strategies // is-simple-type :: Type -> id
   + ?TypeBool()
   + ?TypeInt()
   + ?TypeFloat()
+
+strategies // stx-get-scopegraph-data-ext(|Analysis, relation:string) :: Scope -> List(any)
+
+  // Workaround for metaborg/nabl#94, see: https://slde.slack.com/archives/C7254SF60/p1649660409194699
+  stx-get-scopegraph-data-ext(|a, rel) = ?s
+  ; stx-get-scopegraph-data(|a, rel)
+  ; try(
+      ?[]; !s
+      // extract the resource identifier from the scope and drop the "/./" prefix
+    ; where(Scope(string-as-chars(drop(|3)) => resource, id))
+      // attempt to retrieve the analysis state from the extenal scope
+    ; where(a' := <stx-get-ast-analysis> (){TermIndex(resource, -1)})
+      // execute in the external context
+    ; stx-get-scopegraph-data(|a', rel)
+    )

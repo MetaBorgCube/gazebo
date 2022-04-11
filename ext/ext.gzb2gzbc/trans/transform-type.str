@@ -70,7 +70,7 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
   type-convert-(|a): ENUM(s, t@INT()) -> TypeEnumInt-C(members)
     with
       members := <
-        stx-get-scopegraph-data(|a, "statics/common!memb")
+        stx-get-scopegraph-data-ext(|a, "statics/common!memb")
       ; filter(?(_, ENUM_V_INT(_)) + ?(_, ENUM_V_STR(_)))
       ; map(
           \((name, _, _), ENUM_V_INT(v)) -> EnumMembInt-C(name, <int-to-string> v)\
@@ -80,7 +80,7 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
   type-convert-(|a): ENUM(s, t@STRING()) -> TypeEnumString-C(members)
     with
       members := <
-        stx-get-scopegraph-data(|a, "statics/common!memb")
+        stx-get-scopegraph-data-ext(|a, "statics/common!memb")
       ; filter(?(_, ENUM_V_STR(_)))
       ; map(
           \((name, _, _), ENUM_V_STR(v)) -> EnumMembString-C(name, v)\
@@ -146,7 +146,8 @@ strategies // AUX
   */
   tt-scope-query-fields-recursive(|a): s -> <concat> [fields, edges'*]
     with
-      fields := <stx-get-scopegraph-data(|a, "statics/common!field")> s
+      fields := <stx-get-scopegraph-data-ext(|a, "statics/common!field")> s
+      // TODO: maybe edges need a patched version like stx-get-scopegraph-data
     ; edges := <stx-get-scopegraph-edges(|a, "statics/common!B")> s
     ; edges'* := <map(tt-scope-query-fields-recursive(|a))> edges
 
