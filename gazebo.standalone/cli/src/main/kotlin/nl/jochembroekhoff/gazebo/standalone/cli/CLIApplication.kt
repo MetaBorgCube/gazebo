@@ -97,7 +97,7 @@ class CLIApplication : Callable<Int> {
                         languageArchiveProvider = ::languageArchiveProvider,
                     )
                 ).use { spoofax ->
-                    val packTaskChain = EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_8)
+                    val packTaskChain = EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_9)
                         .runIf(compress) {
                             chain { dpLoc ->
                                 CompressDataPackTask(dpLoc)

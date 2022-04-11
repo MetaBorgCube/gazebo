@@ -115,7 +115,7 @@ class MainController {
             )
 
             val success = GazeboRunner(runnerConfig)
-                .withAdditionalTask(EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_8))
+                .withAdditionalTask(EmitDataPackTask(EmitDataPackTask.PackFormat.VERSION_9))
                 .run(
                     spoofax,
                     ProgressBarProgressImpl(compileProgress, compileStatus)

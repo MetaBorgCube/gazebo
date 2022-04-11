@@ -21,8 +21,12 @@ class EmitDataPackTask(private val format: PackFormat) : AdditionalTask<FileObje
         VERSION_6(6),
         /** MC:JE 1.17 */
         VERSION_7(7),
-        /** MC:JE 1.18 */
+        /** MC:JE 1.18-1.18.1 */
         VERSION_8(8),
+        /** MC:JE 1.18.2 */
+        VERSION_9(9),
+        /** MC:JE 1.19 */
+        VERSION_10(10),
     }
 
     private var result: FileObject? = null
