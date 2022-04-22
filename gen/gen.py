@@ -89,7 +89,7 @@ def parse_nsid(input: str):
 
 
 def _escape_nsid_part(part: str):
-    possible_keywords = {"match", "true", "false"}
+    possible_keywords = {"count", "match", "true", "false"}
     if "." in part or "-" in part or part in possible_keywords:
         return f"`{part}`"
     return part
