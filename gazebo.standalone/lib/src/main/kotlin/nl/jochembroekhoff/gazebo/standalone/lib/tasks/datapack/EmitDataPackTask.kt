@@ -1,5 +1,7 @@
 package nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack
 
+import nl.jochembroekhoff.gazebo.standalone.lib.imp.IMPHandlesAnnotation
+import nl.jochembroekhoff.gazebo.standalone.lib.imp.IMPParser
 import nl.jochembroekhoff.gazebo.standalone.lib.tasks.AdditionalTask
 import org.apache.commons.io.IOUtils
 import org.apache.commons.vfs2.FileObject
@@ -39,19 +41,32 @@ class EmitDataPackTask(private val format: PackFormat) : AdditionalTask<FileObje
         packDir.createFolder()
         result = packDir
 
+        val packDataDir = packDir.resolveFile("data")
+
         val mcFunctionDir = paths.srcGenDir().resolveFile("gzb-fin-interm")
         mcFunctionDir.children.asSequence()
             .filter { it.isFolder }
             .forEach { namespaceDir ->
                 val namespace = mcFunctionDir.name.getRelativeName(namespaceDir.name)
-                val namespacePackDir = packDir.resolveFile("data").resolveFile(namespace)
+                val namespacePackDir = packDataDir.resolveFile(namespace)
 
                 // copy all functions into the data pack
                 val functionsPackDir = namespacePackDir.resolveFile("functions")
                 functionsPackDir.copyFrom(namespaceDir, AntPatternFileSelector("**/*.mcfunction"))
             }
 
-        // TODO: write tag files
+        // TODO: put in separate function
+        packDataDir.findFiles(AntPatternFileSelector("*/functions/**/*.mcfunction")).forEach {
+            IMPParser.parseSpecFromMcfunction(it.content)?.let { spec ->
+                spec.annotations.asSequence()
+                    .filterIsInstance<IMPHandlesAnnotation>()
+                    .flatMap { anno -> anno.handles }
+                    .forEach { tag ->
+                        // TODO: actually register in JSON file
+                        println("Register ${spec.name} to tag $tag")
+                    }
+            }
+        }
 
         packDir.resolveFile("pack.mcmeta").content.outputStream.use {
             IOUtils.write(

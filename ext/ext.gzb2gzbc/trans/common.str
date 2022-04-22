@@ -87,7 +87,13 @@ strategies // stx-get-scopegraph-data-ext(|Analysis, relation:string) :: Scope -
       // extract the resource identifier from the scope and drop the "/./" prefix
     ; where(Scope(string-as-chars(drop(|3)) => resource, id))
       // attempt to retrieve the analysis state from the extenal scope
-    ; where(a' := <stx-get-ast-analysis> (){TermIndex(resource, -1)})
+    ; where(
+        a' := <stx-get-ast-analysis> (){TermIndex(resource, -1)}
+        // try also with "data/" prefix, because in standalone env
+        //  all sources files are actually relative to the data folder
+        //  (THIS IS PROBABLY ALSO A BUG: one would expect the path to be consistent)
+     <+ a' := <stx-get-ast-analysis> (){TermIndex(<concat-strings> ["data/", resource], -1)}
+      )
       // execute in the external context
     ; stx-get-scopegraph-data(|a', rel)
     )

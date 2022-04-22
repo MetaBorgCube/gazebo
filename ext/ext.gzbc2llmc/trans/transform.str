@@ -65,7 +65,7 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       [
         // Register the global initializer to be run upon world init
         // TODO: guarantee initialization order
-        NSID-LL("minecraft", ["init"])
+        TagRegistration-LL(NSID-LL("minecraft", ["init"]))
       ],
       decls,
       Body-LL(block')
