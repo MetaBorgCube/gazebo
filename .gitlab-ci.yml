@@ -1,11 +1,12 @@
 stages:
-  - build
+  - build-first
+  - build-second
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 build-spoofax:
-  stage: build
+  stage: build-first
   image: maven:3.8-openjdk-11
   script:
     - mvn package
@@ -14,7 +15,7 @@ build-spoofax:
       - misc/target/out-lang
 
 build-standalone:
-  stage: build
+  stage: build-second
   image: gradle:7.3-jdk11
   dependencies:
     - build-spoofax
