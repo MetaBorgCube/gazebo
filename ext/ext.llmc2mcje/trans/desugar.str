@@ -12,7 +12,7 @@ imports
 strategies
 
   desugar-function =
-    ?Function-LL(nsid, _, _)
+    ?Function-LL(nsid, _, _, _)
   ; bottomup(try(desugar(|nsid)))
 
 rules

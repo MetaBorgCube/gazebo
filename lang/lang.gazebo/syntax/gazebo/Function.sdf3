@@ -33,7 +33,7 @@ context-free syntax
     RetSpec.RetSpec = [-> [Type]]
 
     FnSpec.FnSpec = <
-        <Tag*>
+        <{Tag "\n"}*>
         <FnMod*> func <ID><Sign>>
 
     Fn.FnBlock = <

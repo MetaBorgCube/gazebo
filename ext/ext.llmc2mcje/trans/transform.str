@@ -40,7 +40,7 @@ strategies
 strategies // transform-function :: Function-LL -> Unit-ASM
 
   transform-function =
-    ?Function-LL(_, decls, Body-LL(body_block))
+    ?Function-LL(_, _, decls, Body-LL(body_block))
   ; {| VarLoc
     : <map(register-decl)> decls
     ; <transform-block> body_block

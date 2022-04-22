@@ -23,7 +23,8 @@ rules
         !ret[Tret] in s_body,
         blockOk(s_body, body),
 
-        fnOk_common(s, name, Tparams, Tret).
+        fnOk_common(s, name, Tparams, Tret),
+        fnTagsOk(s, tags).
 
     fnOk(s, FnExpr(FnSpec(tags, modifiers, name, signature), e)) :- {s_params s_body Te Tparams Tret}
         (Tparams, Tret) == typeOfSign(s, signature),
@@ -35,7 +36,8 @@ rules
         typeOfExpr(withTypeInject(s_body, Tret), e) == Te,
         subtype(Te, Tret) | error $[actual returned type does not conform to the spec ([Tret])]@e,
 
-        fnOk_common(s, name, Tparams, Tret).
+        fnOk_common(s, name, Tparams, Tret),
+        fnTagsOk(s, tags).
 
     fnOk(s, FnExt(name, signature)) :- {Tparams Tret}
         (Tparams, Tret) == typeOfSign(s, signature),
@@ -46,6 +48,13 @@ rules
     fnOk_common(s, name, Tparams, Tret) :-
         declareMemb(s, name, MEMB_MODVARFN(), FUNC(Tparams, Tret)),
         storeTliFullName(s, name).
+
+    fnTagsOk maps fnTagOk(*, list(*))
+    fnTagOk : scope * Tag
+    fnTagOk(s, Tag(nsid)) :- {curr}
+        (curr, _) == currentMod(s),
+        // resolve the absolute location, with "..." being resolved relative to "minecraft:"
+        @nsid.full := absoluteStrict(nsidi(nsid), curr, ("minecraft", [])).
 
 rules
 

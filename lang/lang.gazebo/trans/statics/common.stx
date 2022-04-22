@@ -130,22 +130,22 @@ rules
     /** rel * base -> abs */
     absolute : NSIDi * NSIDi -> NSIDi
 
-    /** good: already absolute */
-    absolute(rel@NSIDiFull(_, _), _) = rel.
+    absolute(rel, base) = absoluteStrict(rel, base, (base_ns, base_name)) :-
+        base == NSIDiFull(base_ns, base_name) | error $["absolute" called with non-full base].
 
-    /** good: relative to namespace of base */
-    absolute(NSIDiShort(rel), NSIDiFull(base_ns, _)) = NSIDiFull(base_ns, rel).
+rules
 
-    /** good: sub-name relative to base */
-    absolute(rel@NSIDiRel(name), NSIDiFull(base_ns, base_name)) = NSIDiFull(base_ns, stringListConcat(stringListInit(base_name), name)).
+    /** rel * base * (rel_fallback_ns * rel_fallback_name) -> abs */
+    absoluteStrict : NSIDi * NSIDi * (string * list(string)) -> NSIDi
 
-    /** bad: misc */
-    absolute(rel@NSIDiShort(name), base) = rel :-
-        false | error $[cannot compute absolute NSID of :[name] relative to [base]].
+    /** already absolute */
+    absoluteStrict(rel@NSIDiFull(_, _), _, _) = rel.
 
-    /** bad: misc */
-    absolute(rel@NSIDiRel(name), base) = rel :-
-        false | error $[cannot compute absolute NSID of [name] relative to [base]].
+    /** relative to namespace of base */
+    absoluteStrict(NSIDiShort(rel), NSIDiFull(base_ns, _), _) = NSIDiFull(base_ns, rel).
+
+    /** sub-name relative to base */
+    absoluteStrict(rel@NSIDiRel(name), _, (rel_fallback_ns, rel_fallback_name)) = NSIDiFull(rel_fallback_ns, stringListConcat(stringListInit(rel_fallback_name), name)).
 
 rules
 

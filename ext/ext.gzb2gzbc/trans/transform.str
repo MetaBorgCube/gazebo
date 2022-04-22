@@ -36,7 +36,11 @@ rules // transform-tli :: Tli -> Tli-C|List(Tli-C)
 
   // TODO: transform-tli: GlobalAlias(_, _)
 
-  transform-tli: FnBlock(FnSpec(tags, mods, name, sign), block) -> Function-C(name, <transform-sign> sign, <transform-block> block)
+  transform-tli: FnBlock(FnSpec(tags, mods, name, sign), block) -> Function-C(tags', name, <transform-sign> sign, <transform-block> block)
+    with
+      tags' := <map(
+        \Tag(nsid) -> Tag-C(<identf-from-nsid> nsid)\
+      )> tags
 
   transform-tli: FnExt(name, sign) -> FunctionExt-C(name, <transform-sign> sign)
 

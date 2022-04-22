@@ -21,7 +21,7 @@ rules
 
   editor-generate-mcfn-shared: input@(selected, _, ast, path, project-path) -> (filenames, results)
     with
-      !ast; ?Function-LL(NSID-LL(namespace, name), decl*, body)
+      !ast; ?Function-LL(NSID-LL(namespace, name), _, _, _)
     ; function_path := <intersperse-concat(|"/")> [namespace | name]
     ; function_base := NSID(namespace, name)
     ; asm_tree := <generate-mcfn-asm> ast

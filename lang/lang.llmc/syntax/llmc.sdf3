@@ -17,11 +17,18 @@ context-free syntax
     Function-LL.Function-LL = <
         function <NSID-LL>
 
+        <{TagRegistration-LL "\n"}*>
+
         <{Decl-LL "\n"}*>
 
         <Body-LL>
 
     >
+
+context-free sorts TagRegistration-LL
+context-free syntax
+
+    TagRegistration-LL.TagRegistration-LL = <register tag <NSID-LL>>
 
 context-free sorts Decl-LL DeclScope-LL StorageLocation-LL
 context-free syntax

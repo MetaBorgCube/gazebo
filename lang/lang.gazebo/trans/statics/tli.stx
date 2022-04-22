@@ -31,7 +31,3 @@ rules
 
     tliOk(_, s, TypeDecl2Tli(tdecl)) :-
         typeDeclOk(s, tdecl).
-
-    tliOk(_, _, tli) :-
-        false
-        | error $[support for [tli] not implemented]@tli.

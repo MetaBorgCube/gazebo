@@ -28,14 +28,18 @@ rules // transform-tlis(|base) :: List(Tli-C) -> List(Function-LL)
 
 rules // transform-tli(|base) :: Tli-C -> Function-LL
 
-  transform-tli(|base): Function-C(name, Signature-C(params, t_ret), block) ->
+  transform-tli(|base): Function-C(tags, name, Signature-C(params, t_ret), block) ->
     Function-LL(
       <nsid-from-base(|base)> name,
+      tags',
       decls,
       Body-LL(block')
     )
     with
-      {| RefType, RegisterDecl, GlobalLookup
+      // Transform tags
+      tags' := <map(\Tag-C(tag_identf) -> TagRegistration-LL(<nsid-from-identf> tag_identf)\)> tags
+      // Scoped transformation of parameters and body
+    ; {| RefType, RegisterDecl, GlobalLookup
         // make sure all parameters are registered in scope
       : <map(
           \Param-C(_, <strip-annos => name>, <strip-annos => t>) -> <rules(RefType:+ RefLocal-C(IdentLocal-C(name)) -> t)>\
@@ -43,6 +47,7 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
       ; block' := <transform-block> block
       ; decl_gen* := <bagof-RegisterDecl; reverse <+ ![]>()
       |}
+      // Collect declarations corresponding to the signature
     ; decl_sign* := <map({t': \Param-C(kind, name, t) -> Decl-LL(SSign-LL(), mod*, name, t', StorageLocationAuto-LL())
         with
           mod* := <
@@ -51,11 +56,17 @@ rules // transform-tli(|base) :: Tli-C -> Function-LL
           > kind
         ; t' := <transform-type> t
       \})> params
+      // Gather all decls
     ; decls := [decl_sign*, decl_gen*]
 
   transform-tli(|base@[ns|basename]): Decl-C(_, name, _, e) ->
     Function-LL(
       <newname; ![name, <id>]; nsid-from-base(|base)> "_global.init",
+      [
+        // Register the global initializer to be run upon world init
+        // TODO: guarantee initialization order
+        NSID-LL("minecraft", ["init"])
+      ],
       decls,
       Body-LL(block')
     )

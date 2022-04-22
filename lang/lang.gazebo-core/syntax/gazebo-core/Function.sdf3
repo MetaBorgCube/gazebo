@@ -6,6 +6,7 @@ imports
     gazebo-core/Identifier
     gazebo-core/Type
     gazebo-core/Statement
+    gazebo-core/TagResource
 
 context-free sorts
 
@@ -28,6 +29,7 @@ context-free syntax
     ]
 
     Function-C.Function-C = <
+        <Tag-C*>
         func <ID>
         <Signature-C>
         <Block-C>
