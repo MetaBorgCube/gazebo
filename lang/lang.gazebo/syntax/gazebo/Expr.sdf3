@@ -180,28 +180,37 @@ lexical syntax
 context-free priorities
 
     {
+        left:
         Find.FindIndex
         Find.FindPath
         Find.FindPathString
     } > {
+        left:
         Invoke.InvokeNone
         Invoke.InvokeArgs
     } > {
+        non-assoc:
         Range.RangeFull
     } > {
+        left:
         Arith.Mul
         Arith.Div
         Arith.Mod
     } > {
+        non-assoc:
         Expr.Not
     } > {
+        left:
         Arith.Add
         Arith.Sub
     } > {
+        non-assoc:
         Expr.Cmp
     } > {
+        assoc:
         Expr.And
     } > {
+        assoc:
         Expr.Or
     }
 
