@@ -46,10 +46,7 @@ func try_init
 
 func count_live_neighbors -> Int
 {
-    mut count := 0
-    as @Cell[distance matches 0.1..1.42, is tag_alive] =>
-        count += 1
-    return count
+    return count(@Cell[distance matches 0.1..1.42, is tag_alive])
 }
 
 func mark

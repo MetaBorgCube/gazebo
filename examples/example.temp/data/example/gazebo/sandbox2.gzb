@@ -1,0 +1,22 @@
+module example:sandbox2
+
+from sandbox use shared
+
+global alias @e = @e
+
+#init
+#:my_tag
+func hello
+{
+    shared.a = ::[]
+}
+
+func count_stuff
+{
+    list := [1, 2]
+    array := [; 4]
+    a := count(list)
+    b := count(array)
+    c := count(@e[is "example"])
+    // ERROR(expected): d := count(5)
+}

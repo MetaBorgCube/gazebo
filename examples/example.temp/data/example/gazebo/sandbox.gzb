@@ -1,0 +1,38 @@
+module example:sandbox
+
+shared := {
+    a: [1, 2]
+}
+
+func a
+{
+    shared.a[0] = 3
+    b(123)
+}
+
+func b(i Int)
+{
+    shared.a = ::[]
+    
+    i = 4
+    
+    j := 5
+    j = 2
+    j += 1
+}
+
+/* test of type extraction when assigning to a compound access */
+func c
+{
+    v := {b: {c: 456}}
+    v.b.c += 1
+}
+
+/* test to make sure that references to globals are distinct */
+global_1 := 1
+global_2 := 2
+func different_shared
+{
+    global_1 = 0
+    global_2 = 0
+}
