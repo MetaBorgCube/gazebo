@@ -2,6 +2,7 @@ module asm
 
 imports
 
+  asm-imp
   common
   str_common
 
@@ -15,7 +16,7 @@ signature
   sorts Unit-ASM Command-ASM Arg-ASM
   constructors
     /** base unit */
-    Unit-ASM : List(Command-ASM) -> Unit-ASM
+    Unit-ASM : Optional(Header-IMP) * List(Command-ASM) -> Unit-ASM
     /** plain command, without formatting */
     Command-Plain-ASM : string * List(Arg-ASM) -> Command-ASM
     /** call with GZB calling convention. the arg identifies where the arguments were set */
@@ -52,14 +53,20 @@ strategies // asm-unit(is-toplevel) :: Unit-ASM -> string(nsid)
 
   asm-unit(is-toplevel|key) = asm-unit(is-toplevel|key, <newname> "-anon-")
 
-  asm-unit(is-toplevel|key,name) = ?Unit-ASM(<id>)
+  asm-unit(is-toplevel|key,name) = ?Unit-ASM(imp_header, <id>)
   ; with(
       unit_id := <concat-strings> [<BaseNSID; asm-nsid>, "/", name]
     ; if <not(?"")> key then rules(UnitLookup: key -> unit_id) end
     )
   ; map(asm-command(is-toplevel))
   ; try(wrap-gzb-callee(|name))
-  ; intersperse-concat(|"\n") => content
+  ; intersperse-concat(|"\n") => commands
+  ; imp_header' := <
+      opt-map(asm-imp)
+    ; opt-unwrap(![])
+    ; prefix-lines-list(|"#")
+    ; intersperse-concat(|"\n")> imp_header
+  ; content := <concat-strings> [imp_header', "\n", commands]
   ; rules(EmitFunction:+ _ -> (name, content))
   ; !unit_id
 
@@ -120,7 +127,7 @@ rules // asm-command(is-toplevel) :: Command-ASM -> string
         ]
       ]
 
-  asm-command(is-toplevel): Command-AnonSubUnit-ASM(unit@Unit-ASM(commands)) -> res
+  asm-command(is-toplevel): Command-AnonSubUnit-ASM(unit@Unit-ASM(_, commands)) -> res
     with
       if is-toplevel then
         // flatten the sub unit if still at top level

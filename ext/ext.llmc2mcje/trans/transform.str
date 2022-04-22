@@ -6,6 +6,7 @@ imports
   signatures/-
 
   asm
+  asm-imp
   common
   loc
   transfer
@@ -35,15 +36,31 @@ strategies
   command-force-cluster(s) =
     ![<id>]
   ; map-with-emitted-commands(s)
-  ; !Command-AnonSubUnit-ASM(Unit-ASM(<id>))
+  ; !Command-AnonSubUnit-ASM(Unit-ASM(None(), <id>))
 
 strategies // transform-function :: Function-LL -> Unit-ASM
 
   transform-function =
-    ?Function-LL(_, _, decls, Body-LL(body_block))
+    ?Function-LL(name, tags, decls, Body-LL(body_block))
   ; {| VarLoc
     : <map(register-decl)> decls
     ; <transform-block> body_block
+      // make sure there is an IMP header which contains the tag registrations
+    ; with(
+        // extract all tag identifiers
+        tags' := <map(\TagRegistration-LL(tag_nsid) -> <transform-nsid> tag_nsid\)> tags
+      )
+    ; Unit-ASM(
+        !Some(Header-IMP(
+          <transform-nsid> name
+          // no comments
+        , []
+        , [
+            Handles-Annotation-IMP(tags')
+          ]
+        ))
+      , id
+      )
     |}
 
 rules // transform-nsid :: NSID-LL -> NSID
@@ -52,10 +69,10 @@ rules // transform-nsid :: NSID-LL -> NSID
 
 rules // transform-block :: Block-LL -> Unit-ASM
 
-  transform-block: FlowGroup-LL(flow_block*) -> Unit-ASM(flow_block'*)
+  transform-block: FlowGroup-LL(flow_block*) -> Unit-ASM(None(), flow_block'*)
     with
       flow_block'* := <map-with-emitted-commands(transform-flow-block)> flow_block*
-  transform-block: BasicBlock-LL(assign*) -> Unit-ASM(assign'*)
+  transform-block: BasicBlock-LL(assign*) -> Unit-ASM(None(), assign'*)
     with
       assign'* := <map-with-emitted-commands(transform-assign)> assign*
 
@@ -404,7 +421,7 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
   // TODO: all other ops
 
   transform-assign-op(|dest): (OpInvoke-LL(), [ArgFunction-LL(fn), args*]) ->
-    Command-AnonSubUnit-ASM(Unit-ASM([
+    Command-AnonSubUnit-ASM(Unit-ASM(None(), [
       init_arg_area,
       arg_transfers*,
       Command-CallGzb-ASM(<transform-nsid> fn, <loc-args-data> arg_area)
@@ -446,7 +463,7 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
       , // body
         { args_size*
         : args_size* := <loc-args-scoreboard> loc_size
-        ; !Unit-ASM([
+        ; !Unit-ASM(None(), [
             // append the new singleton value
             <type-literal-singleton; transfer-raw(|dest, TransferAppend())> t_inner,
             // decrement the remaining count by 1

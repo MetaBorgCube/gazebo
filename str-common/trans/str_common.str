@@ -102,6 +102,14 @@ strategies
   string-norm = un-double-quote; unescape
   string-denorm = escape; double-quote
 
+strategies
+
+  prefix-lines-list(|prefix) =
+    map(
+      ![prefix, <id>]
+    ; concat-strings
+    )
+
 strategies // is-distinct :: List(_) -> id|fail
 
   /** check if all elements in the given list/set are distinct */
