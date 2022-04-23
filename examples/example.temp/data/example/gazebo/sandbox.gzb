@@ -7,10 +7,10 @@ shared := {
 func a
 {
     shared.a[0] = 3
-    b(123)
+    bb := b(123)
 }
 
-func b(i Int)
+func b(i Int) -> Int
 {
     shared.a = ::[]
     
@@ -19,6 +19,8 @@ func b(i Int)
     j := 5
     j = 2
     j += 1
+
+    return 123
 }
 
 /* test of type extraction when assigning to a compound access */

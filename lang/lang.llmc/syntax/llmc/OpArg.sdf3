@@ -17,7 +17,7 @@ context-free syntax
     Op-LL.OpCountElements-LL = <count>
     Op-LL.OpFind-LL = <find>
     Op-LL.OpDel-LL = <del>
-    Op-LL.OpInvoke-LL = <ivk>
+    Op-LL.OpInvoke-LL = <ivk(<Type-LL>)>
     Op-LL.OpNew-LL = <new>
 
 context-free sorts Arg-LL

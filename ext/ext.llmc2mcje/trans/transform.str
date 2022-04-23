@@ -420,12 +420,12 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
 
   // TODO: all other ops
 
-  transform-assign-op(|dest): (OpInvoke-LL(), [ArgFunction-LL(fn), args*]) ->
+  transform-assign-op(|dest): (OpInvoke-LL(t_ret), [ArgFunction-LL(fn), args*]) ->
     Command-AnonSubUnit-ASM(Unit-ASM(None(), [
       init_arg_area,
       arg_transfers*,
       Command-CallGzb-ASM(<transform-nsid> fn, <loc-args-data> arg_area)
-      // TODO: transfer return value
+    , transfer_ret_val
     ]))
     with
       arg_area_t := <extract-args-area-type> args*
@@ -436,6 +436,7 @@ rules // transform-assign-op(|Loc) :: (Op-LL, List(Arg-LL)) -> Command-ASM
         with
           arg_dest := <loc-access-path(|arg_area)> Path-LL([Select-LL(<string-denorm> name)])
       \}))> args*
+    ; transfer_ret_val := <loc-new-retval(|t_ret); transfer-loc(|dest)>
 
   transform-assign-op(|dest): (OpNew-LL(), []) ->
     <loc-type; type-literal-singleton; transfer-raw(|dest)> dest

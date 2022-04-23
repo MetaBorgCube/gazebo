@@ -30,6 +30,6 @@ For example, where the NSID of the function is `myns:path/to/fn` and the argumen
 
 Functions may return a value, depending on whether this is specified in the signature.
 To simplify implementations, the return value is placed at a well-known location, contrary to arguments which are placed at a callee-dependent location.
-This location has been decided to be in the data storage container `gzb:common`, accessed by the path `ret`.
+This location has been decided to be in the data storage container `gzb.__temp__:_ret`, accessed by the path `value`.
 
 Callers must always assume the return value to be clobbered when calling any function.

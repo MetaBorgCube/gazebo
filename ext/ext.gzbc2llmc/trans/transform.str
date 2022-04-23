@@ -316,23 +316,25 @@ rules // transform-expr :: Expr-C -> Arg-LL
     )
   ; !ArgVar-LL(ident)
 
-  transform-expr(|t): Invoke-C(RefFull-C(target), arg*) -> ArgVar-LL(ident)
+  transform-expr(|t): Invoke-C(RefFull-C(target), t_ret, arg*) -> ArgVar-LL(ident)
     with
       target' := ArgFunction-LL(<nsid-from-identf> target)
     ; arg'* := <map(\Arg-C(name, t_arg, e) ->
         ArgParam-LL(name, <transform-type> t_arg, <transform-expr(|t_arg)> e)
       \)> arg*
     ; ident := <newname> "$invoke"
+    ; t' := <transform-type> t
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
         [],
         ident,
-        <transform-type> t,
+        t',
         StorageLocationAuto-LL()
       ))
+    ; t_ret' := <transform-type> t_ret
     ; rules(EmitAssign:+ _ -> AssignOp-LL(
         DestVar-LL(ident),
-        OpInvoke-LL(),
+        OpInvoke-LL(t_ret'),
         [
           target',
           arg'*

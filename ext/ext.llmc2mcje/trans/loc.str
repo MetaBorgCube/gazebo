@@ -187,3 +187,12 @@ strategies
   /** create a new and unique Loc instance which is Scoreboard */
   loc-new-scoreboard =
     !Scoreboard(<newname> "uuidv4_TODO", "gzb")
+
+  loc-new-retval(|t) =
+    !DataStorage(
+      t,
+      NSID("gzb.__temp__", ["_ret"]),
+      Path-LL([
+        Select-LL(<string-denorm> "value")
+      ])
+    )

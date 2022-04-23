@@ -51,7 +51,9 @@ rules // transform-type :: Type-C -> Type-LL
       )> members
 
   transform-type: TypeUnk-C() -> TypeUnk-LL()
-  // __BOTTOM and __VOID cannot be expressed in LLMC
+  // upcast void to unk; this /should/ only be used for discarding invocations
+  transform-type: TypeVoid-C() -> TypeUnk-LL()
+  // __BOTTOM cannot be expressed in LLMC
 
   transform-type: _ -> <fail>
     with

@@ -60,6 +60,10 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
 
   transfer-loc(|dest) = transfer-loc(|dest, TransferSet())
 
+  // _ <- ANY
+  // highest matching prio
+  transfer-loc(|Discard(), _): _ -> Command-NoOp-ASM()
+
   transfer-loc(|<loc-is-data => loc_dest>, mode): <loc-is-data => loc_src> ->
     Command-Plain-ASM("data", [
       Arg-RawString-ASM("modify"),
@@ -93,9 +97,6 @@ rules // transfer-loc(|Loc, TransferMode?) :: Loc -> Command-ASM
     with
       loc_dest_args* := <loc-args-execute> loc_dest
     ; cmd_get := <loc-get> loc_src
-
-  // _ <- ANY
-  transfer-loc(|Discard(), _): _ -> Command-NoOp-ASM()
 
   // loc+mode combination not supported
   transfer-loc(|_, _) = with(fail)

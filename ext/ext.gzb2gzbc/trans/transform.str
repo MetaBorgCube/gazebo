@@ -181,9 +181,10 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: FindIndex(e, i) -> FindIndex-C(<transform-expr> e, <transform-expr> i)
   transform-expr: FindPath(e, memb) -> FindKey-C(<transform-expr> e, <string-denorm> memb)
 
-  transform-expr: ivk@InvokeArgs(e, Args(args)) -> Invoke-C(<transform-expr> e, args')
+  transform-expr: ivk@InvokeArgs(e, Args(args)) -> Invoke-C(<transform-expr> e, t, args')
     with
-      a := <stx-get-ast-analysis> ivk
+      t := <transform-type-lookup> ivk
+    ; a := <stx-get-ast-analysis> ivk
     ; param_names := <stx-get-ast-property(|a, "param_names") <+ ![]> ivk
     ; args' := <zip; map(
         !Arg-C(<Fst>, <Snd; transform-type-lookup>, <Snd; transform-expr>)
