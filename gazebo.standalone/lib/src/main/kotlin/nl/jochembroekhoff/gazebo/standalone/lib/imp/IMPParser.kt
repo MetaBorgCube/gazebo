@@ -1,5 +1,6 @@
 package nl.jochembroekhoff.gazebo.standalone.lib.imp
 
+import nl.jochembroekhoff.gazebo.standalone.lib.NSID
 import org.apache.commons.vfs2.FileContent
 
 /**
@@ -10,9 +11,10 @@ import org.apache.commons.vfs2.FileContent
 object IMPParser {
     fun parseSpecFromMcfunction(mcFunctionFileContent: FileContent): IMPSpec? {
         var started = false
+
         /** workaround var because can't break out of [forEachLine] */
         var stopped = false
-        var name: IMPIdentifier? = null
+        var name: NSID? = null
         val comments = mutableListOf<String>()
         val annotations = mutableListOf<IMPAnnotation>()
         var annotationParser: IMPAnnotationParser? = null
@@ -71,14 +73,14 @@ object IMPParser {
         return IMPSpec(name!!, comments, annotations)
     }
 
-    fun parseIdentifier(input: String): IMPIdentifier? {
-        val split1 = input.split(':', limit=2)
+    fun parseIdentifier(input: String): NSID? {
+        val split1 = input.split(':', limit = 2)
         if (split1.size != 2)
             return null
 
         val ns = split1[0]
         val name = split1[1].split('/')
 
-        return IMPIdentifier(ns, name)
+        return NSID(ns, name)
     }
 }

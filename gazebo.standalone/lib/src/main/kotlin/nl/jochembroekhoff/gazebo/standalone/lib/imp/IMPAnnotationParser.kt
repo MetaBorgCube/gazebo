@@ -1,9 +1,11 @@
 package nl.jochembroekhoff.gazebo.standalone.lib.imp
 
+import nl.jochembroekhoff.gazebo.standalone.lib.NSID
+
 class IMPAnnotationParser {
 
     private var started = false
-    private val entries = mutableListOf<IMPIdentifier>()
+    private val entries = mutableListOf<NSID>()
 
     fun feed(line: String): Boolean {
         if (line.startsWith("@")) {
@@ -11,7 +13,7 @@ class IMPAnnotationParser {
                 return false
             }
 
-            val startSplit = line.split(' ', limit=2)
+            val startSplit = line.split(' ', limit = 2)
             if (startSplit[0] != "@handles")
                 return false
             started = true
