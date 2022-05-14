@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     base
     java
-    kotlin("jvm") version "1.6.10" apply false
+    kotlin("jvm") version "1.6.20" apply false
 }
 
 allprojects {
