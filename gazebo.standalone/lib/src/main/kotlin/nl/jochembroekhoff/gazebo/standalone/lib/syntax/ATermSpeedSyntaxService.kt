@@ -20,11 +20,12 @@ class ATermSpeedSyntaxService @Inject constructor(
 
     companion object {
         private val logger = LoggerUtils.logger(ATermSpeedSyntaxService::class.java)
+        private val regex = Regex(".+\\.aterm-speed\\.[^.]+")
     }
 
     override fun parse(input: ISpoofaxInputUnit, progress: IProgress, cancel: ICancel): ISpoofaxParseUnit {
         val inputName = input.source()?.name
-        return if (inputName?.baseName?.let { it.endsWith(".aterm-speed.gzbc") || it.endsWith(".aterm-speed.llmc") } == true) {
+        return if (inputName?.baseName?.let { regex.matches(it) } == true) {
             cancel.throwIfCancelled()
 
             logger.debug("ATerm speed syntax load for input {}", inputName)
