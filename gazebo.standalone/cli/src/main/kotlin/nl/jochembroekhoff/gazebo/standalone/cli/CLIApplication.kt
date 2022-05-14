@@ -89,7 +89,7 @@ class CLIApplication : Callable<Int> {
 
         val runnerConfig = createRunnerConfiguration()
 
-        when (internalAction) {
+        val ok = when (internalAction) {
             InternalAction.DEFAULT -> {
                 GazeboSpoofaxFactory.createGazeboSpoofax(
                     GazeboProjectConfigServiceConfig(
@@ -103,7 +103,7 @@ class CLIApplication : Callable<Int> {
                                 CompressDataPackTask(dpLoc)
                             }
                         }
-                    GazeboRunner(runnerConfig)
+                    val ok = GazeboRunner(runnerConfig)
                         .withAdditionalTask(packTaskChain)
                         .run(spoofax)
                     // TODO: get error messages and print them here, instead of letting GazeboRunner do it
@@ -111,6 +111,8 @@ class CLIApplication : Callable<Int> {
                     packTaskChain.result()?.let {
                         logger.info("Data pack output can be found at {}", it)
                     }
+
+                    ok
                 }
             }
             InternalAction.STDLIB -> {
@@ -133,6 +135,6 @@ class CLIApplication : Callable<Int> {
         val sec = timer.stop() / 1e9
         logger.info("Finished after {} seconds", sec)
 
-        return 0
+        return if (ok) 0 else 1
     }
 }
