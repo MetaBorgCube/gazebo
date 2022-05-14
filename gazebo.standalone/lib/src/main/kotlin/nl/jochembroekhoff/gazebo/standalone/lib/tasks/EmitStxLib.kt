@@ -11,7 +11,7 @@ import org.metaborg.util.time.Timer
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
 
-class EmitStxLib(targetLang: GazeboLang) : AdditionalTask<Future<FileObject>>("emit-stxlib") {
+class EmitStxLib(targetLang: GazeboLang) : OverlayTask<Future<FileObject>>("emit-stxlib") {
 
     companion object {
         // TODO: put this somewhere else

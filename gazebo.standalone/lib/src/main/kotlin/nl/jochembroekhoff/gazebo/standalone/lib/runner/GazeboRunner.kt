@@ -2,7 +2,7 @@ package nl.jochembroekhoff.gazebo.standalone.lib.runner
 
 import nl.jochembroekhoff.gazebo.standalone.lib.messages.HtmlUnescapeMessagePrinter
 import nl.jochembroekhoff.gazebo.standalone.lib.messages.AggregateMessagePrinter
-import nl.jochembroekhoff.gazebo.standalone.lib.tasks.AdditionalTask
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.OverlayTask
 import org.metaborg.core.action.CompileGoal
 import org.metaborg.core.action.NamedGoal
 import org.metaborg.core.build.BuildInputBuilder
@@ -20,7 +20,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
 
     private val logger = LoggerUtils.logger(javaClass)
 
-    private var additionalTasks = mutableListOf<AdditionalTask<*>>()
+    private var overlayTasks = mutableListOf<OverlayTask<*>>()
 
     private fun buildProject(spoofax: Spoofax, project: IProject, progress: IProgress?): ISpoofaxBuildOutput? {
         val messagePrinters = buildList<IMessagePrinter> {
@@ -54,8 +54,8 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
         return buildTask.schedule().block().result()
     }
 
-    fun withAdditionalTask(additionalTask: AdditionalTask<*>): GazeboRunner {
-        additionalTasks.add(additionalTask)
+    fun withOverlayTask(overlayTask: OverlayTask<*>): GazeboRunner {
+        overlayTasks.add(overlayTask)
         return this
     }
 
@@ -81,7 +81,7 @@ class GazeboRunner(private val configuration: GazeboRunnerConfiguration) {
             return false
         }
 
-        additionalTasks.forEach {
+        overlayTasks.forEach {
             it.run(spoofax, cli, project, output)
         }
 

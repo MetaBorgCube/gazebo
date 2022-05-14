@@ -6,11 +6,11 @@ import org.metaborg.spoofax.core.build.ISpoofaxBuildOutput
 import org.metaborg.spoofax.core.shell.CLIUtils
 
 internal class ChainedTask<T, U>(
-    private val first: AdditionalTask<T>,
-    private val nextFactory: (T) -> AdditionalTask<U>
-) : AdditionalTask<U>("${first.key}.chain") {
+    private val first: OverlayTask<T>,
+    private val nextFactory: (T) -> OverlayTask<U>
+) : OverlayTask<U>("${first.key}.chain") {
 
-    private var second: AdditionalTask<U>? = null
+    private var second: OverlayTask<U>? = null
 
     override fun run(spoofax: Spoofax, cli: CLIUtils, project: IProject, output: ISpoofaxBuildOutput) {
         first.run(spoofax, cli, project, output)

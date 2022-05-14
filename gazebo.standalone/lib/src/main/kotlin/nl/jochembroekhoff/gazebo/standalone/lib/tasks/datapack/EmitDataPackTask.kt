@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.jochembroekhoff.gazebo.standalone.lib.NSID
 import nl.jochembroekhoff.gazebo.standalone.lib.imp.IMPHandlesAnnotation
 import nl.jochembroekhoff.gazebo.standalone.lib.imp.IMPParser
-import nl.jochembroekhoff.gazebo.standalone.lib.tasks.AdditionalTask
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.OverlayTask
 import org.apache.commons.io.IOUtils
 import org.apache.commons.vfs2.FileObject
 import org.metaborg.core.build.CommonPaths
@@ -18,7 +18,7 @@ import org.metaborg.spoofax.core.shell.CLIUtils
 import org.metaborg.util.log.LoggerUtils
 import org.metaborg.util.resource.AntPatternFileSelector
 
-class EmitDataPackTask(private val format: PackFormat) : AdditionalTask<FileObject?>("emit-data-pack") {
+class EmitDataPackTask(private val format: PackFormat) : OverlayTask<FileObject?>("emit-data-pack") {
 
     enum class PackFormat(val intValue: Int) {
         /** MC:JE 1.13-1.14 */

@@ -7,7 +7,7 @@ import org.metaborg.spoofax.core.Spoofax
 import org.metaborg.spoofax.core.build.ISpoofaxBuildOutput
 import org.metaborg.spoofax.core.shell.CLIUtils
 
-abstract class AdditionalTask<T>(val key: String) {
+abstract class OverlayTask<T>(val key: String) {
     abstract fun run(spoofax: Spoofax, cli: CLIUtils, project: IProject, output: ISpoofaxBuildOutput)
     abstract fun result(): T
 

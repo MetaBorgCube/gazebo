@@ -104,7 +104,7 @@ class CLIApplication : Callable<Int> {
                             }
                         }
                     val ok = GazeboRunner(runnerConfig)
-                        .withAdditionalTask(packTaskChain)
+                        .withOverlayTask(packTaskChain)
                         .run(spoofax)
                     // TODO: get error messages and print them here, instead of letting GazeboRunner do it
 
@@ -124,8 +124,8 @@ class CLIApplication : Callable<Int> {
                     )
                 ).use { spoofax ->
                     GazeboRunner(runnerConfig)
-                        .withAdditionalTask(EmitStxLib(GazeboLang.GZB))
-                        .withAdditionalTask(EmitStxLib(GazeboLang.GZBC))
+                        .withOverlayTask(EmitStxLib(GazeboLang.GZB))
+                        .withOverlayTask(EmitStxLib(GazeboLang.GZBC))
                         .run(spoofax)
                     // TODO: get error messages and print them here, instead of letting GazeboRunner do it
                 }

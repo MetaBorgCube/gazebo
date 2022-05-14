@@ -1,6 +1,6 @@
 package nl.jochembroekhoff.gazebo.standalone.lib.tasks.datapack
 
-import nl.jochembroekhoff.gazebo.standalone.lib.tasks.AdditionalTask
+import nl.jochembroekhoff.gazebo.standalone.lib.tasks.OverlayTask
 import org.apache.commons.io.IOUtils
 import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileObject
@@ -12,7 +12,7 @@ import org.metaborg.spoofax.core.shell.CLIUtils
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class CompressDataPackTask(private val uncompressedRoot: FileObject?) : AdditionalTask<FileObject?>("compress-data-pack") {
+class CompressDataPackTask(private val uncompressedRoot: FileObject?) : OverlayTask<FileObject?>("compress-data-pack") {
 
     private var result: FileObject? = null
 
