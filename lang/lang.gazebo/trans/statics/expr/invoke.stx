@@ -23,12 +23,21 @@ rules
 
     typeOfInvoke_internal : scope * Invoke * TYPE * Args -> TYPE
 
-    typeOfInvoke_internal(_, _, TAG(), a) = VOID() :-
-        a == Args([]) | error $[cannot invoke tag with args]@a.
+    typeOfInvoke_internal(s, ivk, TAG(), a) = VOID() :- {tag}
+        a == Args([]) | error $[cannot invoke tag with args]@a,
+        ivk == InvokeNone(Expr2Expr-I(Tag2Expr(tag@Tag(_)))),
+        typeOfInvoke_internal_tagOk(s, tag).
 
     typeOfInvoke_internal(s, ivk, FUNC(Tparams, Tr), a) = Tr :- {param_names Tparams_remaining}
         funcArgsOk(s, Tparams, a) == (param_names, Tparams_remaining),
         @ivk.param_names := param_names.
+
+    typeOfInvoke_internal_tagOk : scope * Tag
+    typeOfInvoke_internal_tagOk(s, Tag(nsid)) :- {curr}
+        // TODO: consolidate with fn version
+        (curr, _) == currentMod(s),
+        // resolve the absolute location, with "..." being resolved relative to "minecraft:"
+        @nsid.full := absoluteStrict(nsidi(nsid), curr, ("minecraft", [])).
 
 rules
 

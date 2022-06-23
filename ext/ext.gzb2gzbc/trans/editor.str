@@ -24,4 +24,4 @@ rules
   editor-generate-gzbc-local: input@(_, _, ast, path, _) -> (filename, result)
     with
       filename := <guarantee-extension(|"gzbc")> path
-    ; result := <generate-gzbc; strip-annos; pp-gzbc> ast
+    ; result := <generate-gzbc; pp-gzbc> ast

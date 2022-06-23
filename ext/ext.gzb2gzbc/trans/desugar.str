@@ -32,7 +32,7 @@ rules
 
 rules
 
-  desugar: InvokeNone(e) -> InvokeArgs(e, Args([]))
+  desugar: InvokeNone(e){annos*} -> InvokeArgs(e, Args([])){annos*}
 
 rules
 
