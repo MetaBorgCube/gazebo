@@ -50,11 +50,18 @@ rules // nsid-ensure-valid :: string -> string
 
 rules // nsid-from-identf :: IdentFull-C -> NSID-LL
 
-  nsid-from-identf: IdentFull-C(ns, name) -> NSID-LL(ns, name)
+  nsid-from-identf: IdentFull-C(ns, name) -> NSID-LL(ns, <map(nsid-ensure-valid)> name)
 
 rules // nsid-from-base(|[ns | basename]) :: a | List(a) -> NSID-LL
 
   nsid-from-base(|[ns | basename]): name -> NSID-LL(ns, <concat; map(nsid-ensure-valid)> [basename, name])
     where is-list
   nsid-from-base(|base): name -> <nsid-from-base(|base)> [name]
+    where not(is-list)
+
+rules // identf-from-base(|[ns | basename]) :: a | List(a) -> IdentFull-C
+
+  identf-from-base(|[ns | basename]): name -> IdentFull-C(ns, <concat> [basename, name])
+    where is-list
+  identf-from-base(|base): name -> <identf-from-base(|base)> [name]
     where not(is-list)

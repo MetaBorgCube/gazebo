@@ -23,9 +23,10 @@ strategies
     ; concat
     |}
 
-  desugar-all =
-    {| MixinLookup
-    : with-added-tlis(map(try(desugar-mixin)))
+  desugar-all(|base) =
+    {| MixinLookup, DesugarBase
+    : with(rules(DesugarBase := base))
+    ; with-added-tlis(map(try(desugar-mixin)))
     ; with-added-tlis(map(bottomup(try(desugar)); bottomup(try(flatten-block))))
     |}
 
@@ -44,6 +45,7 @@ rules
   const my_sel := @(e, MyMixin, [])
   -->
   const _mixin$MyMixin$level0 := 5 + 6
+  typeof :(ns, name _mixin$MyMixin$level0) = __UNK
   const my_sel := @(e, [tag = "example", level > _mixin$MyMixin$level0])
   */
 
@@ -55,23 +57,24 @@ rules
         ident := <newname> ident_base
       ; e' := RefLocal-C(IdentLocal-C(ident))
       ; <tli-add> Decl-C(DeclKindConst-C(), ident, TypeUnk-C(), e)
+      ; <tli-add> TypeofGlobal-C(<identf-from-base(|<DesugarBase>)> ident, TypeUnk-C())
       end
 
-  desugar-mixin-prop(|name): PropKv-C(k, v) ->
-    PropKv-C(k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k])> v)
-  desugar-mixin-prop(|name): PropCmp-C(k, cmp, v) ->
-    PropCmp-C(k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k])> v)
-  desugar-mixin-prop(|name): PropMap-C(k, entries) ->
+  desugar-selector-prop(|name): PropKv-C(k, v) ->
+    PropKv-C(k, <desugar-mixin-prop-lift(|$[[name]$[k]])> v)
+  desugar-selector-prop(|name): PropCmp-C(k, cmp, v) ->
+    PropCmp-C(k, cmp, <desugar-mixin-prop-lift(|$[[name]$[k]])> v)
+  desugar-selector-prop(|name): PropMap-C(k, entries) ->
     PropMap-C(k, <desugar-mixin-prop-entry(|name, k)> entries)
 
   desugar-mixin-prop-entry(|name, k): PropMapEntryKv-C(map_k, map_v) ->
-    PropMapEntryKv-C(map_k, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k, "$", map_k])> map_v)
+    PropMapEntryKv-C(map_k, <desugar-mixin-prop-lift(|$[[name]$[map_k]])> map_v)
   desugar-mixin-prop-entry(|name, k): PropMapEntryCmp-C(map_k, cmp, map_v) ->
-    PropMapEntryCmp-C(map_k, cmp, <desugar-mixin-prop-lift(|<concat-strings> ["_mixin$", name, "$", k, "$", map_k])> map_v)
+    PropMapEntryCmp-C(map_k, cmp, <desugar-mixin-prop-lift(|$[[name]$[map_k]])> map_v)
 
   desugar-mixin: m@Mixin-C(name, Props-C(props)) -> m
     with
-      props' := <map(desugar-mixin-prop(|name))> props
+      props' := <map(desugar-selector-prop(|$[_mixin$[name]]))> props
     ; name' := <strip-annos> name
     ; rules(MixinLookup: name' -> props')
 
@@ -157,4 +160,5 @@ rules // expression desugaring
   desugar: Selector-C([base | mixins], Props-C(props)) -> Selector-C([base], Props-C(props'))
     with
       mixin_props := <map(strip-annos; MixinLookup); flatten-list> mixins
-    ; props' := <concat> [mixin_props, props]
+    ; props' := <map(desugar-selector-prop(|"_sel_anon"))> props
+    ; props'' := <concat> [mixin_props, props']
