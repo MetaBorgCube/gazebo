@@ -1,0 +1,45 @@
+module statics/selectors
+
+imports
+
+    statics/common
+    statics/types
+
+signature
+
+    sorts
+
+        SelectorNarrowPermission
+        SelectorArity
+
+    constructors
+
+        CanNarrow : SelectorNarrowPermission
+        CanNotNarrow : SelectorNarrowPermission
+
+    relations
+
+        /** the plain name of this selector (@...) */
+        sel_name : -> string
+        /** set to 1 if the current scope signifies a root selector, i.e. the end of an alias chain */
+        sel_root : -> int
+
+        /** Effective sender type when selector is used,
+          * including a flag which indicates whether the type is allowed to be narrowed further by aliases. */
+        sel_selects_type : -> (TYPE * SelectorNarrowPermission)
+
+rules
+
+    /** Compute the effective data type of a given selector's scope (SELECTOR(s_sel)). */
+    selectorEffectiveDataType : scope -> TYPE
+
+    selectorEffectiveDataType(s_sel) = selectorEffectiveDataType_matchPathOrDefault(p) :-
+        query sel_selects_type
+            filter A* and true
+            min $ < A and true
+            in s_sel |-> p.
+
+    selectorEffectiveDataType_matchPathOrDefault : list((path * (TYPE * SelectorNarrowPermission))) -> TYPE
+    selectorEffectiveDataType_matchPathOrDefault([(_, (T, _))]) = T.
+    selectorEffectiveDataType_matchPathOrDefault([]) = UNK() :-
+        try { false } | note $[return entity base type].

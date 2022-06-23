@@ -8,7 +8,7 @@ global alias @e = @e
 global alias @a = @e[] // in practical implementation: [type == $<:entity_type>:player]
 global alias @p = @a[sort = "nearest", limit = 1]
 global alias @r = @a[sort = "random", limit = 1]
-global alias @s = @e[limit = 1]
+global alias @s = @s // [limit=1] is implicit
 static registry $<minecraft:dimension>
 {
     register minecraft:the_end { protocol_id 2 }

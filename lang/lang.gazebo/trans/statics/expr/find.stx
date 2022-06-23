@@ -5,6 +5,7 @@ imports
     statics/common
     statics/expr
     statics/bind/field
+    statics/selectors
 
 rules
 
@@ -39,6 +40,9 @@ rules
         @id.type := Tf.
 
     // TODO: find on named arrays/lists and positions
+
+    typeOfFindString(s, SELECTOR(s_sel), id) = typeOfFindString(s, Tsender, id) :-
+        Tsender == selectorEffectiveDataType(s_sel).
 
     typeOfFindString(_, Te, id) = UNK() :-
         false | error $[find operation not defined on type [Te]]@id.

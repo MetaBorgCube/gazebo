@@ -1,0 +1,42 @@
+language gazebo
+module statics/selector-context
+
+fixture [[
+module test:test
+[[...]]
+]]
+
+test find on selector refers to the correct registry data [[
+static registry $<minecraft:entity_type> {
+    register minecraft:creeper {
+        data interface {
+            [[ExplosionRadius]] Int
+        }
+    }
+}
+global alias @e = @e
+func test {
+    as @e[type == $creeper] {
+        @s.[[ExplosionRadius]] = 100
+    }
+}
+]] analysis succeeds
+   resolve #2 to #1
+
+test sender type propagates through global aliases [[
+static registry $<minecraft:entity_type> {
+    register minecraft:player {
+        data interface {
+            [[Name]] String
+        }
+    }
+}
+global alias @e = @e
+global alias @a = @e[type == $player]
+global alias @r = @a[sort = "random"]
+func test {
+    as @r =>
+        @r.[[Name]] = "test"
+}
+]] analysis succeeds
+   resolve #2 to #1

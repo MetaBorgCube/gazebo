@@ -4,215 +4,194 @@ imports
 
     statics/common
     statics/expr
+    statics/expr/tag-resource
     statics/bind/alias
-    statics/bind/prop
+    statics/selectors
+    statics/types
 
 rules
 
     typeOfSelector : scope * Selector -> TYPE
-
-    typeOfSelector(s, Selector(name, props)) = SELECTOR(s_sel) :- {s_alias}
+    typeOfSelector(s, Selector(name, props)) = SELECTOR(s_sel) :- {s_alias props'}
         resolveAlias(s, name) == s_alias,
-        new s_sel, s_sel -P-> s, s_sel -A-> s_alias,
-        !name_rel[name] in s_sel,
-        selectorPropsOk(s_sel, props).
+        new s_sel, s_sel -P-> s,
+        !sel_name[name] in s_sel,
+        props' == selectorExtractProps(props),
+        selectorPropsOk(s, s_sel, s_alias, props').
 
 rules
 
-    selectorPropsOk : scope * list(Props)
-    selectorPropsOk(_, []).
-    selectorPropsOk(s, [Props(props)]) :-
-        selectorPropsInnerOk(s, props).
-    selectorPropsInnerOk maps selectorPropOk(*, list(*))
+    selectorExtractProps : list(Props) -> list(Prop)
+    selectorExtractProps([]) = [].
+    selectorExtractProps([Props(props)]) = props.
+
+rules
+
+    /** outer scope * selector root scope * current alias scope */
+    selectorPropsOk : scope * scope * scope * list(Prop)
+    selectorPropsOk(_, s_sel, s_alias, []) :-
+        s_sel -A-> s_alias.
+    selectorPropsOk(s, s_sel, s_alias, [prop|props]) :- {s_alias'}
+        new s_alias', s_alias' -A-> s_alias,
+        selectorPropOk(s, s_alias', prop),
+        // continue to next prop
+        selectorPropsOk(s, s_sel, s_alias', props).
+
+rules
+
     /**
      * selector scope * prop
      * Checks if property is OK for a selector and declares it in the current selector scope.
      * Errors on any unoverridable properties (from parents).
      */
-    selectorPropOk : scope * Prop
+    selectorPropOk : scope * scope * Prop
+    selectorPropOk(_, _, _).
 
-    selectorPropOk(s, KvProp(k, v)) :-
-        selectorKvPropOk(s, k, v).
+    selectorPropOk(s, s_alias, KvProp(k, v)) :-
+        selectorKvPropOk(s, s_alias, k, v).
 
-    selectorPropOk(s, IsProp(v)) :-
+    selectorPropOk(s, s_alias, IsProp(v)) :-
         // TODO: also support tag negate ("!is" perhaps?)
-        selectorPropOk(s, CmpProp("tag", CmpEqual(), v)).
+        selectorPropOk(s, s_alias, CmpProp("tag", CmpEqual(), v)).
 
-    selectorPropOk(s, CmpProp(k, cmp, v)) :-
-        selectorOkDispatchCmpOp(s, k, cmp, v).
+    selectorPropOk(s, s_alias, CmpProp(k, cmp, v)) :-
+        selectorCmpPropOk(s, s_alias, k, cmp, v).
 
-    selectorPropOk(s, MapProp(k, entries)) :-
+    selectorPropOk(s, s_alias, MapProp(k, entries)) :-
         try { false } | note $[todo: map props ('advancements' and 'scores')].
 
-rules // prop class: kv
+rules // key-value
 
-    /** selector scope * key * value */
-    selectorKvPropOk : scope * ID * Expr
+    selectorKvPropOk : scope * scope * ID * Expr
+    selectorKvPropOk(s, _, "dx", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "dy", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "dz", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "limit", e) :-
+        typeOfExpr(s, e) == INT().
+    selectorKvPropOk(s, _, "name", e) :-
+        typeOfExpr(s, e) == STRING().
+    selectorKvPropOk(_, _, "nbt", _) :-
+        // TODO: check that it matches the current selector's data type
+        true.
+    selectorKvPropOk(s, _, "sort", e) :-
+        typeOfExpr(s, e) == STRING().
+    selectorKvPropOk(s, _, "team", e) :-
+        typeOfExpr(s, e) == STRING().
+    selectorKvPropOk(s, _, "x", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "x_rotation", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "y", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "y_rotation", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "z", e) :-
+        typeNumeric(typeOfExpr(s, e)).
+    selectorKvPropOk(s, _, "z_rotation", e) :-
+        typeNumeric(typeOfExpr(s, e)).
 
-    // TODO: don't hard-code this here, perhaps at some other place and use a SG query
-    selectorKvPropOk(s, k@"dx", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"dy", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"dz", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"limit", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"name", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"nbt", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"sort", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"team", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"x", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"x_rotation", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"y", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"y_rotation", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"z", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(s, k@"z_rotation", e) :- selectorKvPropInternalOk(s, k, e).
-    selectorKvPropOk(_, k, _) :-
-        false | error $[property key not recognized with key-value operation]@k.
+rules // comparisons
 
-    selectorKvPropInternalOk : scope * ID * Expr
-
-    selectorKvPropInternalOk(s, k, e) :- {Te}
-        typeOfExpr(s, e) == Te,
-        declareProp(s, k, PROP_FINAL(Te)).
-
-rules // prop class: dispatch for cmp, eqmulti and eqspecial
-
-    /** selector scope * key * op * expr */
-    selectorOkDispatchCmpOp : scope * ID * Compare * Expr
-
-    // dispatch cmp
-    selectorOkDispatchCmpOp(s, k@"distance", op, e) :-
-        selectorCmpPropOk(s, k, op, e).
-    selectorOkDispatchCmpOp(s, k@"level", op, e) :-
-        selectorCmpPropOk(s, k, op, e).
-
-    // dispatch eqmulti
-    selectorOkDispatchCmpOp(s, k@"predicate", op, e) :-
-        selectorEqmultiPropOk(s, k, op, e).
-    selectorOkDispatchCmpOp(s, k@"tag", op, e) :-
-        selectorEqmultiPropOk(s, k, op, e).
-
-    // dispatch eqspecial
-    selectorOkDispatchCmpOp(s, k@"gamemode", op, e) :-
-        selectorEqspecialPropOk(s, k, op, e).
-    selectorOkDispatchCmpOp(s, k@"type", op, e) :-
-        selectorEqspecialPropOk(s, k, op, e).
-
-    // fallback
-    selectorOkDispatchCmpOp(_, k, _, _) :-
+    selectorCmpPropOk : scope * scope * ID * Compare * Expr
+    selectorCmpPropOk(s, _, "distance", cmp, e) :-
+        selectorKeyDistanceOk(s, cmp, e).
+    selectorCmpPropOk(s, _, "gamemode", cmp, e) :-
+        selectorKeyGamemodeOk(s, cmp, e),
+        try { false } | note $[implement eqspecial constraint].
+    selectorCmpPropOk(s, _, "level", cmp, e) :-
+        selectorKeyLevelOk(s, cmp, e),
+        try { false } | note $[ensure sender is player].
+    selectorCmpPropOk(s, _, "predicate", cmp, e) :-
+        selectorKeyPredicateOk(s, cmp, e).
+    selectorCmpPropOk(s, _, "tag", cmp, e) :-
+        selectorKeyTagOk(s, cmp, e).
+    selectorCmpPropOk(s, s_alias, "type", cmp, e) :-
+        selectorKeyTypeOk(s, s_alias, cmp, e).
+    selectorCmpPropOk(_, _, k, _, _) :-
         false | error $[property key not recognized with comparison operator]@k.
 
-rules // class: cmp
+    /* distance */
+    selectorKeyDistanceOk : scope * Compare * Expr
+    selectorKeyDistanceOk(s, CmpEqual(), e) :-
+        selectorKeyDistanceOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyDistanceOk(s, CmpGt(), e) :-
+        selectorKeyDistanceOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyDistanceOk(s, CmpGte(), e) :-
+        selectorKeyDistanceOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyDistanceOk(s, CmpLt(), e) :-
+        selectorKeyDistanceOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyDistanceOk(s, CmpLte(), e) :-
+        selectorKeyDistanceOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyDistanceOk(s, CmpMatches(), e) :-
+        selectorKeyDistanceOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyDistanceOk_eTypeOk : TYPE
+    selectorKeyDistanceOk_eTypeOk(RANGE(T)) :-
+        typeNumeric(T).
+    selectorKeyDistanceOk_eTypeOk(T) :-
+        typeNumeric(T).
 
-    // prefilter on allowed comparison operator
-    selectorCmpPropOk : scope * ID * Compare * Expr
-    selectorCmpPropOk(s, k, cmp@CmpGt(), e) :- {Te}
-        selectorCmpPropOk_common(s, k, e) == Te,
-        selectorCmpPropInternalOk(k, cmp, Te).
-    selectorCmpPropOk(s, k, cmp@CmpGte(), e) :- {Te}
-        selectorCmpPropOk_common(s, k, e) == Te,
-        selectorCmpPropInternalOk(k, cmp, Te).
-    selectorCmpPropOk(s, k, cmp@CmpLt(), e) :- {Te}
-        selectorCmpPropOk_common(s, k, e) == Te,
-        selectorCmpPropInternalOk(k, cmp, Te).
-    selectorCmpPropOk(s, k, cmp@CmpLte(), e) :- {Te}
-        selectorCmpPropOk_common(s, k, e) == Te,
-        selectorCmpPropInternalOk(k, cmp, Te).
-    selectorCmpPropOk(s, k, cmp@CmpEqual(), e) :- {Te}
-        selectorCmpPropOk_common(s, k, e) == Te,
-        selectorCmpPropInternalOk(k, cmp, Te).
-    selectorCmpPropOk(s, k, cmp@CmpMatches(), e) :- {Te}
-        selectorCmpPropOk_common(s, k, e) == Te,
-        selectorCmpPropInternalOk(k, cmp, Te).
-    selectorCmpPropOk(_, _, cmp, _) :-
-        false | error $[disallowed comparison operator]@cmp.
+    /* gaemmode */
+    selectorKeyGamemodeOk : scope * Compare * Expr
+    selectorKeyGamemodeOk(s, CmpNotEqual(), e) :-
+        selectorKeyGamemodeOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyGamemodeOk(s, CmpEqual(), e) :-
+        selectorKeyGamemodeOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyGamemodeOk_eTypeOk : TYPE
+    selectorKeyGamemodeOk_eTypeOk(STRING()).
 
-    // common rule
-    selectorCmpPropOk_common : scope * ID * Expr -> TYPE
-    selectorCmpPropOk_common(s, k, e) = Te :-
-        typeOfExpr(s, e) == Te,
-        declareProp(s, k, PROP_FINAL(Te)).
+    /* level */
+    selectorKeyLevelOk : scope * Compare * Expr
+    selectorKeyLevelOk(s, CmpEqual(), e) :-
+        selectorKeyLevelOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyLevelOk(s, CmpGt(), e) :-
+        selectorKeyLevelOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyLevelOk(s, CmpGte(), e) :-
+        selectorKeyLevelOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyLevelOk(s, CmpLt(), e) :-
+        selectorKeyLevelOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyLevelOk(s, CmpLte(), e) :-
+        selectorKeyLevelOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyLevelOk(s, CmpMatches(), e) :-
+        selectorKeyLevelOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyLevelOk_eTypeOk : TYPE
+    selectorKeyLevelOk_eTypeOk(RANGE(T)) :-
+        typeNumeric(T).
+    selectorKeyLevelOk_eTypeOk(T) :-
+        typeNumeric(T).
 
-    // key-specific implementations
-    selectorCmpPropInternalOk : ID * Compare * TYPE
+    /* predicate */
+    selectorKeyPredicateOk : scope * Compare * Expr
+    selectorKeyPredicateOk(s, CmpNotEqual(), e) :-
+        selectorKeyPredicateOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyPredicateOk(s, CmpEqual(), e) :-
+        selectorKeyPredicateOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyPredicateOk_eTypeOk : TYPE
+    selectorKeyPredicateOk_eTypeOk(RESOURCE(NSIDiFull("minecraft", ["predicate"]))).
 
-    selectorCmpPropInternalOk("distance", cmp, T) :-
-        selectorCmpPropInternalOk_distance(cmp, T).
-    selectorCmpPropInternalOk_distance : Compare * TYPE
-    selectorCmpPropInternalOk_distance(cmp@CmpMatches(), RANGE(INT())).
-    selectorCmpPropInternalOk_distance(cmp@CmpMatches(), RANGE(FLOAT())).
-    selectorCmpPropInternalOk_distance(cmp@CmpMatches(), T) :-
-        false | error $[cannot match distance with type [T]]@cmp.
-    selectorCmpPropInternalOk_distance(_, INT()).
-    selectorCmpPropInternalOk_distance(_, FLOAT()).
-    selectorCmpPropInternalOk_distance(cmp, T) :-
-        false | error $[cannot compare distance to value of type [T]]@cmp.
+    /* tag */
+    selectorKeyTagOk : scope * Compare * Expr
+    selectorKeyTagOk(s, CmpNotEqual(), e) :-
+        selectorKeyTagOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyTagOk(s, CmpEqual(), e) :-
+        selectorKeyTagOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyTagOk_eTypeOk : TYPE
+    selectorKeyTagOk_eTypeOk(STRING()).
 
-    selectorCmpPropInternalOk("level", cmp, T) :-
-        // TODO: ensure there is prop [type=$<minecraft:entity>minecraft:player]
-        selectorCmpPropInternalOk_level(cmp, T).
-    selectorCmpPropInternalOk_level : Compare * TYPE
-    selectorCmpPropInternalOk_level(cmp@CmpMatches(), RANGE(INT())).
-    selectorCmpPropInternalOk_level(cmp@CmpMatches(), T) :-
-        false | error $[cannot match level with type [T]]@cmp.
-    selectorCmpPropInternalOk_level(_, INT()).
-    selectorCmpPropInternalOk_level(cmp, T) :-
-        false | error $[cannot compare level to value of type [T]]@cmp.
-
-rules // class: eqmulti
-
-    selectorEqmultiPropOk : scope * ID * Compare * Expr
-    selectorEqmultiPropOk(s, k, cmp@CmpEqual(), e) :- {Te}
-        selectorEqmultiPropOk_common(s, k, e) == Te,
-        selectorEqmultiPropInternalOk(k, Te).
-    selectorEqmultiPropOk(s, k, cmp@CmpNotEqual(), e) :- {Te}
-        selectorEqmultiPropOk_common(s, k, e) == Te,
-        selectorEqmultiPropInternalOk(k, Te).
-    selectorEqmultiPropOk(_, _, cmp, _) :-
-        false | error $[disallowed comparison operator]@cmp.
-
-    selectorEqmultiPropOk_common : scope * ID * Expr -> TYPE
-    selectorEqmultiPropOk_common(s, k, e) = Te :-
-        typeOfExpr(s, e) == Te,
-        declareProp(s, k, PROP_OVERRIDABLE(Te)).
-
-    selectorEqmultiPropInternalOk : ID * TYPE
-    selectorEqmultiPropInternalOk("predicate", res@RESOURCE(ns)) :-
-        ns == NSIDiFull("minecraft", ["predicate"]) | error $[incompatible resource from registry [ns]]@res.
-    selectorEqmultiPropInternalOk("predicate", T) :-
-        false | error $[not an predicate]@T.
-    selectorEqmultiPropInternalOk("tag", STRING()).
-    selectorEqmultiPropInternalOk("tag", T) :-
-        false | error $[tag can only be of string]@T.
-
-rules // class: eqspecial
-
-    selectorEqspecialPropOk : scope * ID * Compare * Expr
-    selectorEqspecialPropOk(s, k, cmp@CmpEqual(), e) :- {Te}
-        selectorEqspecialPropOk_common(s, k, e) == Te,
-        selectorEqspecialConstraintOk(s, k, cmp),
-        selectorEqspecialPropInternalOk(k, Te).
-    selectorEqspecialPropOk(s, k, cmp@CmpNotEqual(), e) :- {Te}
-        selectorEqspecialPropOk_common(s, k, e) == Te,
-        selectorEqspecialConstraintOk(s, k, cmp),
-        selectorEqspecialPropInternalOk(k, Te).
-    selectorEqspecialPropOk(_, _, cmp, _) :-
-        false | error $[disallowed comparison operator]@cmp.
-
-    selectorEqspecialPropOk_common : scope * ID * Expr -> TYPE
-    selectorEqspecialPropOk_common(s, k, e) = Te :-
-        typeOfExpr(s, e) == Te,
-        declareProp(s, k, PROP_FINAL(Te)).
-
-    /** check if the eqspecial constraint holds */
-    selectorEqspecialConstraintOk : scope * ID * Compare
-    selectorEqspecialConstraintOk(s, k, cmp) :-
-        // TODO: ensure only one kind of cmp is used
-        // TODO: ensure == is only used when once (or multiple times, but only if being overridden)
-        try { false } | note $[implement eqspecial constraint].
-
-    selectorEqspecialPropInternalOk : ID * TYPE
-    selectorEqspecialPropInternalOk("gamemode", T) :-
-        try { false } | note $[todo: check gamemode type]@T.
-    selectorEqspecialPropInternalOk("type", res@RESOURCE(ns)) :-
-        ns == NSIDiFull("minecraft", ["entity_type"]) | error $[incompatible resource from registry [ns], must be an entity type]@res.
-    selectorEqspecialPropInternalOk("type", T) :-
-        false | error $[not an entity type]@T.
+    /* type */
+    selectorKeyTypeOk : scope * scope * Compare * Expr
+    selectorKeyTypeOk(s, _, CmpNotEqual(), e) :-
+        selectorKeyTypeOk_eTypeOk(typeOfExpr(s, e)).
+    selectorKeyTypeOk(s, s_alias, CmpEqual(), e@Resource2Expr(resource)) :- {T}
+        selectorKeyTypeOk_eTypeOk(typeOfExpr(s, e)),
+        T == typeOfResourceData(s, resource),
+        // TODO: ensure that we can actually narrow the current type further
+        // TODO: mechanism to allow type narrowing (necessary for stdlib)
+        !sel_selects_type[(T, CanNotNarrow())] in s_alias.
+    selectorKeyTypeOk(s, _, CmpEqual(), e) :-
+        selectorKeyTypeOk_eTypeOk(typeOfExpr(s, e)),
+        try { false } | warning $[non-literal resource: won't narrow sender data type]@e.
+    selectorKeyTypeOk_eTypeOk : TYPE
+    selectorKeyTypeOk_eTypeOk(RESOURCE(NSIDiFull("minecraft", ["entity_type"]))).

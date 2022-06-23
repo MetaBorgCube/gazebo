@@ -20,12 +20,5 @@ global alias @p = @a[sort = "nearest", limit = 1]
 /** random player */
 global alias @r = @a[sort = "random", limit = 1]
 
-/* TODO: @s has special semantics besides just being limited to a single entity; depending on context information
-    more concrete details could actually be inferred
-
-   example (which should compile were this inference to be implemented):
-    as @e[type = $horse] =>
-        @s.Saddle = false
-*/
-/** sender */
-global alias @s = @e[limit = 1]
+/** sender. special name: internally treated as @e[type=<magically-inherited>,limit=1] */
+global alias @s = @s

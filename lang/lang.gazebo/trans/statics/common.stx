@@ -41,7 +41,6 @@ signature
 
     relations
 
-        name_rel : -> string
         mod : NSIDi -> TYPE
         currmod : -> (NSIDi * TYPE)
         memb : (string * NSIDi * MEMB_KIND) -> TYPE
@@ -52,10 +51,12 @@ signature
         bs : string -> TYPE
         alias : string -> scope
         prop : string -> PROP
-        enumkey : -> string
+        /** injected type. contains the expected type of an expression in this scope. should n */
         tinj : -> TYPE
+        /** expected return type of the current function */
         ret : -> TYPE
-        alias_root : -> int
+        /** current SELECTOR inner scope (for @s) */
+        sender_selector : -> scope
 
 rules
 

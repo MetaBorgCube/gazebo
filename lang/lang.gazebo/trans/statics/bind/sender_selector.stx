@@ -1,0 +1,22 @@
+module statics/bind/sender_selector
+
+imports
+
+    statics/common
+
+rules
+
+    declareSenderSelector : scope * scope
+
+    declareSenderSelector(s, s_sender) :-
+        !sender_selector[s_sender] in s.
+
+rules
+
+    resolveSenderSelector : scope -> scope
+
+    resolveSenderSelector(s) = s_sender :- {p}
+        query sender_selector
+            filter P* and true
+            min $ < P and true
+            in s |-> [(_, s_sender)].

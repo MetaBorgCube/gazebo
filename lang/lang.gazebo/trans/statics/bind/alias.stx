@@ -3,6 +3,7 @@ module statics/bind/alias
 imports
 
     statics/common
+    statics/bind/sender_selector
 
 rules
 
@@ -25,6 +26,9 @@ rules
 rules
 
     resolveAlias : scope * ID -> scope
+
+    // special case for @s: retrieve from current scope
+    resolveAlias(s, "s") = resolveSenderSelector(s).
 
     resolveAlias(s, name) = s_sel :- {p name'}
         queryAlias(s, name) == p,

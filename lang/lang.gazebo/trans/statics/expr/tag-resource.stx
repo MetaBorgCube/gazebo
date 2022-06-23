@@ -32,34 +32,64 @@ rules // resource
     typeOfResource(s, ResourceNBT(ident, payl)) =
         typeOfResource(s, ResourceFull(ident, Props([]), payl)).
 
-    typeOfResource(s, ResourceFull(ident, Props(props), payl)) = T :- {id_registry s_registry id_registration s_registration}
-        inferRegistry(s, ident) == ((id_registry, s_registry), (id_registration, s_registration)),
+    typeOfResource(s, ResourceFull(ident, Props(props), payl)) = T :- {id_registry s_registration}
+        inferRegistry(s, ident) == ((id_registry, _), (_, s_registration)),
         T == RESOURCE(id_registry),
         resourcePropsOk(s, s_registration, props),
         resourcePaylOk(s, s_registration, payl).
 
+rules // resource ident
+
+    resourceIdent : Resource -> TRIdent
+    resourceIdent(ResourceBare(ident)) = ident.
+    resourceIdent(ResourceProps(ident, _)) = ident.
+    resourceIdent(ResourceNBT(ident, _)) = ident.
+    resourceIdent(ResourceFull(ident, _, _)) = ident.
+
+rules // resource literal data
+
+    /** get the inner data type of this resource. always COMPOUND */
+    typeOfResourceData : scope * Resource -> TYPE
+
+    typeOfResourceData(s, res) = COMPOUND(s_data) :- {ident refs s_registration}
+        ident == resourceIdent(res),
+        inferRegistry(s, ident) == refs@(_, (_, s_registration)),
+        setRegistryReferences(ident, refs),
+        s_data == resolveRegmeta(s_registration, "data").
+
 rules
 
+    /** infer registry and registration information from a resource identifier.
+        function is publicly callable. */
     inferRegistry : scope * TRIdent -> ((NSIDi * scope) * (NSIDi * scope))
 
-    inferRegistry(s, ident@TRIdentExplicit(id_registry_raw, id_registration_raw)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
+    inferRegistry(s, TRIdentExplicit(id_registry_raw, id_registration_raw)) = ((id_registry_full, s_registry), (id_registration_full, s_registration)) :-
         {id_registry} id_registry == nsidi(id_registry_raw),
         {id_registration} id_registration == nsidi(id_registration_raw),
         resolveRegistryRel(s, id_registry) == (id_registry_full, s_registry)
         | error $[registry not found]@id_registry_raw,
-        @id_registry_raw.ref := id_registry_full,
         resolveRegistration(s_registry, id_registration) == (id_registration_full, s_registration)
-        | error $[registration not found in registry]@id_registration_raw,
+        | error $[registration not found in registry]@id_registration_raw.
+
+    inferRegistry(s, TRIdentAnonymous(id_registration)) =
+        inferRegistryAnon(s, resolveTinj(s, UNK()), nsidi(id_registration)).
+
+rules
+
+    /** attach AST properties to a resource identifer, given some registry+registration information.
+        may only be called once per resource identifier, so it is intended to only be done via typeOfResource. */
+    setRegistryReferences : TRIdent * ((NSIDi * scope) * (NSIDi * scope))
+
+    setRegistryReferences(ident@TRIdentExplicit(id_registry_raw, id_registration_raw), ((id_registry_full, s_registry), (id_registration_full, s_registration))) :-
+        @id_registry_raw.ref := id_registry_full,
         @id_registration_raw.ref := id_registration_full,
         @ident.registry_full := id_registry_full,
         @ident.registration_full := id_registration_full.
 
-    inferRegistry(s, ident@TRIdentAnonymous(id_registration)) =
-        res@inferRegistryAnon(s, resolveTinj(s, UNK()), nsidi(id_registration)) :-
-        {id_registry_res id_registration_res} res == ((id_registry_res, _), (id_registration_res, _)),
-        @id_registration.ref := id_registration_res,
-        @ident.registry_full := id_registry_res,
-        @ident.registration_full := id_registration_res.
+    setRegistryReferences(ident@TRIdentAnonymous(id_registration), ((id_registry_full, s_registry), (id_registration_full, s_registration))) :-
+        @id_registration.ref := id_registration_full,
+        @ident.registry_full := id_registry_full,
+        @ident.registration_full := id_registration_full.
 
 rules
 

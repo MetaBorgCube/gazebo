@@ -3,6 +3,7 @@ module statics/statement/exec
 imports
 
     statics/common
+    statics/bind/sender_selector
     statics/statement/block
     statics/expr
     statics/types
@@ -12,8 +13,8 @@ rules // entry point
     execOk : scope * Exec
 
     execOk(s, ExecFin(frag, body)) :- {s_exec_body}
-        execFragOk(s, frag),
         new s_exec_body, s_exec_body -P-> s,
+        execFragOk(s, s_exec_body, frag),
         blockOk(s_exec_body, body).
 
     execOk(s, ExecChain(frag, next)) :-
@@ -22,41 +23,42 @@ rules // entry point
 
 rules // fragments
 
-    execFragOk : scope * ExecFrag
+    execFragOk : scope * scope * ExecFrag
 
-    execFragOk(s, ExecAlign(e)) :- {T}
+    execFragOk(s, _, ExecAlign(e)) :- {T}
         typeOfExpr(s, e) == STRING() | error $[expected string]@e.
 
-    execFragOk(s, ExecAnchored(a)).
+    execFragOk(s, _, ExecAnchored(a)).
 
-    execFragOk(s, ExecAs(t)) :- {T}
+    execFragOk(s, s_exec_body, ExecAs(t)) :- {T s_sel}
+        typeOfExpr(s, t) == T@SELECTOR(s_sel) | error $[target is not a selector, but instead [T]]@t,
+        declareSenderSelector(s_exec_body, s_sel).
+
+    execFragOk(s, _, ExecAt(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
-    execFragOk(s, ExecAt(t)) :- {T}
-        typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
-
-    execFragOk(s, ExecFacingPos(p)) :- {T}
+    execFragOk(s, _, ExecFacingPos(p)) :- {T}
         typeOfExpr(s, p) == T,
         matchExecPosType(T) | error $[expected position, instead got [T]]@p.
 
-    execFragOk(s, ExecFacingEntity(t, a)) :- {T}
+    execFragOk(s, _, ExecFacingEntity(t, a)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
-    execFragOk(s, ExecIn(dim)) :- {T Tdim}
+    execFragOk(s, _, ExecIn(dim)) :- {T Tdim}
         Tdim == RESOURCE(NSIDiFull("minecraft", ["dimension"])),
         typeOfExpr(withTypeInject(s, Tdim), dim) == Tdim | error $[not a dimension]@dim.
 
-    execFragOk(s, ExecPositionedPos(p)) :- {T}
+    execFragOk(s, _, ExecPositionedPos(p)) :- {T}
         typeOfExpr(s, p) == T,
         matchExecPosType(T) | error $[expected position, instead got [T]]@p.
 
-    execFragOk(s, ExecPositionedAs(t)) :- {T}
+    execFragOk(s, _, ExecPositionedAs(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
-    execFragOk(s, ExecRotated(rot)) :-
+    execFragOk(s, _, ExecRotated(rot)) :-
         rotationOk(s, rot).
 
-    execFragOk(s, ExecRotatedAs(t)) :- {T}
+    execFragOk(s, _, ExecRotatedAs(t)) :- {T}
         typeOfExpr(s, t) == T@SELECTOR(_) | error $[target is not a selector, but instead [T]]@t.
 
 rules

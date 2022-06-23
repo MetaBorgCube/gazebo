@@ -1,0 +1,15 @@
+module example:selector_context_typing
+
+static registry $<minecraft:entity_type> {
+    register minecraft:creeper {
+        data interface {
+            ExplosionRadius Int
+        }
+    }
+}
+global alias @e = @e
+func test {
+    as @e[type == $creeper] {
+        @s.ExplosionRadius = 100
+    }
+}
