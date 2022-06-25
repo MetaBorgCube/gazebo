@@ -159,6 +159,6 @@ rules // expression desugaring
 
   desugar: Selector-C([base | mixins], Props-C(props)) -> Selector-C([base], Props-C(props'))
     with
-      mixin_props := <map(strip-annos; MixinLookup); flatten-list> mixins
-    ; props' := <map(desugar-selector-prop(|"_sel_anon"))> props
-    ; props'' := <concat> [mixin_props, props']
+      mixed_in_props := <map(strip-annos; MixinLookup); flatten-list> mixins
+    ; desugared_props := <map(desugar-selector-prop(|"_sel_anon"))> props
+    ; props' := <concat> [mixed_in_props, desugared_props]
