@@ -260,7 +260,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
     with
       <type-compat> (t, TypeFloat-C())
 
-  transform-expr: Selector-C([root], Props-C(props), _) -> ArgSelector-LL(Selector-LL(type, props'))
+  transform-expr: Selector-C([root], Props-C(props), t) -> ArgSelector-LL(Selector-LL(type, props', <transform-type> t))
     with
       type := <
         \"e" -> SelectorE-LL()\

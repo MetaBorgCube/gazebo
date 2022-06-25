@@ -89,7 +89,7 @@ context-free syntax
 context-free sorts Selector-LL SelectorType-LL SelectorProp-LL SelectorPropKv-LL
 context-free syntax
 
-    Selector-LL.Selector-LL = <<SelectorType-LL>[<{SelectorProp-LL ", "}*>]>
+    Selector-LL.Selector-LL = <<SelectorType-LL>[<{SelectorProp-LL ", "}*>]<Type-LL>>
 
     SelectorType-LL.SelectorE-LL = <@e>
     SelectorType-LL.SelectorA-LL = <@a>

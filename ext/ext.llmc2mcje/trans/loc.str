@@ -27,6 +27,8 @@ signature
   /** variable location specifier */
   sorts Loc
   constructors
+    /** variable in entity data, identified by a selector and an access path */
+    DataEntity : Type-LL * Selector-LL * Path-LL -> Loc
     /** variable in the data storage, identified by the namespace with name and an access path */
     DataStorage : Type-LL * NSID * Path-LL -> Loc
     /** variable in the scoreboard, identified by the 'fake player' and 'objective' */
@@ -46,12 +48,16 @@ strategies // register-decl :: Decl-LL -> _
 
 rules // loc-type :: Loc -> Type-LL
 
+  loc-type: DataEntity(t, _, _) -> t
   loc-type: DataStorage(t, _, _) -> t
   loc-type: Scoreboard(_, _) -> TypeIntI-LL()
 
 rules // loc-access-path :: (Loc, Path-LL) -> Loc
 
   loc-access-path(|loc): Path-LL([]) -> loc
+  loc-access-path(|DataEntity(t, sel, path)): path_access -> DataEntity(t', sel, <path-join> [path, path_access])
+    with
+      t' := <type-access-path(|path_access)> t
   loc-access-path(|DataStorage(t, nsid, path)): path_access -> DataStorage(t', nsid, <path-join> [path, path_access])
     with
       t' := <type-access-path(|path_access)> t
@@ -61,7 +67,8 @@ rules // loc-access-path :: (Loc, Path-LL) -> Loc
 strategies // loc-is-data :: Loc
 
   loc-is-data =
-    ?DataStorage(_, _, _)
+    ?DataEntity(_, _, _)
+  + ?DataStorage(_, _, _)
 
 strategies // is-locatable :: Arg-LL
 
@@ -75,12 +82,23 @@ rules // dest-to-loc :: AssignDest-LL -> Loc
     with
       var_loc := <VarLoc> var
     ; final_loc := <loc-access-path(|var_loc)> path
+  dest-to-loc: DestSelectorPath-LL(sel@Selector-LL(_, _, t), path) -> DataEntity(t', sel, path)
+    with
+      t' := <type-access-path(|path)> t
 
 rules // arg-to-loc :: Arg-LL -> Loc
 
+  arg-to-loc: ArgSelector-LL(sel@Selector-LL(_, _, t)) -> DataEntity(t, sel, Path-LL([]))
   arg-to-loc: ArgVar-LL(var) -> <VarLoc> var
 
 rules // loc-args-data :: Loc -> List(Arg-ASM)
+
+  loc-args-data: DataEntity(_, sel, access_path) ->
+    [
+      Arg-RawString-ASM("entity"),
+      <transform-selector> sel,
+      <transform-path> access_path
+    ]
 
   loc-args-data: DataStorage(_, nsid, access_path) ->
     [
@@ -113,11 +131,8 @@ rules // loc-args-scoreboard :: Loc -> List(Arg-ASM)
 
 rules // loc-args-execute :: Loc -> List(Arg-ASM)
 
-  loc-args-execute--is-data-compat =
-    ?DataStorage(_, _, _)
-
   loc-args-execute =
-    loc-args-execute--is-data-compat
+    loc-is-data
   ; with(
       switch loc-type
         case ?TypeIntB-LL(): !"byte"

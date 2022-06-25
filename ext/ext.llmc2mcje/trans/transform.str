@@ -571,7 +571,7 @@ rules // transform-path :: Path-LL -> Arg-ASM
 
 rules // transform-selector :: Selector-LL -> Arg-ASM
 
-  transform-selector: Selector-LL(type, props*)
+  transform-selector: Selector-LL(type, props*, _)
     -> Arg-RawString-ASM(<concat-strings> ["@", t, "[", props'*, "]"])
     with
       switch !type
