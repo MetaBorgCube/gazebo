@@ -24,7 +24,11 @@ strategies
   + ?Function-C(_, _, _, _)
   + ?Decl-C(_, _, _, _)
 
-  is-lit-or-ref =
+  is-ref =
+    ?RefFull-C(_)
+  + ?RefLocal-C(_)
+
+  is-lit =
     ?String-C(_)
   + ?BoolT-C()
   + ?BoolF-C()
@@ -34,8 +38,15 @@ strategies
   + ?NumL-C(_)
   + ?NumF-C(_)
   + ?NumD-C(_)
-  + ?RefFull-C(_)
-  + ?RefLocal-C(_)
+
+  is-resource-lit =
+    ?ResInst-C(ResourceBare-C(_, _))
+  + ?ResInst-C(ResourcePropsPayl-C(_, _, Props-C([]), NbtCompound-C([])))
+
+  is-selector-compatible =
+    is-ref
+  + is-lit
+  + is-resource-lit
 
 rules // nsid-ensure-valid :: string -> string
 

@@ -13,12 +13,14 @@ static registry $<minecraft:entity_type> {
 global alias @e = @e
 global alias @r = @e[type == $player]
 alias @Creeper = @e[type == $creeper]
+alias @SingleRandCreeper = @Creeper[sort="random",limit=1]
 alias @R = @r
 func test {
     as @e[type == $creeper] {
         @s.ExplosionRadius = 100
     }
     @r.Name = ""
-    @Creeper.ExplosionRadius = 10
-    @R[limit = 5, is "hoi"].Name = ""
+    @R[is "hey"].Name = @r.Name
+    // copy the value from a random creeper to another random creeper
+    @SingleRandCreeper.ExplosionRadius = @SingleRandCreeper.ExplosionRadius
 }

@@ -271,7 +271,18 @@ rules // transform-expr :: Expr-C -> Arg-LL
       > root
     ; props' := <map(transform-prop-selector)> props
 
-  // TODO: res, tag
+  transform-expr =
+    ( ?ResInst-C(ResourceBare-C(registry, registration))
+    + ?ResInst-C(ResourcePropsPayl-C(registry, registration, Props-C([]), NbtCompound-C([])))
+    )
+  ; (registry', registration') := <all(nsid-from-identf)> (registry, registration)
+  ; !ArgRes-LL(registry', registration', NoResourceState-LL())
+
+  transform-expr: ResInst-C(ResourcePropsPayl-C(_, _, _, _)) -> <fail>
+    with
+      err(|"generic ResourcePropsPayl-C not implemented yet")
+
+  // TODO: tag
 
   /** global-ident :: NSID-LL -> string */
   global-ident =

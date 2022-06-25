@@ -51,7 +51,7 @@ rules
 
   desugar-mixin-prop-lift(|ident_base): e -> e'
     with
-      if is-lit-or-ref then
+      if is-selector-compatible then
         e' := e
       else
         ident := <newname> ident_base

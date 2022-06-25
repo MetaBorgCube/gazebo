@@ -601,6 +601,8 @@ rules // transform-selector :: Selector-LL -> Arg-ASM
   transform-selector-prop-v: ArgFloatD-LL(v) -> v
   transform-selector-prop-v: ArgRange-LL(lo, hi)
     -> <concat-strings> [<transform-selector-prop-v--range-part> lo, "..", <transform-selector-prop-v--range-part> hi]
+  transform-selector-prop-v: ArgRes-LL(_, registration, NoResourceState-LL())
+    -> <transform-nsid; asm-nsid> registration
 
   transform-selector-prop-v--range-part: RangePartNone-LL() -> ""
   transform-selector-prop-v--range-part: RangePartSome-LL(v) -> <transform-selector-prop-v> v
