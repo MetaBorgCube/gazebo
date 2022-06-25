@@ -128,10 +128,17 @@ rules // transform-expr :: Expr -> Expr-C
       a := <stx-get-ast-analysis> sel
     ; s_sel := <stx-get-ast-type(|a); ?SELECTOR(<id>)> sel
     ; bases := <rec x(
-        \s -> <stx-get-scopegraph-data(|a, "statics/selectors!sel_root"); debug(!"s.root="); ?[1]; ![]>\
-     <+ \s -> [
-          <stx-get-scopegraph-data(|a, "statics/selectors!sel_name"); ?[<id>]> s
-        | <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
+        // stop at the root
+        stx-get-scopegraph-data(|a, "statics/selectors!sel_root")
+      ; debug(!"s.root=")
+      ; \[1] -> []\
+     <+ // exit early when encountering @s, as it is typed as not being an actual root
+        stx-get-scopegraph-data(|a, "statics/selectors!sel_name")
+      ; ?["s"]
+     <+ // get current selector name and traverse thought parents
+        \s -> <concat> [ // use concat to continue traversal through intermediate aliases which don't have sel_name set
+          <stx-get-scopegraph-data(|a, "statics/selectors!sel_name")> s
+        , <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
         ]\
       ); reverse> s_sel
 

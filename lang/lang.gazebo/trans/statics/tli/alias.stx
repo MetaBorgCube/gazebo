@@ -12,25 +12,24 @@ rules
     aliasOk : scope * scope * Alias
 
     aliasOk(_, s, Alias(dst, src)) :-
-        aliasOkCommon(s, s, dst, src).
+        aliasOkCommon(s, dst, typeOfSelector(s, src)).
 
-    aliasOk(s_root, s, GlobalAlias(dst, src)) :-
-        aliasOkCommon(s, s_root, dst, src).
-
-    /** special case for root selector declaration (e.g. "@e = @e" to define @e as a root selector, i.e. no A-edge) */
-    aliasOk(s_root, s, GlobalAlias(Selector(name, []), Selector(name, []))) :- {s_sel_root}
+    /** special case for the absolute root (@e = @e), as there would otherwise be no alias-of to resolve */
+    aliasOk(s_root, _, GlobalAlias(Selector(name, []), Selector(name, []))) :- {s_sel_root}
         new s_sel_root,
         !sel_name[name] in s_sel_root,
         !sel_root[1] in s_sel_root,
         declareAlias(s_root, name, s_sel_root).
 
+    aliasOk(s_root, s, GlobalAlias(dst, src)) :-
+        aliasOkCommon(s_root, dst, typeOfRootSelector(s, src)).
+
 rules
 
-    aliasOkCommon : scope * scope * Selector * Selector    
+    /** scope to declare in * destination selector * type of source selector */
+    aliasOkCommon : scope * Selector * TYPE
 
-    aliasOkCommon(s_occurrence, s_target, dst@Selector(name, dstProps), src) :- {T s_sel}
+    aliasOkCommon(s_target, Selector(name, dstProps), Tsrc) :- {s_sel}
         dstProps == [] | error $[destination must not have any properties]@dstProps,
-        // TODO: ensure compile-time computation computability of srcProps
-        typeOfSelector(s_occurrence, src) == T,
-        T == SELECTOR(s_sel),
+        Tsrc == SELECTOR(s_sel),
         declareAlias(s_target, name, s_sel).

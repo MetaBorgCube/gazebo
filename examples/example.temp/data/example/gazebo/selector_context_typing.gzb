@@ -6,10 +6,19 @@ static registry $<minecraft:entity_type> {
             ExplosionRadius Int
         }
     }
+    register minecraft:player {
+        data interface { Name String }
+    }
 }
 global alias @e = @e
+global alias @r = @e[type == $player]
+alias @Creeper = @e[type == $creeper]
+alias @R = @r
 func test {
     as @e[type == $creeper] {
         @s.ExplosionRadius = 100
     }
+    @r.Name = ""
+    @Creeper.ExplosionRadius = 10
+    @R[limit = 5, is "hoi"].Name = ""
 }

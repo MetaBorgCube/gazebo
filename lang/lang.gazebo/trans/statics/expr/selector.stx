@@ -19,6 +19,15 @@ rules
         props' == selectorExtractProps(props),
         selectorPropsOk(s, s_sel, s_alias, props').
 
+    typeOfRootSelector : scope * Selector -> TYPE
+    typeOfRootSelector(s, Selector(name, props)) = SELECTOR(s_sel) :- {s_alias props'}
+        resolveAlias(s, name) == s_alias,
+        new s_sel, s_sel -P-> s,
+        !sel_name[name] in s_sel,
+        !sel_root[1] in s_sel,
+        props' == selectorExtractProps(props),
+        selectorPropsOk(s, s_sel, s_alias, props').
+
 rules
 
     selectorExtractProps : list(Props) -> list(Prop)
