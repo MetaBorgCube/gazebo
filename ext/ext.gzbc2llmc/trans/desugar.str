@@ -157,7 +157,7 @@ rules // expression desugaring
   desugar: BoolT-C() -> NumB-C("1")
   desugar: BoolF-C() -> NumB-C("0")
 
-  desugar: Selector-C([base | mixins], Props-C(props)) -> Selector-C([base], Props-C(props'))
+  desugar: Selector-C([base | mixins], Props-C(props), t) -> Selector-C([base], Props-C(props'), t)
     with
       mixed_in_props := <map(strip-annos; MixinLookup); flatten-list> mixins
     ; desugared_props := <map(desugar-selector-prop(|"_sel_anon"))> props

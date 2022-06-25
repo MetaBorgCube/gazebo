@@ -260,7 +260,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
     with
       <type-compat> (t, TypeFloat-C())
 
-  transform-expr: Selector-C([root], Props-C(props)) -> ArgSelector-LL(Selector-LL(type, props'))
+  transform-expr: Selector-C([root], Props-C(props), _) -> ArgSelector-LL(Selector-LL(type, props'))
     with
       type := <
         \"e" -> SelectorE-LL()\
@@ -296,7 +296,7 @@ rules // transform-expr :: Expr-C -> Arg-LL
   transform-expr(|t) =
     (?FindIndex-C(_, _) + ?FindKey-C(_, _))
   ; with(
-      unwrap-find => (e', path)
+      unwrap-find => ((e', path), _)
     ; ident := <newname> "$find"
     ; rules(RegisterDecl:+ _ -> Decl-LL(
         SLocal-LL(),
@@ -492,6 +492,11 @@ rules // rvalue/lvalue manipulation
   arg-lit-int: ArgIntI-LL(i) -> i
   arg-lit-int: ArgIntL-LL(i) -> i
 
+  expr-t: Selector-C(_, _, t) -> t
+  expr-t =
+    strip-annos
+  ; RefType
+
   unwrap-find--inner: FindIndex-C(e, idx) -> (e, Some(elem))
     with
       idx' := <transform-expr(|TypeInt-C())> idx
@@ -522,24 +527,23 @@ rules // rvalue/lvalue manipulation
       \})> e
     ; path := Path-LL(<reverse> parts)
     with
-      // take RefType, because unwrap-find only supports references
-      if not(t := <strip-annos; RefType> e') then
-        <err(|"Cannot compute Lvalue on non-reference inner expression")> e'
+      if not(t := <expr-t> e') then
+        <err(|"Cannot compute Lvalue on inner expression")> e'
       ; fail
       end
     ; t' := <type-access-path(|path)> t
     with
       e_out := <transform-expr(|t)> e'
 
-  /** lvalue-mk-varpath :: (Arg-LL, Path-LL) -> AssignDest-LL.DestVarPath-LL */
+  /** lvalue-mk-dest :: (Arg-LL, Path-LL) -> AssignDest-LL */
   // case: preexisting local variable
-  lvalue--mk-varpath: (ArgVar-LL(var), path) -> DestVarPath-LL(var, path)
+  lvalue--mk-dest: (ArgVar-LL(var), Path-LL([])) -> DestVar-LL(var)
+  lvalue--mk-dest: (ArgVar-LL(var), path) -> DestVarPath-LL(var, path)
+  lvalue--mk-dest: (ArgSelector-LL(sel), path) -> DestSelectorPath-LL(sel, path)
   /** lvalue :: Expr-C -> (AssignDest-LL, Type-C) */
   lvalue =
     unwrap-find
-  ; (lvalue--mk-varpath, id)
-    // simplfy to DestVar-LL if the path happened to be empty
-  ; (try(\DestVarPath-LL(var, Path-LL([])) -> DestVar-LL(var)\), id)
+  ; (lvalue--mk-dest, id)
 
   rvalue-from-lvalue(|_): DestVar-LL(var) -> ArgVar-LL(var)
   rvalue-from-lvalue(|t): DestVarPath-LL(var, path) -> ArgVar-LL(ident)

@@ -123,24 +123,43 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: NBTList(items) -> NbtList-C(<map(transform-expr)> items)
 
   transform-expr: sel@Selector(base, props) ->
-    Selector-C(bases, <opt-map(transform-props); opt-unwrap(!Props-C([]))> props)
+    Selector-C(bases, <opt-map(transform-props); opt-unwrap(!Props-C([]))> props, t)
     with
       a := <stx-get-ast-analysis> sel
     ; s_sel := <stx-get-ast-type(|a); ?SELECTOR(<id>)> sel
-    ; bases := <rec x(
-        // stop at the root
-        stx-get-scopegraph-data(|a, "statics/selectors!sel_root")
-      ; debug(!"s.root=")
-      ; \[1] -> []\
-     <+ // exit early when encountering @s, as it is typed as not being an actual root
-        stx-get-scopegraph-data(|a, "statics/selectors!sel_name")
-      ; ?["s"]
-     <+ // get current selector name and traverse thought parents
-        \s -> <concat> [ // use concat to continue traversal through intermediate aliases which don't have sel_name set
-          <stx-get-scopegraph-data(|a, "statics/selectors!sel_name")> s
-        , <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
-        ]\
-      ); reverse> s_sel
+    ; bases := <transform-expr-sel-bases(|a)> s_sel
+    ; t := <transform-expr-sel-type(|a)> s_sel
+  transform-expr-sel-bases(|a) =
+    rec x( // scope traverser
+      // stop at the root
+      stx-get-scopegraph-data(|a, "statics/selectors!sel_root")
+    ; debug(!"s.root=")
+    ; \[1] -> []\
+   <+ // exit early when encountering @s, as it is typed as not being an actual root
+      stx-get-scopegraph-data(|a, "statics/selectors!sel_name")
+    ; ?["s"]
+   <+ // get current selector name and traverse thought parents
+      \s -> <concat> [ // use concat to continue traversal through intermediate aliases which don't have sel_name set
+        <stx-get-scopegraph-data(|a, "statics/selectors!sel_name")> s
+      , <(stx-get-scopegraph-edges(|a, "statics/common!A"); ?[<id>]; x) <+ ![]> s
+      ]\
+    )
+  ; reverse
+  transform-expr-sel-type(|a) =
+    rec x( // scope traverser to find the first sel_selects_type
+      // return Some once found
+      stx-get-scopegraph-data(|a, "statics/selectors!sel_selects_type")
+    ; ?[(<id>, _)]
+    ; !Some(<id>)
+   <+ // continue to parent alias
+      stx-get-scopegraph-edges(|a, "statics/common!A")
+    ; ?[<id>]
+    ; x
+   <+ // return None if nothing else worked
+      !None()
+    )
+  ; opt-map(type-convert(|a))
+  ; opt-unwrap(!TypeUnk-C())
 
   transform-expr: Tag(nsid) -> TagInst-C(Tag-C(<identf-from-nsid> nsid))
 

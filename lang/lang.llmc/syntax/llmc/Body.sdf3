@@ -39,6 +39,7 @@ context-free syntax
     AssignDest-LL.DestDiscard-LL = <_>
     AssignDest-LL.DestVar-LL = ID
     AssignDest-LL.DestVarPath-LL = <<ID>, <Path-LL>>
+    AssignDest-LL.DestSelectorPath-LL = <<Selector-LL>, <Path-LL>>
 
 context-free sorts Condition-LL
 context-free syntax
