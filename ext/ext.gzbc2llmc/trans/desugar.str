@@ -108,7 +108,7 @@ rules // statement desugaring
         ref_flag,
         Block-C([IfStmt-C(
           // if __count(subj) > 0
-          Cmp-C(Count-C(ref_subj), CmpGt-C(), NumI-C("0")),
+          Cmp-C(Count-C(ref_subj), TypeInt-C(), CmpGt-C(), TypeInt-C(), NumI-C("0")),
           // ... then
           Block-C([
             // get subj[0]
@@ -134,14 +134,16 @@ rules // statement desugaring
     with
       destruct* := <desugar-destruct(|destruction)> ref_subj
 
-  desugar: MatchStmt-C(subj, cases, default_case) ->
+  desugar: MatchStmt-C(t, subj, cases, default_case) ->
     Block-C([
-      Decl-C(DeclKindVal-C(), ident, TypeUnk-C(), subj),
+      Decl-C(DeclKindVal-C(), ident, t, subj),
       <foldl(\(MatchCase-C(case_value, case_block), else_branch) ->
         IfStmt-C(
           Cmp-C(
             RefLocal-C(IdentLocal-C(ident)),
+            t,
             CmpEqual-C(),
+            t,
             case_value
           ),
           case_block,

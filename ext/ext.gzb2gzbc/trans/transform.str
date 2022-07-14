@@ -225,7 +225,7 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: And(l, r) -> And-C(<transform-expr> l, <transform-expr> r)
   transform-expr: Or(l, r) -> Or-C(<transform-expr> l, <transform-expr> r)
   transform-expr: Not(e) -> Not-C(<transform-expr> e)
-  transform-expr: Cmp(l, op, r) -> Cmp-C(<transform-expr> l, <transform-compare> op, <transform-expr> r)
+  transform-expr: Cmp(l, op, r) -> Cmp-C(<transform-expr> l, <transform-type-lookup> l, <transform-compare> op, <transform-type-lookup> r, <transform-expr> r)
 
   transform-expr: RangeFull(l, h) -> Range-C(<transform-expr> l, <transform-expr> h)
 
@@ -288,7 +288,8 @@ rules // transform-stmt :: Statement -> Statement-C
 
   transform-stmt: Match(subj, case*) ->
     MatchStmt-C(
-      <transform-expr> subj, 
+      <transform-type-lookup> subj,
+      <transform-expr> subj,
       <filter(?Case(_, _)); map(\Case(e, block) -> MatchCase-C(<transform-expr> e, <transform-block> block)\)> case*,
       <getfirst(?CaseDefault(<transform-block>)) <+ !Block-C([])> case*
     )

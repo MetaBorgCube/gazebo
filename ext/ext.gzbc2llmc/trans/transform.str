@@ -397,8 +397,8 @@ rules // transform-expr :: Expr-C -> Arg-LL
     )
   ; !arg'
 
-  transform-expr: Cmp-C(lhs, cmp, rhs) ->
-    ArgCond-LL(BoolCondCmp-LL(<transform-expr(|TypeBool-C())> lhs, cmp', <transform-expr(|TypeBool-C())> rhs))
+  transform-expr: Cmp-C(lhs, t_l, cmp, t_r, rhs) ->
+    ArgCond-LL(BoolCondCmp-LL(<transform-expr(|t_l)> lhs, cmp', <transform-expr(|t_r)> rhs))
     with
       cmp' := <
         \CmpGt-C() -> CmpGt-LL()\
@@ -407,7 +407,6 @@ rules // transform-expr :: Expr-C -> Arg-LL
       + \CmpLte-C() -> CmpLte-LL()\
       + \CmpEqual-C() -> CmpEq-LL()\
       > cmp
-    // TODO: implement type-contextual comparison
 
   // TODO: boolean logic
   // TODO: range

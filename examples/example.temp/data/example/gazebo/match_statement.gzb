@@ -1,0 +1,23 @@
+module example:match_statement
+
+func example
+{
+    match 123
+    {
+        1 => asdf := 1
+        _ => asdf := 2
+    }
+}
+
+func equivalent
+{
+    subject := 123
+    if subject == 1
+    {
+        asdf := 1
+    }
+    else
+    {
+        asdf := 2
+    }
+}

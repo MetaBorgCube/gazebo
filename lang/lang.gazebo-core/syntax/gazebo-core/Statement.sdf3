@@ -5,6 +5,7 @@ imports
     gazebo-core/Common
     gazebo-core/Decl
     gazebo-core/Expr
+    gazebo-core/Type
 
 context-free sorts
 
@@ -87,7 +88,7 @@ context-free sorts MatchCase-C
 context-free syntax
 
     Statement-C.MatchStmt-C = <
-        match <Expr-C>
+        match <Type-C> <Expr-C>
         {
             <{MatchCase-C "\n"}+>
             default

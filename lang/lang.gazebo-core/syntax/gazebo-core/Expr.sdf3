@@ -122,7 +122,7 @@ context-free syntax
 
     Expr-C.Not-C = <not <Expr-C>>
 
-    Expr-C.Cmp-C = <<Expr-C> <Compare-C> <Expr-C>> {non-assoc}
+    Expr-C.Cmp-C = <<Expr-C> (<Type-C>)<Compare-C>(<Type-C>) <Expr-C>> {non-assoc}
     Compare-C.CmpGt-C = [>]
     Compare-C.CmpGte-C = [>=]
     Compare-C.CmpLt-C = [<]
