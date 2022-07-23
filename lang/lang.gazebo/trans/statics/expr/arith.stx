@@ -5,6 +5,7 @@ imports
     statics/common
     statics/expr
     statics/type/bounds
+    statics/types
 
 rules
 
@@ -30,10 +31,4 @@ rules
     typeOfArithGeneral : TYPE * TYPE -> TYPE
 
     typeOfArithGeneral(Tl, Tr) = T :-
-        typeOfArith_numeric(T@lub(Tl, Tr)) | error $[arithmetic operation is not defined between [Tl] and [Tr]].
-
-rules
-
-    typeOfArith_numeric : TYPE
-    typeOfArith_numeric(INT()).
-    typeOfArith_numeric(FLOAT()).
+        typeNumeric(T@lub(Tl, Tr)) | error $[arithmetic operation is not defined between [Tl] and [Tr]].

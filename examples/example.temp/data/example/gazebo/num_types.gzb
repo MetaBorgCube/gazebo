@@ -1,0 +1,8 @@
+module example:num_types
+
+func test
+{
+    a := 1L
+    b := 1B
+    c := b * 2f
+}

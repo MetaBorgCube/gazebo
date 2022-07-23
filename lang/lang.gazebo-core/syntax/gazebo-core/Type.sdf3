@@ -27,7 +27,11 @@ context-free syntax
 
     Type-C.TypeString-C = <String>
     Type-C.TypeBool-C = <Bool>
+    Type-C.TypeLong-C = <Long>
     Type-C.TypeInt-C = <Int>
+    Type-C.TypeShort-C = <Short>
+    Type-C.TypeByte-C = <Byte>
+    Type-C.TypeDouble-C = <Double>
     Type-C.TypeFloat-C = <Float>
 
 context-free syntax

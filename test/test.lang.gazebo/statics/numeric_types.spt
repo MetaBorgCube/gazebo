@@ -1,0 +1,95 @@
+language gazebo
+module statics/inttypes
+
+fixture [[
+module test:test
+
+long := 1L
+int := 1
+short := 1s
+byte := 1b
+double := 1.0d
+float := 1.0f
+
+func test
+{
+    [[...]]
+}
+]]
+
+/*
+ * Integral Types
+ */
+
+test long cast OK [[
+long = long
+long = int
+long = short
+long = byte
+]] analysis succeeds
+
+test long cast FAIL [[
+long = double
+long = float
+]] analysis fails
+
+test int cast OK [[
+int = int
+int = short
+int = byte
+]] analysis succeeds
+
+test int cast FAIL [[
+int = long
+int = double
+int = float
+]] analysis fails
+
+test short cast OK [[
+short = short
+short = byte
+]] analysis succeeds
+
+test short cast FAIL [[
+short = long
+short = int
+short = double
+short = float
+]] analysis fails
+
+test byte cast OK [[
+byte = byte
+]] analysis succeeds
+
+test byte cast FAIL [[
+byte = long
+byte = int
+byte = short
+byte = double
+byte = float
+]] analysis fails
+
+/*
+ * Floating Point "Real" Types
+ */
+
+test double cast OK [[
+double = long
+double = int
+double = short
+double = byte
+double = double
+double = float
+]] analysis succeeds
+
+test float cast OK [[
+float = long
+float = int
+float = short
+float = byte
+float = float
+]] analysis succeeds
+
+test float cast FAIL [[
+float = double
+]] analysis fails

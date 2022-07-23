@@ -18,6 +18,7 @@ signature
 
     CTypeArbitraryConstant : Any -> CType
     CTypeString : CType
+    CTypeBool : CType
     CTypeIntB : CType
     CTypeIntS : CType
     CTypeIntI : CType

@@ -243,22 +243,22 @@ rules // transform-expr :: Expr-C -> Arg-LL
       <type-compat> (t, TypeString-C())
   transform-expr(|t): NumB-C(i) -> ArgIntB-LL(i)
     with
-      <type-compat> (t, TypeInt-C())
+      <type-compat> (t, TypeByte-C())
   transform-expr(|t): NumS-C(i) -> ArgIntS-LL(i)
     with
-      <type-compat> (t, TypeInt-C())
+      <type-compat> (t, TypeShort-C())
   transform-expr(|t): NumI-C(i) -> ArgIntI-LL(i)
     with
       <type-compat> (t, TypeInt-C())
   transform-expr(|t): NumL-C(i) -> ArgIntL-LL(i)
     with
-      <type-compat> (t, TypeInt-C())
+      <type-compat> (t, TypeLong-C())
   transform-expr(|t): NumF-C(f) -> ArgFloatS-LL(f)
     with
       <type-compat> (t, TypeFloat-C())
   transform-expr(|t): NumD-C(f) -> ArgFloatD-LL(f)
     with
-      <type-compat> (t, TypeFloat-C())
+      <type-compat> (t, TypeDouble-C())
 
   transform-expr: Selector-C([root], Props-C(props), t) -> ArgSelector-LL(Selector-LL(type, props', <transform-type> t))
     with

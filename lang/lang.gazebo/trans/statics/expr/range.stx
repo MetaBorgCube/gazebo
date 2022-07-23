@@ -4,6 +4,7 @@ imports
 
     statics/common
     statics/expr
+    statics/types
 
 rules
 
@@ -24,9 +25,8 @@ rules
 
     typeOfRange_numCompat : scope * TYPE * TYPE -> TYPE
 
-    typeOfRange_numCompat(s, INT(), INT()) = INT().
-
-    typeOfRange_numCompat(s, FLOAT(), FLOAT()) = FLOAT().
+    typeOfRange_numCompat(s, T, T) = T :-
+        typeNumeric(T).
 
     typeOfRange_numCompat(s, l, r) = UNK() :-
         false | error $[range is not defined between [l] and [r]].

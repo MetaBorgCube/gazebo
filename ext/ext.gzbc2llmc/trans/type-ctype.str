@@ -26,9 +26,13 @@ rules
   type-to-ctype: TypeRef-C(i) -> CTypeRef(<string-to-int> i)
 
   type-to-ctype: TypeString-C() -> CTypeString()
-  type-to-ctype: TypeBool-C() -> CTypeIntB()
+  type-to-ctype: TypeBool-C() -> CTypeBool()
+  type-to-ctype: TypeLong-C() -> CTypeIntL()
   type-to-ctype: TypeInt-C() -> CTypeIntI()
-  type-to-ctype: TypeFloat-C() -> CTypeFloatD()
+  type-to-ctype: TypeShort-C() -> CTypeIntS()
+  type-to-ctype: TypeByte-C() -> CTypeIntB()
+  type-to-ctype: TypeDouble-C() -> CTypeFloatD()
+  type-to-ctype: TypeFloat-C() -> CTypeFloatS()
 
   type-to-ctype: TypePos-C(kind, t) ->
     CTypePos(
@@ -74,9 +78,13 @@ rules
   type-from-ctype: CTypeRef(i) -> TypeRef-C(<int-to-string> i)
 
   type-from-ctype: CTypeString() -> TypeString-C()
-  type-from-ctype: CTypeIntB() -> TypeBool-C()
+  type-from-ctype: CTypeBool() -> TypeBool-C()
+  type-from-ctype: CTypeIntL() -> TypeLong-C()
   type-from-ctype: CTypeIntI() -> TypeInt-C()
-  type-from-ctype: CTypeFloatD() -> TypeFloat-C()
+  type-from-ctype: CTypeIntS() -> TypeShort-C()
+  type-from-ctype: CTypeIntB() -> TypeByte-C()
+  type-from-ctype: CTypeFloatD() -> TypeDouble-C()
+  type-from-ctype: CTypeFloatS() -> TypeFloat-C()
 
   type-from-ctype: CTypePos(kind, t) ->
     TypePos-C(

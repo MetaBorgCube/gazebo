@@ -13,7 +13,11 @@ context-free syntax
     Literal.String = STRING
     Literal.BoolT = <true>
     Literal.BoolF = <false>
+    Literal.NumL = LONG
     Literal.NumI = INT
+    Literal.NumS = SHORT
+    Literal.NumB = BYTE
+    Literal.NumD = DOUBLE
     Literal.NumF = FLOAT
 
 lexical syntax

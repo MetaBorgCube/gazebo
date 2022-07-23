@@ -19,7 +19,11 @@ context-free syntax
 
     Type.TypeString = <String>
     Type.TypeBool = <Bool>
+    Type.TypeLong = <Long>
     Type.TypeInt = <Int>
+    Type.TypeShort = <Short>
+    Type.TypeByte = <Byte>
+    Type.TypeDouble = <Double>
     Type.TypeFloat = <Float>
 
     Type.TypePos = <`<PosKind><Type>>

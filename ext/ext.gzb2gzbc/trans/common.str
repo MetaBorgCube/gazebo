@@ -97,3 +97,13 @@ strategies // stx-get-scopegraph-data-ext(|Analysis, relation:string) :: Scope -
       // execute in the external context
     ; stx-get-scopegraph-data(|a', rel)
     )
+
+strategies // strip-numeric-suffix :: String -> String
+
+  /** Strips the last char from a string if it is a letter.
+    * Intended to be used to drop the numeric suffix e.g. from long (1L -> 1). */
+  strip-numeric-suffix =
+    string-as-chars(at-last(try(
+      is-alpha
+    ; ![]
+    )))

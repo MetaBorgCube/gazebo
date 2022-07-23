@@ -19,7 +19,10 @@ rules // transform-type :: Type -> Type-C
 
   transform-type: TypeString() -> TypeString-C()
   transform-type: TypeBool() -> TypeBool-C()
+  transform-type: TypeLong() -> TypeLong-C()
   transform-type: TypeInt() -> TypeInt-C()
+  transform-type: TypeShort() -> TypeShort-C()
+  transform-type: TypeByte() -> TypeByte-C()
   transform-type: TypeFloat() -> TypeFloat-C()
   transform-type: TypeEnumTyped(t@TypeInt(), membs) -> TypeEnumInt-C(membs')
     with
@@ -65,7 +68,11 @@ rules // type-convert(|Analysis) :: TYPE -> Type-C
 
   type-convert-(|a): STRING() -> TypeString-C()
   type-convert-(|a): BOOL() -> TypeBool-C()
+  type-convert-(|a): LONG() -> TypeLong-C()
   type-convert-(|a): INT() -> TypeInt-C()
+  type-convert-(|a): SHORT() -> TypeShort-C()
+  type-convert-(|a): BYTE() -> TypeByte-C()
+  type-convert-(|a): DOUBLE() -> TypeDouble-C()
   type-convert-(|a): FLOAT() -> TypeFloat-C()
   type-convert-(|a): ENUM(s, t@INT()) -> TypeEnumInt-C(members)
     with

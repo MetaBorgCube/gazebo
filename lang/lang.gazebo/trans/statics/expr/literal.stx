@@ -11,9 +11,12 @@ rules
     typeOfLiteral(s, String(str)) = STRING().
 
     typeOfLiteral(s, BoolT()) = BOOL().
-
     typeOfLiteral(s, BoolF()) = BOOL().
 
-    typeOfLiteral(s, NumI(int)) = INT().
+    typeOfLiteral(s, NumL(_)) = LONG().
+    typeOfLiteral(s, NumI(_)) = INT().
+    typeOfLiteral(s, NumS(_)) = SHORT().
+    typeOfLiteral(s, NumB(_)) = BYTE().
 
-    typeOfLiteral(s, NumF(float)) = FLOAT().
+    typeOfLiteral(s, NumD(_)) = DOUBLE().
+    typeOfLiteral(s, NumF(_)) = FLOAT().

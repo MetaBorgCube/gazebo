@@ -21,7 +21,11 @@ signature
         // Primitives
         STRING : TYPE
         BOOL : TYPE
+        LONG : TYPE
         INT : TYPE
+        SHORT : TYPE
+        BYTE : TYPE
+        DOUBLE : TYPE
         FLOAT : TYPE
         ENUM : scope * TYPE -> TYPE
 
@@ -150,13 +154,20 @@ rules
 
     typeIntegral : TYPE
 
+    typeIntegral(LONG()).
     typeIntegral(INT()).
+    typeIntegral(SHORT()).
+    typeIntegral(BYTE()).
 
 rules
 
     typeNumeric : TYPE
 
+    typeNumeric(LONG()).
     typeNumeric(INT()).
+    typeNumeric(SHORT()).
+    typeNumeric(BYTE()).
+    typeNumeric(DOUBLE()).
     typeNumeric(FLOAT()).
 
 rules
@@ -210,7 +221,11 @@ rules
     typeComparableEqual : TYPE * TYPE
     typeComparableEqual(STRING(), STRING()).
     typeComparableEqual(BOOL(), BOOL()).
+    typeComparableEqual(LONG(), LONG()).
     typeComparableEqual(INT(), INT()).
+    typeComparableEqual(SHORT(), SHORT()).
+    typeComparableEqual(BYTE(), BYTE()).
+    typeComparableEqual(DOUBLE(), DOUBLE()).
     typeComparableEqual(FLOAT(), FLOAT()).
     typeComparableEqual(ENUM(s_en, Tl), ENUM(s_en, Tr)) :-
         typeComparableEqual(Tl, Tr).

@@ -16,7 +16,11 @@ language
 
 colorer
 
+  LONG : green
   INT : green
+  SHORT : green
+  BYTE : green
+  DOUBLE : green
   FLOAT : green
   STRING : blue
   _.Vec : orange

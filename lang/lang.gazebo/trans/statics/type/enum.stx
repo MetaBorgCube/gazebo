@@ -24,9 +24,12 @@ rules
 
 rules
 
-  enumTypeOk : TYPE
-  enumTypeOk(INT()).
-  enumTypeOk(STRING()).
+    enumTypeOk : TYPE
+    enumTypeOk(LONG()).
+    enumTypeOk(INT()).
+    enumTypeOk(SHORT()).
+    enumTypeOk(BYTE()).
+    enumTypeOk(STRING()).
 
 rules
 

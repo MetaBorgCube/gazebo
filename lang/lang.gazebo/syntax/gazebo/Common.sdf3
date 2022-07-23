@@ -2,7 +2,8 @@ module gazebo/Common
 
 lexical sorts
   ID_UNRESTR ID ID_NSID_VERBATIM
-  INT FLOAT
+  INTEGRAL REAL
+  LONG INT SHORT BYTE DOUBLE FLOAT
   STRING
   STRING_CHAR BACKSLASH_CHAR
   COMMENT_CHAR INSIDE_COMMENT
@@ -13,20 +14,29 @@ lexical syntax
   ID               = ID_UNRESTR
   ID_UNRESTR       = [a-zA-Z] [a-zA-Z0-9\_]*
   ID_NSID_VERBATIM = [a-zA-Z\-\.\_] [a-zA-Z0-9\-\.\_]*
-  // TODO: allow underscores in integers
-  INT              = "-"? [0-9]+
-  FLOAT            = INT FLOAT_SUFFIX
-  FLOAT            = INT? "." INT FLOAT_SUFFIX?
-  FLOAT_SUFFIX     = [dfDF]
+
+  INTEGRAL         = "-"? [0-9]+
+  REAL             = INTEGRAL? "." INTEGRAL
+  INT              = INTEGRAL
+  LONG             = INTEGRAL [Ll]
+  SHORT            = INTEGRAL [Ss]
+  BYTE             = INTEGRAL [Bb]
+  DOUBLE           = INTEGRAL [Dd]
+  DOUBLE           = REAL [Dd]?
+  FLOAT            = INTEGRAL [Ff]
+  FLOAT            = REAL [Ff]
+
   STRING           = "\"" STRING_CHAR* "\""
   STRING_CHAR      = ~[\\\"\n]
   STRING_CHAR      = "\\" [\\\"]
   BACKSLASH_CHAR   = "\\" [\\\"]
   LAYOUT           = [\ \t\n\r]
+
   COMMENT_CHAR     = [\*]
   LAYOUT           = "/*" INSIDE_COMMENT* "*/"
   INSIDE_COMMENT   = ~[\*]
   INSIDE_COMMENT   = COMMENT_CHAR
+
   LAYOUT           = "//" ~[\n\r]* NEWLINE_EOF
   NEWLINE_EOF      = [\n\r]
   NEWLINE_EOF      = EOF
@@ -35,22 +45,26 @@ lexical syntax
 lexical restrictions
 
   // Ensure greedy matching for lexicals
-  
   COMMENT_CHAR     -/- [\/]
-  INT              -/- [0-9]
+  INTEGRAL         -/- [0-9]
+  REAL             -/- [0-9]
   ID_UNRESTR       -/- [a-zA-Z0-9\_]
-  
-  // Floats may not be followed by another suffix
-  FLOAT           -/- [dfDF]
-  
+
+  // Integral numbers may not be followed by another number or suffix
+  INT              -/- [0-9]
+  LONG             -/- [0-9Ll]
+  SHORT            -/- [0-9Ss]
+  BYTE             -/- [0-9Bb]
+  // Real numbers may not be followed by another suffix
+  DOUBLE           -/- [Dd]
+  FLOAT            -/- [Ff]
+
   // EOF may not be followed by any char
-  
   EOF             -/- ~[]
 
 context-free restrictions
 
   // Ensure greedy matching for comments
-  
   LAYOUT? -/- [\ \t\n\r]
   LAYOUT? -/- [\/].[\/]
   LAYOUT? -/- [\/].[\*]

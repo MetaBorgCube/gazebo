@@ -15,7 +15,11 @@ signature
         // Primitives
         STRING : TYPE
         BOOL : TYPE
+        LONG : TYPE
         INT : TYPE
+        SHORT : TYPE
+        BYTE : TYPE
+        DOUBLE : TYPE
         FLOAT : TYPE
         ENUM : Scope * TYPE -> TYPE
 

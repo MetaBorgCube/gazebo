@@ -17,8 +17,12 @@ rules // transform-type :: Type-C -> Type-LL
 
   transform-type: TypeString-C() -> TypeString-LL()
   transform-type: TypeBool-C() -> TypeIntB-LL()
+  transform-type: TypeLong-C() -> TypeIntL-LL()
   transform-type: TypeInt-C() -> TypeIntI-LL()
-  transform-type: TypeFloat-C() -> TypeFloatD-LL()
+  transform-type: TypeShort-C() -> TypeIntS-LL()
+  transform-type: TypeByte-C() -> TypeIntB-LL()
+  transform-type: TypeDouble-C() -> TypeFloatD-LL()
+  transform-type: TypeFloat-C() -> TypeFloatS-LL()
 
   transform-type: TypePos-C(kind, t) -> TypePos-LL(kind', <transform-type> t)
     with

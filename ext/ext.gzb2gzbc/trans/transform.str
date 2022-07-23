@@ -172,8 +172,12 @@ rules // transform-expr :: Expr -> Expr-C
   transform-expr: String(str) -> String-C(str)
   transform-expr: BoolT() -> BoolT-C()
   transform-expr: BoolF() -> BoolF-C()
-  transform-expr: NumI(v) -> NumI-C(v)
-  transform-expr: NumF(v) -> NumF-C(v)
+  transform-expr: NumL(v) -> NumL-C(<strip-numeric-suffix> v)
+  transform-expr: NumI(v) -> NumI-C(<strip-numeric-suffix> v)
+  transform-expr: NumS(v) -> NumS-C(<strip-numeric-suffix> v)
+  transform-expr: NumB(v) -> NumB-C(<strip-numeric-suffix> v)
+  transform-expr: NumD(v) -> NumD-C(<strip-numeric-suffix> v)
+  transform-expr: NumF(v) -> NumF-C(<strip-numeric-suffix> v)
 
   transform-expr: Raw(parts) -> Raw-C(parts')
     with

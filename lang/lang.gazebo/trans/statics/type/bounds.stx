@@ -18,7 +18,22 @@ rules
     subtype(Ta, OPTIONAL(Tb)) :- subtype(Ta, Tb).
     // OPTIONAL(Ta) <: Tb never holds if Tb is not optional
 
+    subtype(INT(), LONG()).
+    subtype(SHORT(), LONG()).
+    subtype(BYTE(), LONG()).
+    subtype(SHORT(), INT()).
+    subtype(BYTE(), INT()).
+    subtype(BYTE(), SHORT()).
+
+    subtype(LONG(), DOUBLE()).
+    subtype(INT(), DOUBLE()).
+    subtype(SHORT(), DOUBLE()).
+    subtype(BYTE(), DOUBLE()).
+    subtype(FLOAT(), DOUBLE()).
+    subtype(LONG(), FLOAT()).
     subtype(INT(), FLOAT()).
+    subtype(SHORT(), FLOAT()).
+    subtype(BYTE(), FLOAT()).
 
     // TODO: ensure POS kinds are legal
     subtype(POS(ka, Ta), POS(kb, Tb)) :- subtype(Ta, Tb).
@@ -35,7 +50,6 @@ rules
 
     subtype(_, UNK()).
     subtype(BOTTOM(), _).
-    //LAMBDA
 
     subtype(a, b) :- a == b.
 
@@ -71,8 +85,36 @@ rules
     lub(Ta, OPTIONAL(Tb)) = lub(Ta, Tb).
     lub(OPTIONAL(Ta), Tb) = lub(Ta, Tb).
 
-    lub(FLOAT(), INT()) = FLOAT().
+    lub(LONG(), INT()) = LONG().
+    lub(LONG(), SHORT()) = LONG().
+    lub(LONG(), BYTE()) = LONG().
+    lub(LONG(), DOUBLE()) = DOUBLE().
+    lub(LONG(), FLOAT()) = FLOAT().
+    lub(INT(), LONG()) = LONG().
+    lub(INT(), SHORT()) = INT().
+    lub(INT(), BYTE()) = INT().
+    lub(INT(), DOUBLE()) = DOUBLE().
     lub(INT(), FLOAT()) = FLOAT().
+    lub(SHORT(), LONG()) = LONG().
+    lub(SHORT(), INT()) = INT().
+    lub(SHORT(), BYTE()) = SHORT().
+    lub(SHORT(), DOUBLE()) = DOUBLE().
+    lub(SHORT(), FLOAT()) = FLOAT().
+    lub(BYTE(), LONG()) = LONG().
+    lub(BYTE(), INT()) = INT().
+    lub(BYTE(), SHORT()) = SHORT().
+    lub(BYTE(), DOUBLE()) = DOUBLE().
+    lub(BYTE(), FLOAT()) = FLOAT().
+    lub(DOUBLE(), LONG()) = DOUBLE().
+    lub(DOUBLE(), INT()) = DOUBLE().
+    lub(DOUBLE(), SHORT()) = DOUBLE().
+    lub(DOUBLE(), BYTE()) = DOUBLE().
+    lub(DOUBLE(), FLOAT()) = DOUBLE().
+    lub(FLOAT(), LONG()) = FLOAT().
+    lub(FLOAT(), INT()) = FLOAT().
+    lub(FLOAT(), SHORT()) = FLOAT().
+    lub(FLOAT(), BYTE()) = FLOAT().
+    lub(FLOAT(), DOUBLE()) = DOUBLE().
 
     lub(POS(k_a, Ta), POS(k_b, Tb)) = POS(lubPosKind(k_a, k_b), lub(Ta, Tb)).
     lubPosKind : POS_KIND * POS_KIND -> POS_KIND
@@ -111,8 +153,36 @@ rules
     llb(Ta, OPTIONAL(Tb)) = OPTIONAL(llb(Ta, Tb)).
     llb(OPTIONAL(Ta), Tb) = OPTIONAL(llb(Ta, Tb)).
 
-    llb(FLOAT(), INT()) = INT().
+    llb(LONG(), INT()) = INT().
+    llb(LONG(), SHORT()) = SHORT().
+    llb(LONG(), BYTE()) = BYTE().
+    llb(LONG(), DOUBLE()) = LONG().
+    llb(LONG(), FLOAT()) = LONG().
+    llb(INT(), LONG()) = INT().
+    llb(INT(), SHORT()) = SHORT().
+    llb(INT(), BYTE()) = BYTE().
+    llb(INT(), DOUBLE()) = INT().
     llb(INT(), FLOAT()) = INT().
+    llb(SHORT(), LONG()) = SHORT().
+    llb(SHORT(), INT()) = SHORT().
+    llb(SHORT(), BYTE()) = BYTE().
+    llb(SHORT(), DOUBLE()) = SHORT().
+    llb(SHORT(), FLOAT()) = SHORT().
+    llb(BYTE(), LONG()) = BYTE().
+    llb(BYTE(), INT()) = BYTE().
+    llb(BYTE(), SHORT()) = BYTE().
+    llb(BYTE(), DOUBLE()) = BYTE().
+    llb(BYTE(), FLOAT()) = BYTE().
+    llb(DOUBLE(), LONG()) = LONG().
+    llb(DOUBLE(), INT()) = INT().
+    llb(DOUBLE(), SHORT()) = SHORT().
+    llb(DOUBLE(), BYTE()) = BYTE().
+    llb(DOUBLE(), FLOAT()) = FLOAT().
+    llb(FLOAT(), LONG()) = LONG().
+    llb(FLOAT(), INT()) = INT().
+    llb(FLOAT(), SHORT()) = SHORT().
+    llb(FLOAT(), BYTE()) = BYTE().
+    llb(FLOAT(), DOUBLE()) = FLOAT().
 
     llb(POS(k_a, Ta), POS(k_b, Tb)) = POS(llbPosKind(k_a, k_b), llb(Ta, Tb)).
     llbPosKind : POS_KIND * POS_KIND -> POS_KIND
