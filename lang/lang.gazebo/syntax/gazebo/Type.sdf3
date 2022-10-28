@@ -39,11 +39,11 @@ context-free syntax
     Type.TypeSelector = [@]
 
     Type.TypeArrayDynamic = <[<Type>;]>
-    Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>
-    Type.TypeArrayFixedNamed = <[<Type>; <{ID ", "}+>]>
+    //Type.TypeArrayFixedAnonymous = <[<Type>; <INT>]>
+    //Type.TypeArrayFixedNamed = <[<Type>; <{ID ", "}+>]>
     Type.TypeListDynamic = <[<Type>]>
-    Type.TypeListFixedAnonymous = <[<Type>: <INT>]>
-    Type.TypeListFixedNamed = <[<Type>: <{ID ", "}+>]>
+    //Type.TypeListFixedAnonymous = <[<Type>: <INT>]>
+    //Type.TypeListFixedNamed = <[<Type>: <{ID ", "}+>]>
 
     Type.TypeEnumUntyped = <
         enum

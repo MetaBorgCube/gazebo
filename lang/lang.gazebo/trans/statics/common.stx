@@ -94,7 +94,6 @@ rules
     stringListInit([]) = [].
     stringListInit([x]) = [].
     stringListInit([x | xs@[y|ys]]) = [x | stringListInit(xs)].
-
     stringListLast : list(string) -> string
     stringListLast([]) = "?" :- false | error $[cannot get last element from empty list].
     stringListLast([x]) = x.

@@ -112,17 +112,17 @@ rules
 
     typeOfTypeImpl(s, TypeArrayDynamic(t)) = ARRAY(T) :-
         T == typeOfType(s, t).
-    typeOfTypeImpl(s, TypeArrayFixedAnonymous(t, size)) = ARRAY(T) :-
-        T == typeOfType(s, t).
-    typeOfTypeImpl(s, TypeArrayFixedNamed(t, names)) = ARRAY(T) :-
-        T == typeOfType(s, t).
+    //typeOfTypeImpl(s, TypeArrayFixedAnonymous(t, size)) = ARRAY(T) :-
+    //    T == typeOfType(s, t).
+    //typeOfTypeImpl(s, TypeArrayFixedNamed(t, names)) = ARRAY(T) :-
+    //    T == typeOfType(s, t).
 
     typeOfTypeImpl(s, TypeListDynamic(t)) = LIST(T) :-
         T == typeOfType(s, t).
-    typeOfTypeImpl(s, TypeListFixedAnonymous(t, size)) = LIST(T) :-
-        T == typeOfType(s, t).
-    typeOfTypeImpl(s, TypeListFixedNamed(t, names)) = LIST(T) :-
-        T == typeOfType(s, t).
+    //typeOfTypeImpl(s, TypeListFixedAnonymous(t, size)) = LIST(T) :-
+    //    T == typeOfType(s, t).
+    //typeOfTypeImpl(s, TypeListFixedNamed(t, names)) = LIST(T) :-
+    //    T == typeOfType(s, t).
 
     typeOfTypeImpl(s, T@TypeEnumUntyped(_)) =
         typeOfEnum(s, T).
