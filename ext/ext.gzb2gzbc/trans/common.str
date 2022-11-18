@@ -104,6 +104,5 @@ strategies // strip-numeric-suffix :: String -> String
     * Intended to be used to drop the numeric suffix e.g. from long (1L -> 1). */
   strip-numeric-suffix =
     string-as-chars(at-last(try(
-      is-alpha
-    ; ![]
+      \[<is-alpha>] -> []\
     )))
