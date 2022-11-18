@@ -158,6 +158,8 @@ def _map_type(ctx: WriteContext, typename: str, config: Any) -> str:
             if len_constraint_config[0] != len_constraint_config[1]:
                 raise ValueError(f"Unsupported length_range: {len_constraint_config}")
             len_constraint = f" {len_constraint_config[0]}"
+        # TODO: remove this override once fixed-size arrays are supported again
+        len_constraint = ""
         return f"[Int;{len_constraint}]"
     if typename == "Compound":
         return nsid(ctx.compound_paths[config])

@@ -24,9 +24,9 @@ class MainApplication : Application() {
                     "../ext/ext.gzb2gzbc/target/ext.gzb2gzbc-0.1.0-SNAPSHOT.spoofax-language",
                     "../ext/ext.gzbc2llmc/target/ext.gzbc2llmc-0.1.0-SNAPSHOT.spoofax-language",
                     "../ext/ext.llmc2mcje/target/ext.llmc2mcje-0.1.0-SNAPSHOT.spoofax-language",
-                    "../tools/lib.std.mcje.gzb-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language",
-                    "../tools/lib.std.mcje.gzbc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language",
-                    "../tools/lib.std.mcje.llmc-1.18.1+0-0.1.0-SNAPSHOT.spoofax-language"
+                    "../tools/lib.std.mcje.gzb-1.18.2+0-0.1.0-SNAPSHOT.spoofax-language",
+                    "../tools/lib.std.mcje.gzbc-1.18.2+0-0.1.0-SNAPSHOT.spoofax-language",
+                    "../tools/lib.std.mcje.llmc-1.18.2+0-0.1.0-SNAPSHOT.spoofax-language"
                 ).map(resourceService::resolve)
             }
         )

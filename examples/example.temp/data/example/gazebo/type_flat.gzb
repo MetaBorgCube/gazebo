@@ -40,7 +40,7 @@ const my_list := [
     },
     MyBaseType::{
         a: "World!",
-        b: 456.0
+        b: 456.0f
     }
 ]
 const value_from_my_list := my_list[0].a
