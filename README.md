@@ -103,3 +103,7 @@ The Spoofax projects can be imported into the Spoofax Eclipse environment withou
 Similarly, the Gazebo Standalone Gradle project can be loaded into an IDE such as IntelliJ IDEA directly.
 
 The Python scripts from the `gen` and `tools` directories also need no further setup, as they only rely on the Python standard library.
+
+## License
+
+The _code_ in this repository is licensed under MIT, see [`LICENSE`](./LICENSE).
