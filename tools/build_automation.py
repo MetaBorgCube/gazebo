@@ -28,6 +28,7 @@ if __name__ == "__main__":
         gzb_ver, mb_ver = read_pom_vers(ROOT / "pom.xml")
         ver = mc_ver, gzb_ver, mb_ver
 
+        args.output_dir.mkdir(parents=True, exist_ok=True)
         out_gzb = args.output_dir / f"lib.std.mcje.gzb-{mc_ver}-{gzb_ver}.spoofax-language"
         out_gzbc = args.output_dir / f"lib.std.mcje.gzbc-{mc_ver}-{gzb_ver}.spoofax-language"
         out_llmc = args.output_dir / f"lib.std.mcje.llmc-{mc_ver}-{gzb_ver}.spoofax-language"
