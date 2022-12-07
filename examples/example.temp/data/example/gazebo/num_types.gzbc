@@ -1,0 +1,10 @@
+module :(example, num_types)
+
+func test
+(
+) -> __VOID
+{
+    val a : Long = 1L;
+    val b : Byte = 1B;
+    val c : Float = c * 2F;
+}

@@ -1,0 +1,20 @@
+module :(example, sandbox3)
+
+func exec
+(
+) -> __VOID
+{
+    var cnt : Int = 0I;
+    execute as(@(e, [tag = "tagged"], __UNK)), positioned(`abs(abs 0I, abs 0I, abs 0I))
+    {
+        cnt += 1I;
+    };
+}
+
+func say
+(
+    val text String
+) -> __VOID
+{
+    discard |("say ", format( ) text);
+}

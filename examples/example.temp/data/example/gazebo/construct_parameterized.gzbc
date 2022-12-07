@@ -1,0 +1,29 @@
+module :(example, construct_parameterized)
+
+func create_list_and_array
+(
+) -> __VOID
+{
+    val array_fixed : [Int;] = __new(4I);
+    val array_empty : [Int;] = [; ];
+    val list_fixed : [String] = __new(2I);
+    val list_empty : [String] = [: ];
+    val n : Int = 3I;
+    val list_fixed_dyn : [String] = __new(n);
+}
+
+func create_compound
+(
+) -> __VOID
+{
+    val instance : 9`interface
+                   {
+                       b [Int],
+                       c [`9],
+                       a String
+                   } = {
+                           "a": "Hello",
+                           "b": [: ],
+                           "c": [: __new( ), __new( )]
+                       };
+}

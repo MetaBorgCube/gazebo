@@ -1,0 +1,61 @@
+module :(example, type_to_llmc)
+
+func test_enum
+(
+) -> __VOID
+{
+    val a : enum String
+            {
+                GREEN = "green",
+                BLUE = "blue",
+                RED = "red"
+            } = "red";
+    val b : enum Int
+            {
+                A = 5
+            } = 5I;
+    val c : enum Int
+            {
+                Y = 1,
+                Z = 2,
+                X = 0
+            } = 2I;
+}
+
+func test_nested_enum
+(
+) -> __VOID
+{
+    var a : interface
+            {
+                value enum Int
+                      {
+                          YES = 0,
+                          NO = 1
+                      }
+            } = {
+                    "value": 1I
+                };
+    a."value" = 0I;
+}
+
+func test_cyclic
+(
+) -> __VOID
+{
+    val cyclic : 5`interface
+                 {
+                     self [`5]
+                 } = {
+                         "self": [: ]
+                     };
+    var a : Int = 5I;
+    a = 3I;
+    val b : interface
+            {
+                a [Float]
+            } = {
+                    "a": [: 1I, 2I, 3.4F]
+                };
+    val c : Float = b."a".[1I];
+}

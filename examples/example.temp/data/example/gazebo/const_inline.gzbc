@@ -1,0 +1,16 @@
+module :(example, const_inline)
+
+func test_1
+(
+) -> __VOID
+{
+    var c : Int = 1I;
+    var flag : Bool = true;
+    loop flag
+    {
+        c += 20I;
+        flag = false;
+    };
+    discard |("say ", format( ) c);
+    c = 5I;
+}

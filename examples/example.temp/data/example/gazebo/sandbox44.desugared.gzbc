@@ -1,0 +1,24 @@
+module :(example, sandbox4)
+
+func say_list
+(
+    val items [String]
+) -> __VOID
+{
+    var flag : Byte = 1B;
+    var subj : [String] = items;
+    loop flag
+    {
+        if __count(subj) (Int)>(Int) 0I
+        {
+            val curr : String = subj.[0I];
+            __del subj.[0I];
+            val s : String = subj;
+            discard :(example, sandbox4 say)(__VOID; text:String=s);
+        }
+        else
+        {
+            flag = 0B;
+        };
+    };
+}

@@ -1,0 +1,271 @@
+scope graph
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_841-0 {
+    relations {
+      statics/common!tinj : ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_255-0, INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_126-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_params_7-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_155-0 {
+    relations {
+      statics/common!tinj : ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_255-0, INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_148-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_params_127-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_235-0 {
+    relations {
+      statics/common!field : ("value", ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_255-0, INT()))
+    }
+    edges {
+      statics/common!B : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_llbc_anon_504-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_28-0 {
+    relations {
+      statics/common!memb : (("a", MEMB_MODVARFN()), INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_29-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_28-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_258-0 {
+    relations {
+      statics/common!ret : VOID()
+      statics/common!memb : (("a", MEMB_MODVARFN()), ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_t_413-0, STRING()))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_params_259-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_720-0 {
+    relations {
+      statics/common!tinj : UNK()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_6-0 {
+    relations {
+      statics/common!ret : VOID()
+      statics/common!memb : (("cyclic", MEMB_MODVARFN()), COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_106-0))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_params_7-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_41-0 {
+    relations {
+      statics/common!tinj : INT()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_29-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_281-0 {
+    relations {
+      statics/common!memb : (("c", MEMB_MODVARFN()), ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_476-0, INT()))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_280-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_280-0 {
+    relations {
+      statics/common!memb : (("b", MEMB_MODVARFN()), ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_t_344-0, INT()))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_258-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_282-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_281-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_126-0 {
+    relations {
+      statics/common!ret : VOID()
+      statics/common!memb : (("a", MEMB_MODVARFN()), COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_235-0))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_params_127-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_30-0 {
+    relations {
+      statics/common!memb : (("b", MEMB_MODVARFN()), COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_derived_677-0))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_29-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_31-0 {
+    relations {
+      statics/common!memb : (("c", MEMB_MODVARFN()), FLOAT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_32-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_31-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_728-0 {
+    relations {
+      statics/common!tinj : UNK()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_149-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_148-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_893-0 {
+    relations {
+      statics/common!tinj : LIST(COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_106-0))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_148-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_body_126-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_mod_3-0 {
+    relations {
+      statics/common!currmod : (NSIDiFull("example", ["type_to_llmc"]), MOD(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_mod_3-0))
+      statics/common!memb : (("test_nested_enum", MEMB_MODVARFN()), FUNC([], VOID()))
+                            (("MyCyclicType", MEMB_TYPE()), COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_106-0))
+                            (("Colors", MEMB_TYPE()), ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_t_413-0, STRING()))
+                            (("test_enum", MEMB_MODVARFN()), FUNC([], VOID()))
+                            (("MyNestedEnum", MEMB_TYPE()), COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_235-0))
+                            (("test_cyclic", MEMB_MODVARFN()), FUNC([], VOID()))
+    }
+    edges {
+      statics/common!M : #/.-s_prj-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_106-0 {
+    relations {
+      statics/common!field : ("self", LIST(COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_106-0)))
+    }
+    edges {
+      statics/common!B : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_llbc_anon_579-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_tinj_736-0 {
+    relations {
+      statics/common!tinj : UNK()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_params_259-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/type_to_llmc.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_derived_677-0 {
+    relations {
+      statics/common!field : ("a", LIST(FLOAT()))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_476-0 {
+    relations {
+      statics/common!memb : (("Y", MEMB_ENUMKEY()), ENUM_V_INT(1))
+                            (("X", MEMB_ENUMKEY()), ENUM_V_INT(0))
+                            (("Z", MEMB_ENUMKEY()), ENUM_V_INT(2))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_t_413-0 {
+    relations {
+      statics/common!memb : (("RED", MEMB_ENUMKEY()), ENUM_V_STR(""red""))
+                            (("BLUE", MEMB_ENUMKEY()), ENUM_V_STR(""blue""))
+                            (("GREEN", MEMB_ENUMKEY()), ENUM_V_STR(""green""))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_derived_543-0 {
+    relations {
+      statics/common!field : ("value", ENUM(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_255-0, INT()))
+    }
+    edges {
+    }
+  }
+  #/.-s_prj-0 {
+    relations {
+      statics/common!mod : (NSIDiFull("example", ["type_to_llmc"]), MOD(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_mod_3-0))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_derived_638-0 {
+    relations {
+      statics/common!field : ("self", LIST(COMPOUND(#/./data\/example\/gazebo\/type_to_llmc.gzb-s_interf_106-0)))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_255-0 {
+    relations {
+      statics/common!memb : (("YES", MEMB_ENUMKEY()), ENUM_V_INT(0))
+                            (("NO", MEMB_ENUMKEY()), ENUM_V_INT(1))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/type_to_llmc.gzb-s_enum_t_344-0 {
+    relations {
+      statics/common!memb : (("A", MEMB_ENUMKEY()), ENUM_V_STR("5"))
+    }
+    edges {
+    }
+  }

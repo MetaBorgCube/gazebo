@@ -1,0 +1,20 @@
+StartModule(
+  NSID("example", NSIDName([NSIDNamePart("sandbox")]))
+, [UseFrom(
+     NSIDRel(NSIDName([NSIDNamePart("text")]))
+   , [UseFromPartRegular("say")]
+   )]
+, [ FnBlock(
+      FnSpec([], [], "a", Sign(None(), None()))
+    , Block(
+        [ InvokeStmt(
+            InvokeArgs(
+              Ref(NSIDRel(NSIDName([NSIDNamePart("say")])))
+            , Args([String("\"Hi\"")])
+            )
+          )
+        ]
+      )
+    )
+  ]
+)

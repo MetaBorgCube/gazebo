@@ -1,0 +1,22 @@
+module :(symposium, hello)
+const a : Int = 2I + 1I
+func hello() -> __VOID
+{
+  var array : [Int;] = __new(3I);
+  if 4I > :(symposium, hello a)
+  {
+    discard :(minecraft, text say)(text="Hello!");
+  }
+  else {;};
+  val bst : 8`interface { children [`8], v Int } = {
+    "v": 5I,
+    "children": [:
+      :(symposium, hello leaf)(v=2I),
+      :(symposium, hello leaf)(v=4I)
+    ]
+  };
+}
+func leaf(val v Int) -> 10`interface { children [`10], v Int }
+{
+  return { "v": v, "children": [: ] };
+}

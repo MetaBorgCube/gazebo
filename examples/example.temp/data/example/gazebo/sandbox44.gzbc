@@ -1,0 +1,12 @@
+module :(example, sandbox4)
+
+func say_list
+(
+    val items [String]
+) -> __VOID
+{
+    iterate items as s
+    {
+        discard :(example, sandbox4 say)(__VOID; text:String=s);
+    };
+}

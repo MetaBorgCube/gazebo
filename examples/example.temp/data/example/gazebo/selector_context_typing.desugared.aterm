@@ -1,0 +1,172 @@
+Start-C(
+  IdentFull-C("example", ["selector_context_typing"])
+, [ Registry-C(
+      RegistryKindStatic-C()
+    , IdentFull-C("minecraft", ["entity_type"])
+    , None()
+    , [ Registration-C(
+          IdentFull-C("minecraft", ["creeper"])
+        , [RmeData-C(TypeInterface-C(None(), [InterfaceMemb-C("\"ExplosionRadius\"", TypeInt-C())]))]
+        )
+      , Registration-C(
+          IdentFull-C("minecraft", ["player"])
+        , [RmeData-C(TypeInterface-C(None(), [InterfaceMemb-C("\"Name\"", TypeString-C())]))]
+        )
+      ]
+    )
+  , Mixin-C(
+      "Creeper"
+    , Props-C(
+        [ PropCmp-C(
+            "type"
+          , CmpEqual-C()
+          , ResInst-C(
+              ResourcePropsPayl-C(
+                IdentFull-C("minecraft", ["entity_type"])
+              , IdentFull-C("minecraft", ["creeper"])
+              , Props-C([])
+              , NbtCompound-C([])
+              )
+            )
+          )
+        ]
+      )
+    )
+  , Mixin-C(
+      "SingleRandCreeper"
+    , Props-C(
+        [PropKv-C("sort", String-C("\"random\"")), PropKv-C("limit", NumI-C("1"))]
+      )
+    )
+  , Mixin-C("R", Props-C([]))
+  , Function-C(
+      []
+    , "test"
+    , Signature-C([], TypeVoid-C())
+    , Block-C(
+        [ ExecuteStmt-C(
+            [ ExecuteAs-C(
+                Selector-C(
+                  ["e"]
+                , Props-C(
+                    [ PropCmp-C(
+                        "type"
+                      , CmpEqual-C()
+                      , ResInst-C(
+                          ResourcePropsPayl-C(
+                            IdentFull-C("minecraft", ["entity_type"])
+                          , IdentFull-C("minecraft", ["creeper"])
+                          , Props-C([])
+                          , NbtCompound-C([])
+                          )
+                        )
+                      )
+                    ]
+                  )
+                , TypeInterface-C(None(), [InterfaceMemb-C("\"ExplosionRadius\"", TypeInt-C())])
+                )
+              )
+            ]
+          , Block-C(
+              [ AssignStmt-C(
+                  FindKey-C(
+                    Selector-C(
+                      ["s"]
+                    , Props-C([])
+                    , TypeInterface-C(None(), [InterfaceMemb-C("\"ExplosionRadius\"", TypeInt-C())])
+                    )
+                  , "\"ExplosionRadius\""
+                  )
+                , AssignOperatorEq-C()
+                , NumI-C("100")
+                )
+              ]
+            )
+          )
+        , AssignStmt-C(
+            FindKey-C(
+              Selector-C(
+                ["r"]
+              , Props-C([])
+              , TypeInterface-C(None(), [InterfaceMemb-C("\"Name\"", TypeString-C())])
+              )
+            , "\"Name\""
+            )
+          , AssignOperatorEq-C()
+          , String-C("\"\"")
+          )
+        , AssignStmt-C(
+            FindKey-C(
+              Selector-C(
+                ["r"]
+              , Props-C([PropKv-C("tag", String-C("\"hey\""))])
+              , TypeInterface-C(None(), [InterfaceMemb-C("\"Name\"", TypeString-C())])
+              )
+            , "\"Name\""
+            )
+          , AssignOperatorEq-C()
+          , FindKey-C(
+              Selector-C(
+                ["r"]
+              , Props-C([])
+              , TypeInterface-C(None(), [InterfaceMemb-C("\"Name\"", TypeString-C())])
+              )
+            , "\"Name\""
+            )
+          )
+        , AssignStmt-C(
+            FindKey-C(
+              Selector-C(
+                ["e"]
+              , Props-C(
+                  [ PropCmp-C(
+                      "type"
+                    , CmpEqual-C()
+                    , ResInst-C(
+                        ResourcePropsPayl-C(
+                          IdentFull-C("minecraft", ["entity_type"])
+                        , IdentFull-C("minecraft", ["creeper"])
+                        , Props-C([])
+                        , NbtCompound-C([])
+                        )
+                      )
+                    )
+                  , PropKv-C("sort", String-C("\"random\""))
+                  , PropKv-C("limit", NumI-C("1"))
+                  ]
+                )
+              , TypeInterface-C(None(), [InterfaceMemb-C("\"ExplosionRadius\"", TypeInt-C())])
+              )
+            , "\"ExplosionRadius\""
+            )
+          , AssignOperatorEq-C()
+          , FindKey-C(
+              Selector-C(
+                ["e"]
+              , Props-C(
+                  [ PropCmp-C(
+                      "type"
+                    , CmpEqual-C()
+                    , ResInst-C(
+                        ResourcePropsPayl-C(
+                          IdentFull-C("minecraft", ["entity_type"])
+                        , IdentFull-C("minecraft", ["creeper"])
+                        , Props-C([])
+                        , NbtCompound-C([])
+                        )
+                      )
+                    )
+                  , PropKv-C("sort", String-C("\"random\""))
+                  , PropKv-C("limit", NumI-C("1"))
+                  ]
+                )
+              , TypeInterface-C(None(), [InterfaceMemb-C("\"ExplosionRadius\"", TypeInt-C())])
+              )
+            , "\"ExplosionRadius\""
+            )
+          )
+        ]
+      )
+    )
+  ]
+)

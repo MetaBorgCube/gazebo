@@ -1,0 +1,144 @@
+StartModule(
+  NSID("symposium", NSIDName([NSIDNamePart("hello")]))
+, [UseFrom(
+     NSIDRel(NSIDName([NSIDNamePart("text")]))
+   , [UseFromPartRegular("say")]
+   )]
+, [ Alias(
+      Selector("Dolphin", None())
+    , Selector(
+        "e"
+      , Some(
+          Props(
+            [ CmpProp(
+                "type"
+              , CmpEqual()
+              , ResourceBare(TRIdentAnonymous(NSIDRel(NSIDName([NSIDNamePart("dolphin")]))))
+              )
+            ]
+          )
+        )
+      )
+    )
+  , TypeDecl(
+      "Tree"
+    , TypeInterface(
+        [ InterfaceMember("v", TypeInt())
+        , InterfaceMember(
+            "children"
+          , TypeListDynamic(TypeRef(NSIDRel(NSIDName([NSIDNamePart("Tree")]))))
+          )
+        ]
+      )
+    )
+  , FnBlock(
+      FnSpec(
+        [Tag(NSIDShort(NSIDName([NSIDNamePart("tick")])))]
+      , []
+      , "hello"
+      , Sign(None(), None())
+      )
+    , Block(
+        [ ExecChain(
+            ExecAs(
+              Selector("Dolphin", Some(Props([IsProp(String("\"my_tag\""))])))
+            )
+          , ExecFin(
+              ExecPositionedPos(
+                Vec(
+                  VecElemAbs(NumI("0"))
+                , VecElemAbs(NumI("1"))
+                , VecElemAbs(NumI("2"))
+                )
+              )
+            , Block(
+                [ InvokeStmt(
+                    InvokeArgs(
+                      Ref(NSIDRel(NSIDName([NSIDNamePart("say")])))
+                    , Args([String("\"Hello!\"")])
+                    )
+                  )
+                ]
+              )
+            )
+          )
+        , Decl(
+            [DmodMut()]
+          , "array"
+          , ConstructExplicit(TypeArrayDynamic(TypeInt()), ConstructParameterized(Some(NumI("3"))))
+          )
+        , ForIn(
+            ["i"]
+          , amb(
+              [ InvokeArgs(
+                  RangeFull(
+                    NumI("0")
+                  , Ref(NSIDRel(NSIDName([NSIDNamePart("count")])))
+                  )
+                , Args([Ref(NSIDRel(NSIDName([NSIDNamePart("array")])))])
+                )
+              , RangeFull(
+                  NumI("0")
+                , InvokeArgs(
+                    Ref(NSIDRel(NSIDName([NSIDNamePart("count")])))
+                  , Args([Ref(NSIDRel(NSIDName([NSIDNamePart("array")])))])
+                  )
+                )
+              ]
+            )
+          , SingleStmt(
+              AssignEq(
+                FindIndex(
+                  Ref(NSIDRel(NSIDName([NSIDNamePart("array")])))
+                , Ref(NSIDRel(NSIDName([NSIDNamePart("i")])))
+                )
+              , Ref(NSIDRel(NSIDName([NSIDNamePart("i")])))
+              )
+            )
+          )
+        , Decl(
+            []
+          , "bst"
+          , ConstructExplicit(
+              TypeRef(NSIDRel(NSIDName([NSIDNamePart("Tree")])))
+            , ConstructNBT(
+                NBTCompound(
+                  [ KeyValue("v", NumI("5"))
+                  , KeyValue(
+                      "children"
+                    , ConstructInfer(
+                        ConstructNBT(
+                          NBTList(
+                            [ ConstructInfer(
+                                ConstructNBT(
+                                  NBTCompound(
+                                    [ KeyValue("v", NumI("2"))
+                                    , KeyValue("children", ConstructInfer(ConstructNBT(NBTList([]))))
+                                    ]
+                                  )
+                                )
+                              )
+                            , ConstructInfer(
+                                ConstructNBT(
+                                  NBTCompound(
+                                    [ KeyValue("v", NumI("8"))
+                                    , KeyValue("children", ConstructInfer(ConstructNBT(NBTList([]))))
+                                    ]
+                                  )
+                                )
+                              )
+                            ]
+                          )
+                        )
+                      )
+                    )
+                  ]
+                )
+              )
+            )
+          )
+        ]
+      )
+    )
+  ]
+)

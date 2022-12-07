@@ -1,0 +1,15 @@
+Start-C(
+  IdentFull-C("example", ["num_types"])
+, [ Function-C(
+      []
+    , "test"
+    , Signature-C([], TypeVoid-C())
+    , Block-C(
+        [ Decl-C(DeclKindVal-C(), "a", TypeLong-C(), NumL-C("1"))
+        , Decl-C(DeclKindVal-C(), "b", TypeByte-C(), NumB-C("1"))
+        , AssignStmt-C(RefLocal-C(IdentLocal-C("a")), AssignOperatorEq-C(), RefLocal-C(IdentLocal-C("b")))
+        ]
+      )
+    )
+  ]
+)

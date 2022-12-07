@@ -1,0 +1,11 @@
+module example:test
+
+func say(text String) {}
+
+func example
+{
+    if 1 > 4 and 2 > 5
+    {
+        say("Hello")
+    }
+}

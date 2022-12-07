@@ -1,0 +1,47 @@
+StartModule(
+  NSID("example"{TermIndex("data/example/gazebo/type_flat.gzb", 1)}, NSIDName([NSIDNamePart("type_flat"{TermIndex("data/example/gazebo/type_flat.gzb", 2)}){TermIndex("data/example/gazebo/type_flat.gzb", 3)}]{TermIndex("data/example/gazebo/type_flat.gzb", 6)}){TermIndex("data/example/gazebo/type_flat.gzb", 7)}){TermIndex("data/example/gazebo/type_flat.gzb", 8)}
+, []{TermIndex("data/example/gazebo/type_flat.gzb", 10)}
+, [ TypeDecl2Tli(TypeDecl("MyType"{TermIndex("data/example/gazebo/type_flat.gzb", 11)}, TypeInterface([InterfaceMember("a"{TermIndex("data/example/gazebo/type_flat.gzb", 12)}, TypeString(){TermIndex("data/example/gazebo/type_flat.gzb", 13)}){TermIndex("data/example/gazebo/type_flat.gzb", 14)}]{TermIndex("data/example/gazebo/type_flat.gzb", 17)}){TermIndex("data/example/gazebo/type_flat.gzb", 18)}){TermIndex("data/example/gazebo/type_flat.gzb", 19)}){TermIndex("data/example/gazebo/type_flat.gzb", 20)}
+  , TypeDecl2Tli(TypeDecl("MyEnum"{TermIndex("data/example/gazebo/type_flat.gzb", 21)}, TypeEnumUntyped(["A"{TermIndex("data/example/gazebo/type_flat.gzb", 22)}, "B"{TermIndex("data/example/gazebo/type_flat.gzb", 23)}]{TermIndex("data/example/gazebo/type_flat.gzb", 27)}){TermIndex("data/example/gazebo/type_flat.gzb", 28)}){TermIndex("data/example/gazebo/type_flat.gzb", 29)}){TermIndex("data/example/gazebo/type_flat.gzb", 30)}
+  , TypeDecl2Tli(
+      TypeDecl(
+        "MyEnumStr"{TermIndex("data/example/gazebo/type_flat.gzb", 31)}
+      , TypeEnumTyped(
+          TypeString(){TermIndex("data/example/gazebo/type_flat.gzb", 32)}
+        , [ EnumTypedMemb("A"{TermIndex("data/example/gazebo/type_flat.gzb", 33)}, Literal2Expr(String("\"a\""{TermIndex("data/example/gazebo/type_flat.gzb", 34)}){TermIndex("data/example/gazebo/type_flat.gzb", 35)}){TermIndex("data/example/gazebo/type_flat.gzb", 36)}){TermIndex("data/example/gazebo/type_flat.gzb", 37)}
+          , EnumTypedMemb("B"{TermIndex("data/example/gazebo/type_flat.gzb", 38)}, Literal2Expr(String("\"b\""{TermIndex("data/example/gazebo/type_flat.gzb", 39)}){TermIndex("data/example/gazebo/type_flat.gzb", 40)}){TermIndex("data/example/gazebo/type_flat.gzb", 41)}){TermIndex("data/example/gazebo/type_flat.gzb", 42)}
+          ]{TermIndex("data/example/gazebo/type_flat.gzb", 46)}
+        ){TermIndex("data/example/gazebo/type_flat.gzb", 47)}
+      ){TermIndex("data/example/gazebo/type_flat.gzb", 48)}
+    ){TermIndex("data/example/gazebo/type_flat.gzb", 49)}
+  , Fn2Tli(
+      FnBlock(
+        FnSpec(
+          []{TermIndex("data/example/gazebo/type_flat.gzb", 51)}
+        , []{TermIndex("data/example/gazebo/type_flat.gzb", 53)}
+        , "my_func"{TermIndex("data/example/gazebo/type_flat.gzb", 54)}
+        , Sign(
+            [ Params(
+                [ ParamGroup(
+                    [Param([]{TermIndex("data/example/gazebo/type_flat.gzb", 56)}, "my_param0"{TermIndex("data/example/gazebo/type_flat.gzb", 57)}){TermIndex("data/example/gazebo/type_flat.gzb", 58)}]{TermIndex("data/example/gazebo/type_flat.gzb", 61)}
+                  , TypeRef(NSIDRel(NSIDName([NSIDNamePart("MyType"{TermIndex("data/example/gazebo/type_flat.gzb", 62)}){TermIndex("data/example/gazebo/type_flat.gzb", 63)}]{TermIndex("data/example/gazebo/type_flat.gzb", 66)}){TermIndex("data/example/gazebo/type_flat.gzb", 67)}){TermIndex("data/example/gazebo/type_flat.gzb", 68)}){TermIndex("data/example/gazebo/type_flat.gzb", 69)}
+                  ){TermIndex("data/example/gazebo/type_flat.gzb", 70)}
+                , ParamGroup(
+                    [Param([]{TermIndex("data/example/gazebo/type_flat.gzb", 72)}, "my_param1"{TermIndex("data/example/gazebo/type_flat.gzb", 73)}){TermIndex("data/example/gazebo/type_flat.gzb", 74)}]{TermIndex("data/example/gazebo/type_flat.gzb", 77)}
+                  , TypeRef(NSIDRel(NSIDName([NSIDNamePart("MyEnum"{TermIndex("data/example/gazebo/type_flat.gzb", 78)}){TermIndex("data/example/gazebo/type_flat.gzb", 79)}]{TermIndex("data/example/gazebo/type_flat.gzb", 82)}){TermIndex("data/example/gazebo/type_flat.gzb", 83)}){TermIndex("data/example/gazebo/type_flat.gzb", 84)}){TermIndex("data/example/gazebo/type_flat.gzb", 85)}
+                  ){TermIndex("data/example/gazebo/type_flat.gzb", 86)}
+                , ParamGroup(
+                    [Param([]{TermIndex("data/example/gazebo/type_flat.gzb", 88)}, "my_param2"{TermIndex("data/example/gazebo/type_flat.gzb", 89)}){TermIndex("data/example/gazebo/type_flat.gzb", 90)}]{TermIndex("data/example/gazebo/type_flat.gzb", 93)}
+                  , TypeRef(NSIDRel(NSIDName([NSIDNamePart("MyEnumStr"{TermIndex("data/example/gazebo/type_flat.gzb", 94)}){TermIndex("data/example/gazebo/type_flat.gzb", 95)}]{TermIndex("data/example/gazebo/type_flat.gzb", 98)}){TermIndex("data/example/gazebo/type_flat.gzb", 99)}){TermIndex("data/example/gazebo/type_flat.gzb", 100)}){TermIndex("data/example/gazebo/type_flat.gzb", 101)}
+                  ){TermIndex("data/example/gazebo/type_flat.gzb", 102)}
+                ]{TermIndex("data/example/gazebo/type_flat.gzb", 107)}
+              ){TermIndex("data/example/gazebo/type_flat.gzb", 108)}
+            ]{TermIndex("data/example/gazebo/type_flat.gzb", 111)}
+          , []{TermIndex("data/example/gazebo/type_flat.gzb", 113)}
+          ){TermIndex("data/example/gazebo/type_flat.gzb", 114)}
+        ){TermIndex("data/example/gazebo/type_flat.gzb", 115)}
+      , Block([]{TermIndex("data/example/gazebo/type_flat.gzb", 117)}){TermIndex("data/example/gazebo/type_flat.gzb", 118)}
+      ){TermIndex("data/example/gazebo/type_flat.gzb", 119)}
+    ){TermIndex("data/example/gazebo/type_flat.gzb", 120)}
+  ]{TermIndex("data/example/gazebo/type_flat.gzb", 126)}
+){TermIndex("data/example/gazebo/type_flat.gzb", 127)}

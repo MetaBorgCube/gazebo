@@ -1,0 +1,18 @@
+Start-C(
+  IdentFull-C("example", ["match_statement"])
+, [ Function-C(
+      []
+    , "equivalent"
+    , Signature-C([], TypeVoid-C())
+    , Block-C(
+        [ Decl-C(DeclKindVal-C(), "subject", TypeInt-C(), NumI-C("123"))
+        , IfStmt-C(
+            Cmp-C(RefLocal-C(IdentLocal-C("subject")), CmpEqual-C(), NumI-C("1"))
+          , Block-C([Decl-C(DeclKindVal-C(), "asdf", TypeInt-C(), NumI-C("1"))])
+          , Block-C([Decl-C(DeclKindVal-C(), "asdf", TypeInt-C(), NumI-C("2"))])
+          )
+        ]
+      )
+    )
+  ]
+)

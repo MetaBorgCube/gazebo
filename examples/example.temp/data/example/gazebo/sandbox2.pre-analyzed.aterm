@@ -1,0 +1,88 @@
+StartModule(
+  NSID("example", NSIDName([NSIDNamePart("sandbox2")]))
+, [UseFrom(
+     NSIDRel(NSIDName([NSIDNamePart("sandbox")]))
+   , [UseFromPartRegular("shared")]
+   )]
+, [ Alias2Tli(GlobalAlias(Selector("e", []), Selector("e", [])))
+  , Fn2Tli(
+      FnBlock(
+        FnSpec([], [], "hello", Sign([], []))
+      , Block(
+          [ Assign2Statement(
+              AssignEq(
+                Find2Expr(
+                  FindPath(
+                    Expr2Expr-I(Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("shared")])))))
+                  , "a"
+                  )
+                )
+              , Construct2Expr(ConstructInfer(ConstructNBT(NBTList2NBT(NBTList([])))))
+              )
+            )
+          ]
+        )
+      )
+    )
+  , Fn2Tli(
+      FnBlock(
+        FnSpec([], [], "count_stuff", Sign([], []))
+      , Block(
+          [ Decl2Statement(
+              Decl(
+                []
+              , "list"
+              , NBT2Expr(
+                  NBTList2NBT(
+                    NBTList([Literal2Expr(NumI("1")), Literal2Expr(NumI("2"))])
+                  )
+                )
+              )
+            )
+          , Decl2Statement(
+              Decl(
+                []
+              , "array"
+              , NBT2Expr(NBTArray2NBT(NBTArrayAnonymous([Literal2Expr(NumI("4"))])))
+              )
+            )
+          , Decl2Statement(
+              Decl(
+                []
+              , "a"
+              , Count2Expr(
+                  Count(Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("list")])))))
+                )
+              )
+            )
+          , Decl2Statement(
+              Decl(
+                []
+              , "b"
+              , Count2Expr(
+                  Count(Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("array")])))))
+                )
+              )
+            )
+          , Decl2Statement(
+              Decl(
+                []
+              , "c"
+              , Count2Expr(
+                  Count(
+                    Selector2Expr(
+                      Selector(
+                        "e"
+                      , [Props([IsProp(Literal2Expr(String("\"example\"")))])]
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ]
+        )
+      )
+    )
+  ]
+)

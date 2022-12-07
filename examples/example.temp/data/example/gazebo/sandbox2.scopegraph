@@ -1,0 +1,146 @@
+scope graph
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_body_143-0 {
+    relations {
+      statics/common!ret : VOID()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_params_144-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_next_33-0 {
+    relations {
+      statics/common!memb : (("c", NSIDiRel(["c"]), MEMB_MODVARFN()), INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_next_32-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_next_34-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_next_33-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_next_167-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_body_143-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_params_144-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_mod_3-0 {
+    relations {
+      statics/common!memb : (("hello", NSIDiRel(["hello"]), MEMB_MODVARFN()), FUNC([], VOID()))
+                            (("count_stuff", NSIDiRel(["count_stuff"]), MEMB_MODVARFN()), FUNC([], VOID()))
+                            (("shared", NSIDiFull("example", ["sandbox", "shared"]), MEMB_MODVARFN()), COMPOUND(#/./data\/example\/gazebo\/sandbox.gzb-s_derived_493-0))
+      statics/common!currmod : (NSIDiFull("example", ["sandbox2"]), MOD(#/./data\/example\/gazebo\/sandbox2.gzb-s_mod_3-0))
+    }
+    edges {
+      statics/common!M : #/.-s_prj-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_tinj_173-0 {
+    relations {
+      statics/common!tinj : LIST(INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_body_143-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_next_30-0 {
+    relations {
+      statics/common!memb : (("array", NSIDiRel(["array"]), MEMB_MODVARFN()), ARRAY(INT()))
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_sel_446-0 {
+    relations {
+      statics/common!name_rel : "e"
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/sandbox2.gzb-s_sel_root_210-0
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_next_33-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_tinj_364-0 {
+    relations {
+      statics/common!tinj : UNK()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_tinj_342-0 {
+    relations {
+      statics/common!tinj : UNK()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_next_31-0 {
+    relations {
+      statics/common!memb : (("a", NSIDiRel(["a"]), MEMB_MODVARFN()), INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_next_32-0 {
+    relations {
+      statics/common!memb : (("b", NSIDiRel(["b"]), MEMB_MODVARFN()), INT())
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_next_31-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_tinj_351-0 {
+    relations {
+      statics/common!tinj : UNK()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_params_7-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_body_6-0 {
+    relations {
+      statics/common!memb : (("list", NSIDiRel(["list"]), MEMB_MODVARFN()), LIST(INT()))
+      statics/common!ret : VOID()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/sandbox2.gzb-s_params_7-0
+    }
+  }
+  #/.-s_prj-0 {
+    relations {
+      statics/common!alias : ("e", #/./data\/example\/gazebo\/sandbox2.gzb-s_sel_root_210-0)
+      statics/common!mod : (NSIDiFull("example", ["sandbox2"]), MOD(#/./data\/example\/gazebo\/sandbox2.gzb-s_mod_3-0))
+    }
+    edges {
+    }
+  }
+  #/./data\/example\/gazebo\/sandbox2.gzb-s_sel_root_210-0 {
+    relations {
+      statics/common!name_rel : "e"
+      statics/common!alias_root : 1
+    }
+    edges {
+    }
+  }

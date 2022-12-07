@@ -1,0 +1,32 @@
+module example:sudoku_stuff
+
+/*
+func fill(ref l [Bool], v Bool)
+{
+    for i <- 0..len(l) =>
+        l[i] = v
+}
+
+func example
+{
+    mut l := new [Bool: 5]
+    fill(l, true)
+}
+
+func example2
+{
+    mut l := [1, 2, 3]
+    l = new [Bool: 3]
+    n := 5
+    l = new [Bool: n]
+}
+*/
+
+func test_list_type_inference -> [Bool]
+{
+    const len := 1
+    mut l := [Bool]::(len)
+    for i <- 0..count(l) =>
+        l[i] = true
+    return l
+}

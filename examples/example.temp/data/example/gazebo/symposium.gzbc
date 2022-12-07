@@ -1,0 +1,38 @@
+module :(symposium, hello)
+registry static :(minecraft, entity_type) {
+  register :(minecraft, dolphin) {
+    data interface { GotFish Bool }
+  }
+}
+mixin Dolphin [
+  type == $(:(minecraft, entity_type), :(minecraft, dolphin), [], {})
+]
+const a : Int = 2I + 1I
+func hello() -> __VOID
+{
+  execute as(@(e, Dolphin, [tag = "my_tag"]))
+        , positioned(`abs(abs 0I, abs 1I, abs 2I))
+  {
+    if @(s, [])."GotFish" and 4I > :(symposium, hello a)
+    {
+      discard :(minecraft, text say)(text:String="Hello!");
+    }
+    else {;};
+  };
+  var array : [Int;] = __new(3I);
+  iterate ..(0I, __count(array)) as i
+  {
+    array.[i] = i * :(symposium, hello a);
+  };
+  val bst : 8`interface { children [`8], v Int } = {
+    "v": 5I,
+    "children": [:
+      :(symposium, hello leaf)(v:Int=2I),
+      :(symposium, hello leaf)(v:Int=4I)
+    ]
+  };
+}
+func leaf(val v Int) -> 10`interface { children [`10], v Int }
+{
+  return { "v": v, "children": [: ] };
+}

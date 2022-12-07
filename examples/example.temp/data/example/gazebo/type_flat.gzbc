@@ -1,0 +1,47 @@
+module :(example, type_flat)
+
+mixin MySelector [tag = "my_tag"]
+
+func my_func
+(
+    val my_param0 interface
+                  {
+                      b Int,
+                      b Float,
+                      a String
+                  },
+    val my_param1 2`interface
+                  {
+                      other interface
+                            {
+                                others [`2]
+                            }
+                  },
+    val my_param2 enum Int
+                  {
+                      B = :(myns, myname),
+                      A = :(myns, myname)
+                  },
+    val my_param3 enum String
+                  {
+                      B = :(myns, myname),
+                      A = :(myns, myname)
+                  }
+) -> __VOID
+{
+    ;
+}
+
+const my_list : [interface
+                 {
+                     b Float,
+                     a String
+                 }] = [: {
+    "a": "Hello",
+    "b": 123I
+}, {
+    "a": "World!",
+    "b": 456.0F
+}]
+
+const value_from_my_list : String = :(example, type_flat my_list).[0I]."a"

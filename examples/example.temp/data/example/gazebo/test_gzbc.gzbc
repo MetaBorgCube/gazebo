@@ -1,0 +1,75 @@
+module :(experiment, a)
+
+type MyEnum enum Int
+            {
+                a = 0I,
+                b = 1I,
+                c = 2I
+            }
+
+type MyInterface interface :
+                 {
+                     a String,
+                     b enum Float
+                       {
+                           X = 5I,
+                           Y = 3I
+                       }
+                 }
+
+mixin Programmer [tag = "programmer"]
+
+mixin SpecialProgrammer [tag = "special"]
+
+const use_special_programmer := @(e, e, a, Programmer, SpecialProgrammer, [tag = "OK"])
+
+const tliref := "hello"
+
+mixin y [level > |("say ", format( ) :(experiment, a tliref))]
+
+registry dynamic :(myns, ok)
+{
+}
+
+registry static :(minecraft, entity_type)
+{
+    register :(minecraft, player)
+    {
+        protocol_id 0
+    }
+    register :(minecraft, spider)
+    {
+        protocol_id 5
+    }
+}
+
+func a(val x String, val y String) -> String
+{
+    return x;
+}
+
+func b(val aa Int, const bc Int, val c Float) -> Float
+{
+    var local := "a";
+    discard :(experiment, a a)(local, :(experiment, a tliref));
+    local = "b";
+    const enumref := :(experiment, a MyEnum)::c;
+    var localenum := enum Int
+                     {
+                         A = 0I,
+                         B = 1I
+                     }::A;
+    localenum = ::B;
+    discard |("tellraw @r [", format(quote) :(experiment, a a), "]");
+    if 1I + 5I > 10I
+    {
+        execute anchored(feet)
+        {
+            return 50I;
+        };
+    }
+    else
+    {
+        ;
+    };
+}

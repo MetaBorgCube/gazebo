@@ -1,0 +1,14 @@
+module example:sandbox3
+
+func exec
+{
+    mut cnt := 0
+    as @e[is "tagged"]
+    positioned `(0 0 0) =>
+        cnt += 1
+}
+
+func say(text String)
+{
+    raw |say %text|
+}

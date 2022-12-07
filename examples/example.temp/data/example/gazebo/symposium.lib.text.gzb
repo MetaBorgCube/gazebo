@@ -1,0 +1,3 @@
+module symposium:text
+extern func say(text String)
+global alias @e = @e

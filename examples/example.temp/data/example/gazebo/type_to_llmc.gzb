@@ -1,0 +1,47 @@
+module example:type_to_llmc
+
+type Colors enum String
+{
+    RED = "red",
+    GREEN = "green",
+    BLUE = "blue"
+}
+
+func test_enum
+{
+    a := Colors::RED
+    b := enum Int {A=5}::A
+    c := enum{X,Y,Z}::Z
+}
+
+/* *** */
+
+type MyNestedEnum interface
+{
+    value enum { YES, NO }
+}
+
+func test_nested_enum
+{
+    mut a := MyNestedEnum::{value: ::NO}
+    a.value = ::YES
+}
+
+/* *** */
+
+type MyCyclicType interface { self [MyCyclicType] }
+
+func test_cyclic
+{
+    mut cyclic := MyCyclicType::{
+        self: ::[]
+    }
+    cyclic.self = ::[::{self: ::[]}]
+    flipped_inner := cyclic.self
+
+    mut a := 5
+    a = 3
+
+    b := {a: [1, 2, 3.4]}
+    c := b.a[1]
+}

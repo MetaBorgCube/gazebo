@@ -1,0 +1,224 @@
+scope graph
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0 {
+    relations {
+      statics/common!alias : ("Creeper", #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_108-0)
+      statics/common!currmod : (NSIDiFull("example", ["selector_context_typing"]), MOD(#/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0))
+      statics/common!memb : (("test", NSIDiRel(["test"]), MEMB_MODVARFN()), FUNC([], VOID()))
+    }
+    edges {
+      statics/common!M : #/.-s_prj-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_exec_body_74-0 {
+    relations {
+      statics/common!sender_selector : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_98-0
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_tinj_81-0 {
+    relations {
+      statics/common!tinj : INT()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_exec_body_74-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_body_6-0 {
+    relations {
+      statics/common!ret : VOID()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_params_7-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_alias'_364-0 {
+    relations {
+      statics/selectors!sel_selects_type : (COMPOUND(#/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_220-0), CanNotNarrow())
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_root_145-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_590-0 {
+    relations {
+      statics/selectors!sel_name : "r"
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_130-0
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registration_208-0 {
+    relations {
+      statics/common!regmeta : ("data", #/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_220-0)
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registry_155-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_130-0 {
+    relations {
+      statics/selectors!sel_root : 1
+      statics/selectors!sel_name : "e"
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_alias'_276-0
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_565-0 {
+    relations {
+      statics/selectors!sel_name : "s"
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_98-0
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_exec_body_74-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_108-0 {
+    relations {
+      statics/selectors!sel_name : "e"
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_alias'_364-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_184-0 {
+    relations {
+      statics/common!field : ("Name", STRING())
+    }
+    edges {
+      statics/common!B : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_llbc_anon_266-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_98-0 {
+    relations {
+      statics/selectors!sel_name : "e"
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_body_6-0
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_alias'_465-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_tinj_57-0 {
+    relations {
+      statics/common!tinj : STRING()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_220-0 {
+    relations {
+      statics/common!field : ("ExplosionRadius", INT())
+    }
+    edges {
+      statics/common!B : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_llbc_anon_264-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_tinj_38-0 {
+    relations {
+      statics/common!tinj : INT()
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_31-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_618-0 {
+    relations {
+      statics/selectors!sel_name : "Creeper"
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_31-0
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_108-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_params_7-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registry_155-0 {
+    relations {
+      statics/common!registration : (NSIDiFull("minecraft", ["creeper"]), #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registration_208-0)
+                                    (NSIDiFull("minecraft", ["player"]), #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registration_172-0)
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_30-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_body_6-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_31-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_30-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_alias'_276-0 {
+    relations {
+      statics/selectors!sel_selects_type : (COMPOUND(#/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_184-0), CanNotNarrow())
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_root_145-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_32-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_31-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_next_75-0 {
+    relations {
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_exec_body_74-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_alias'_465-0 {
+    relations {
+      statics/selectors!sel_selects_type : (COMPOUND(#/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_220-0), CanNotNarrow())
+    }
+    edges {
+      statics/common!A : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_root_145-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registration_172-0 {
+    relations {
+      statics/common!regmeta : ("data", #/./data\/example\/gazebo\/selector_context_typing.gzb-s_interf_184-0)
+    }
+    edges {
+      statics/common!P : #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registry_155-0
+    }
+  }
+  #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_root_145-0 {
+    relations {
+      statics/selectors!sel_root : 1
+      statics/selectors!sel_name : "e"
+    }
+    edges {
+    }
+  }
+  #/.-s_prj-0 {
+    relations {
+      statics/common!alias : ("e", #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_root_145-0)
+                             ("r", #/./data\/example\/gazebo\/selector_context_typing.gzb-s_sel_130-0)
+      statics/common!registry : (NSIDiFull("minecraft", ["entity_type"]), #/./data\/example\/gazebo\/selector_context_typing.gzb-s_registry_155-0)
+      statics/common!mod : (NSIDiFull("example", ["selector_context_typing"]), MOD(#/./data\/example\/gazebo\/selector_context_typing.gzb-s_mod_3-0))
+    }
+    edges {
+    }
+  }

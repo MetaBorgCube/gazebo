@@ -1,0 +1,72 @@
+StartModule(
+  NSID("minecraft", NSIDName([NSIDNamePart("entity")]))
+, []
+, [ TypeDecl("MobBase", TypeInterface([]))
+  , StaticRegistry(
+      RegistryName(NSID("minecraft", NSIDName([NSIDNamePart("entity_type")])))
+    , RegistryMeta(
+        [ RmeRegistration(
+            NSID("minecraft", NSIDName([NSIDNamePart("dolphin")]))
+          , RegistryMeta(
+              [ RmeProtocolId("14")
+              , RmeData(
+                  TypeInterfaceCompose(
+                    [TypeRef(NSIDRel(NSIDName([NSIDNamePart("MobBase")])))]
+                  , [InterfaceMember("GotFish", TypeBool())]
+                  )
+                )
+              ]
+            )
+          )
+        ]
+      )
+    )
+  , TypeDecl(
+      "A"
+    , TypeInterface(
+        [InterfaceMember(
+           "a"
+         , TypeListDynamic(TypeRef(NSIDRel(NSIDName([NSIDNamePart("A")]))))
+         )]
+      )
+    )
+  , GlobalAlias(Selector("e", None()), Selector("e", None()))
+  , GlobalAlias(Selector("a", None()), Selector("e", None()))
+  , Alias(
+      Selector("Dolphin", None())
+    , Selector(
+        "e"
+      , Some(
+          Props(
+            [ CmpProp(
+                "type"
+              , CmpEqual()
+              , ResourceBare(TRIdentAnonymous(NSIDRel(NSIDName([NSIDNamePart("dolphin")]))))
+              )
+            , IsProp(String("\"my_tag\""))
+            ]
+          )
+        )
+      )
+    )
+  , FnBlock(
+      FnSpec([], [], "exec_example", Sign(None(), None()))
+    , Block(
+        [ ExecChain(
+            ExecAs(Selector("Dolphin", None()))
+          , ExecChain(
+              ExecPositionedPos(
+                Vec(
+                  VecElemAbs(amb([NumI("-5"), NumD("-5")]))
+                , VecElemRel(None())
+                , VecElemRel(None())
+                )
+              )
+            , ExecFin(ExecAnchored(AnchorEyes()), Block([]))
+            )
+          )
+        ]
+      )
+    )
+  ]
+)

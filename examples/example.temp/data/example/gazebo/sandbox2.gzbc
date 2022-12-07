@@ -1,0 +1,25 @@
+module :(example, sandbox2)
+
+typeof :(example, sandbox shared) = interface
+                                    {
+                                        "a" [Int]
+                                    }
+
+#(:(minecraft, init)) #(:(example, my_tag))
+func hello
+(
+) -> __VOID
+{
+    :(example, sandbox shared)."a" = [: ];
+}
+
+func count_stuff
+(
+) -> __VOID
+{
+    val list : [Int] = [: 1I, 2I];
+    val array : [Int;] = [; 4I];
+    val a : Int = __count(list);
+    val b : Int = __count(array);
+    val c : Int = __count(@(e, [tag = "example"]));
+}

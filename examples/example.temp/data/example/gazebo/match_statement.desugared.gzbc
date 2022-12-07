@@ -1,0 +1,31 @@
+module :(example, match_statement)
+
+func example
+(
+) -> __VOID
+{
+    val _match$subj0 : Int = 123I;
+    if _match$subj0 (Int)==(Int) 1I
+    {
+        val asdf : Int = 1I;
+    }
+    else
+    {
+        val asdf : Int = 2I;
+    };
+}
+
+func equivalent
+(
+) -> __VOID
+{
+    val subject : Int = 123I;
+    if subject (Int)==(Int) 1I
+    {
+        val asdf : Int = 1I;
+    }
+    else
+    {
+        val asdf : Int = 2I;
+    };
+}

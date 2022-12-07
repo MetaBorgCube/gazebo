@@ -1,0 +1,39 @@
+module symposium:hello
+from text use say
+type MobBase interface {/*dummy*/}
+static registry $<minecraft:entity_type> {
+  register minecraft:dolphin {
+    protocol_id 14
+    data interface : MobBase {
+      GotFish Bool
+    }
+  }
+}
+// would normally be imported: from entity use summon
+extern func summon(pos `*Float, type $<entity_type>, state interface{})
+alias @Dolphin = @e[type==$dolphin]
+type Tree interface
+{
+  v Int
+  children [Tree]
+}
+const a := 2+1 // evaluated at compile time
+#tick // execute each game tick
+#:my_tag
+func hello
+{
+  as @Dolphin[is "my_tag"]
+  positioned `(0 1 2)
+  {
+    if @s.GotFish and 4 > a =>
+      say("Hello!")
+  }
+  mut array := [Int;]::(3)
+  for i <- 0..(count(array)) =>
+    array[i] = i*a
+  bst := Tree::{ v: 5, children: ::[
+    leaf(2), leaf(4)
+  ]}
+  //#:my_tag()
+}
+func leaf(v Int) -> Tree = ::{v: v, children: ::[]}

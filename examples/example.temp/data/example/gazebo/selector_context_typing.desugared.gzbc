@@ -1,0 +1,72 @@
+module :(example, selector_context_typing)
+
+registry static :(minecraft, entity_type)
+{
+    register :(minecraft, creeper)
+    {
+        data interface
+             {
+                 "ExplosionRadius" Int
+             }
+    }
+    register :(minecraft, player)
+    {
+        data interface
+             {
+                 "Name" String
+             }
+    }
+}
+
+mixin Creeper [type == $(:(minecraft, entity_type), :(minecraft, creeper), [ ], {
+                                                                                })]
+
+mixin SingleRandCreeper [sort = "random", limit = 1I]
+
+mixin R [ ]
+
+func test
+(
+) -> __VOID
+{
+    execute as(@(e, [type == $(:(minecraft, entity_type), :(minecraft, creeper), [ ], {
+                                                                                      })], interface
+                                                                                           {
+                                                                                               "ExplosionRadius" Int
+                                                                                           }))
+    {
+        @(s, [ ], interface
+                  {
+                      "ExplosionRadius" Int
+                  })."ExplosionRadius" = 100I;
+    };
+    @(r, [ ], interface
+              {
+                  "Name" String
+              })."Name" = "";
+    @(r, [tag = "hey"], interface
+                        {
+                            "Name" String
+                        })."Name" = @(r, [ ], interface
+                                              {
+                                                  "Name" String
+                                              })."Name";
+    @(e, [type == $(:(minecraft, entity_type), :(minecraft, creeper), [ ], {
+                                                                           }), sort = "random", limit = 1I], interface
+                                                                                                             {
+                                                                                                                 "ExplosionRadius" Int
+                                                                                                             })."ExplosionRadius" = @(e, [type == $(:(minecraft, entity_type), :(minecraft, creeper), [ ], {
+                                                                                                                                                                                                           }), sort = "random", limit = 1I], interface
+                                                                                                                                                                                                                                             {
+                                                                                                                                                                                                                                                 "ExplosionRadius" Int
+                                                                                                                                                                                                                                             })."ExplosionRadius";
+    val _match$subj1 : Int = 123I;
+    if _match$subj1 == 1I
+    {
+        val asdf : Int = 1I;
+    }
+    else
+    {
+        val asdf : Int = 2I;
+    };
+}

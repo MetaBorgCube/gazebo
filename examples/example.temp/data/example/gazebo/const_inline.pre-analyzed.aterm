@@ -1,0 +1,46 @@
+StartModule(
+  NSID("example", NSIDName([NSIDNamePart("const_inline")]))
+, []
+, [ Fn2Tli(
+      FnBlock(
+        FnSpec([], [], "test_1", Sign([], []))
+      , Block(
+          [ Decl2Statement(Decl([DmodMut()], "c", Literal2Expr(NumI("10"))))
+          , Decl2Statement(Decl([DmodMut()], "flag", Literal2Expr(BoolT())))
+          , For2Statement(
+              ForWhile(
+                Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("flag")]))))
+              , Block(
+                  [ Assign2Statement(
+                      AssignAdd(
+                        Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("c")]))))
+                      , Literal2Expr(NumI("20"))
+                      )
+                    )
+                  , Assign2Statement(
+                      AssignEq(
+                        Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("flag")]))))
+                      , Literal2Expr(BoolF())
+                      )
+                    )
+                  ]
+                )
+              )
+            )
+          , RawStmt(
+              Raw(
+                [RawPart("say "), InterpolateID(Ref(NSIDRel(NSIDName([NSIDNamePart("c")]))))]
+              )
+            )
+          , Assign2Statement(
+              AssignEq(
+                Ref2Expr(Ref(NSIDRel(NSIDName([NSIDNamePart("c")]))))
+              , Literal2Expr(NumI("5"))
+              )
+            )
+          ]
+        )
+      )
+    )
+  ]
+)

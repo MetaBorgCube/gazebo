@@ -1,0 +1,5 @@
+module example:sandbox4
+
+func say_list(items [String]) => for s <- items => say(s)
+
+func say(text String) {}

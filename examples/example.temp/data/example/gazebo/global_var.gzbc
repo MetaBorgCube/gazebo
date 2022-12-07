@@ -1,0 +1,19 @@
+module :(example, global_var)
+
+typeof :(example, global_var my_var) = Int
+
+typeof :(example, global_var my_var) = Int
+
+typeof :(example, global_var my_first) = Int
+
+var my_first : Int = 4I
+
+var my_var : Int = 1I + :(example, global_var my_first)
+
+func example
+(
+) -> __VOID
+{
+    :(example, global_var my_var) = 2I;
+    :(example, global_var my_var) = 3I;
+}

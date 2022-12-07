@@ -1,0 +1,18 @@
+module example:const_inline
+
+func test_1
+{
+    mut c := 1
+    
+    mut flag := true
+    for flag
+    {
+        c += 20
+        flag = false
+    }
+    
+    // should be compiled as "say 21"
+    raw |say %c|
+    
+    c = 5
+}

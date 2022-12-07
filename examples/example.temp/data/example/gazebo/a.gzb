@@ -1,0 +1,26 @@
+module example:a
+
+type A interface {
+    b [A]
+}
+
+type B interface {
+    a enum { X, Y }
+}
+
+func hello
+{
+    b(::B)
+    mut a := A::{b: ::[]}
+    a = ::{b: ::[]}
+    
+    mut c := B::{a: ::X}
+    c.a = ::Y
+}
+
+#tick
+#:my_tag
+func b(num enum Int {A=1,B=5}) -> Int
+{
+    // do something
+}
